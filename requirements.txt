@@ -1,0 +1,4 @@
+lark-parser>=0.4.1
+numpy>=1.0.0
+h5py>=2.7.1
+# matplotlib>=2.1.0

@@ -1,0 +1,26 @@
+dimension overrideVertices overrideEdges = dimension
+
+zero overrideVertices overrideEdges = 0
+
+max = max(faceWeights)
+
+max3 = max(faceWeights)
+
+max_plus_one = max(faceWeights) + 1
+
+product = product(faceWeights)
+
+sum = sum(faceWeights)
+
+pmean = max(faceWeights) + sum(faceWeights, x -> x^2)^(1/2) / (dimension + 1)
+
+pmoment = max(faceWeights) + sum(faceWeights, x -> (x - sum(faceWeights)/(dimension + 1))^2)^(1/2) / (dimension + 1)
+
+remove_edges = cases:
+  dim 0: 0
+  dim 1: error "Please provide a graph with random weights on the edges."
+  else: max(faceWeights)
+
+vertex_degree overrideVertices overrideEdges = cases:
+  dim 0:  -1 * (vertexOutDegrees[cellVertices[0]] + vertexInDegrees[cellVertices[0]])
+  else:   max(faceWeights)

@@ -1,0 +1,410 @@
+\documentclass{amsart}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[]{amsmath}
+\usepackage{amsthm}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{exscale}
+\usepackage{textcomp}
+\usepackage[all,ps,tips,tpic]{xy}
+\usepackage{upgreek}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage[final,pdftex,colorlinks=false,pdfborder={0 0 0}]{hyperref}
+\usepackage{microtype}
+\usepackage{verbatim}
+\usepackage{soul}
+
+\theoremstyle{definition}
+\newtheorem*{example*}{Example}
+
+%spacing around left-right brackets
+\let\originalleft\left
+\let\originalright\right
+\renewcommand{\left}{\mathopen{}\mathclose\bgroup\originalleft}
+\renewcommand{\right}{\aftergroup\egroup\originalright}
+
+\begin{document}
+\title{Documentation: flagser}
+
+\author{Daniel Lütgehetmann}
+\address{University of Aberdeen, Aberdeen, United Kingdom}
+\email{daniel.lutgehetmann@abdn.ac.uk}
+\urladdr{https://homepages.abdn.ac.uk/daniel.lutgehetmann/pages/}
+
+\maketitle
+
+\noindent
+The software \textsc{flagser} is an adaptation of Ulrich Bauer's
+\href{https://github.com/Ripser/ripser}{\textsc{ripser}}, enabling the computation of persistent
+homology for directed flag complexes with different filtrations.
+
+\section{Requirements}
+\noindent
+\textsc{flagser} requires a C++14 compiler and \textsc{CMake}.
+For custom filtration algorithms, additionally \textsc{python} (including $\textsc{pip}$) are required.
+To see the \textsc{python} packages needed in this case, see \texttt{requirements.txt}.
+If you want to read .h5 files, you need to install the HDF5 library as well (https://support.hdfgroup.org/HDF5/).
+
+\section{Compiling the source code}
+\noindent
+Open the command line, change into the \textsc{flagser} main directoy and execute
+
+\vspace{1em}
+
+\begin{verbatim}(mkdir -p build && cd build && cmake .. && make -j)\end{verbatim}
+
+\vspace{1em}
+
+\noindent
+\textit{Specific for MacOS:} on the first run, you may be asked to install the XCode Developer Tools, which you should confirm.
+After the automatic installation finished, just run the command above again.
+For the preinstalled \textsc{python} there might be problems installing the necessary libraries.
+If the compilation is not successful, execute \texttt{sudo easy\_install pip} and try again.
+
+\section{Usage}
+\noindent
+After building \textsc{flagser}, you can compute persistent homology as follows:
+
+\vspace{1em}
+
+\begin{verbatim}./flagser [options] filename\end{verbatim}
+
+\vspace{1em}
+
+You can slightly increase the speed of computation by using more memory:
+
+\vspace{1em}
+
+\begin{verbatim}./flagser-memory [options] filename\end{verbatim}
+
+\vspace{1em}
+
+\noindent
+The following \texttt{[options]} exist:
+
+\enlargethispage{\baselineskip}
+\begin{description}
+  \item [-{}-out \textit{filename}] write the barcodes to the given file
+  \item [-{}-out-format \textit{format}] the output format, which is either \texttt{barcodes} or
+    \texttt{betti}. The default is \texttt{barcodes}
+  \item [-{}-in-format \textit{format}] the input format, which is either \texttt{h5} for HDF5 files
+    or \texttt{flagser} for a \textsc{flagser} file (see below). For the h5 input format the HDF5
+    library needs to be installed before building the source code. The format defaults to
+    \texttt{flagser}
+  \item [-{}-h5-type \textit{type}] the type of data in the h5-file. The type can either be
+    \texttt{"matrix"} if at the given path in the HDF5-file there is the connectivity matrix or \texttt{"grouped"}
+    if the connectivity matrices are grouped. To only consider a subset of the groups you can list
+    them after \texttt{"grouped"}, e.g. \texttt{"grouped:L1\_DAC,L2*"}. The star is a placeholder for
+    arbitrary characters. The type defaults to \texttt{"matrix"} and is only relevant for the input
+    type \texttt{h5}
+  \item [-{}-filtration \textit{algorithm}] use the specified algorithm to compute the filtration. \textbf{Warning}:
+  if an edge filtration is specified, it is assumed that the resulting filtration is consistent, meaning that the
+  filtration value of every simplex of dimension at least two should evaluate to a value that is at least the
+  maximal value of the filtration values of its containing edges. For performance reasons, this is not checked
+  automatically.
+  \item [-{}-max-dim \textit{dim}] the maximal homology dimension to be computed
+  \item [-{}-min-dim \textit{dim}] the minimal homology dimension to be computed
+  \item [-{}-approximate \textit{n}] skip all cells creating columns in the reduction matrix with
+    more than $n$ entries. Use this for hard problems, a good value is often 100000. Increase for
+    higher precision, decrease for faster computation
+  \item [-{}-components] compute the directed flag complex for each individual connected
+    component of the input graph. \emph{Warning: this currently only works for the trivial
+    filtration. Additionally, this ignores all isolated vertices.}
+  \item [-{}-help] print a help screen
+\end{description}
+The available filtration algorithms are printed when executing \texttt{./flagser --help}.
+For the input format \texttt{h5}, you can select the path inside the h5-file by appending it to the
+filename, e.g.\ \texttt{./flagser \ldots filename.h5/experiment1/connectivity}.
+
+\vspace{1em}
+
+\noindent
+The input file defines the directed graph and must have the following shape (if the option
+\texttt{-{}-h5} is not used):
+
+\vspace{.5em}
+\begin{verbatim}
+dim 0:
+weight_vertex_0 weight_vertex_1 ...  weight_vertex_n
+dim 1:
+first_vertex_id_of_edge_0 second_vertex_id_of_edge_0 [weight_edge_0]
+first_vertex_id_of_edge_1 second_vertex_id_of_edge_1 [weight_edge_1]
+...
+first_vertex_id_of_edge_m second_vertex_id_of_edge_m [weight_edge_m]
+\end{verbatim}
+\vspace{.5em}
+
+\noindent
+The edges are oriented to point from the first vertex to the second vertex, the weights of the edges
+are optional.
+The weights should be rational numbers.
+
+\begin{example*}
+  The full directed graph on three vertices without explicit edge weights is described by the
+  following input file:
+
+  \vspace{.5em}
+  \begin{verbatim}
+  dim 0:
+  0.2 0.522 4.9
+  dim 1:
+  0 1
+  1 0
+  0 2
+  2 0
+  1 2
+  2 1
+  \end{verbatim}
+\end{example*}
+
+\section{Tools}
+You can use the following tools to generate input matrices for \textsc{flagser}.
+
+\subsection{H5 to \textsc{flagser}}
+To convert a connection matrix in the H5-format to an input file for \textsc{flagser}, call
+
+\noindent
+\verb| |\texttt{\qquad./tools/h5toflagser [--groups \textit{"GROUP1,GROUP2,\dots"}]} \\
+\verb| |\texttt{\qquad\qquad[--random-edge-filtration] \textit{h5file} \textit{output\_filename}}
+
+With the parameter \texttt{groups} you can extract the subgraph consisting only of neurons in the
+given groups, otherwise the full graph is constructed. You can use a star in the group names to
+match multiple groups, e.g.\ \texttt{--groups "L5\_*"} matches all groups in layer 5.
+If you pass the parameter \texttt{--random-edge-filtration}, then each edge is assigned a random
+weight in $[0,1]$.
+
+\begin{example*}
+  To construct the full second column of the average rat, run
+
+  \begin{verbatim}
+    ./tools/h5toflagser cons_locs_pathways_mc2_Column.h5
+          cons_locs_pathways_mc2_Column.flag
+  \end{verbatim}
+
+  To only extract layer 4 and layer 5, run
+
+  \begin{verbatim}
+    ./tools/h5toflagser --groups "L4_*,L5_*"
+          cons_locs_pathways_mc2_Column.h5
+          cons_locs_pathways_mc2_Column.flag
+  \end{verbatim}
+\end{example*}
+
+\subsection{Erdős–Rényi graphs}
+To construct an Erdős–Rényi graph on $n$ vertices with density $d\in[0,1]$, call
+
+\noindent
+\verb| |\qquad\texttt{./tools/er
+[--density \textit{d}] [--random-edge-filtration] \textit{n} \textit{output\_filename}}
+
+\noindent
+If the density is not specified, it is assumed to be $d=1$.
+If you pass the parameter \texttt{--random-edge-filtration}, then each edge is assigned a random
+weight in $[0,1]$.
+
+\begin{example*}
+  Calling \texttt{./tools/er --density 0.314 20 er-20.flag} creates the \textsc{flagser} input file
+  for a graph on 20 vertices where $31.4\%$ of all \emph{directed} edges are present.
+\end{example*}
+
+\subsection{Counting flag complex cells}
+To just count the number of cells of the directed flag complex, call
+
+\noindent
+\verb| |\qquad\texttt{./flagser-count [options] \textit{input\_filename}}
+You can use the same input options as for \texttt{flagser}. If you specify an output file by
+
+\noindent
+\verb| |\qquad\texttt{./flagser-count --out filename.h5 \ldots}
+
+\noindent
+then a list of cells is saved into an existing or new HDF5-file. If you specify \texttt{--out
+filename.h5/some/path}, then the data will be written into the subgroup \texttt{/some/path}.
+
+\section{Writing custom filtration algorithms}
+The filtration of the directed flag complex is computed by algorithms.
+Examples of such algorithms are \texttt{max} (assigning each cell the maximal weight of its
+boundary cells) and zero (assigning each cell the weight zero).
+To implement a custom algorithm you extend the file \texttt{algorithms.math} by another definition.
+This definition needs to be written in a special tiny programming language resembling mathematical
+notation.
+It is described in detail below, but here is an example:
+
+\begin{example*}
+The code
+\begin{verbatim}
+  square_mean = max(faceWeights)
+    + sum(faceWeights, x -> x^2)^(1/2) / (dimension + 1)
+\end{verbatim}
+assigns each cell $\sigma$ the weight
+\[
+  f(\sigma) = \max_{\nu\in\partial(\sigma)} f(\nu) +
+  \left(\Sigma_{\nu\in\partial(\sigma)} f(\nu)^2\right)^{1/2}\cdot
+  \frac{1}{\dim(\sigma) + 1}
+\]
+You can find more examples by looking at the built-in functions in \texttt{algorithms.math}.
+\end{example*}
+
+\subsection{Defining a filtration algorithm}
+To add a new filtration algorithm, think of a name (consisting only of the letters a to z and
+underscores) and add a new line of the form
+\begin{verbatim}
+your_chosen_name [overrideVertices] [overrideEdges]
+    = formula_to_compute_the_weight
+\end{verbatim}
+into \texttt{algorithms.math}, where \texttt{formula\_to\_compute\_the\_weight} is an expression
+as described in the next section.
+The optional keywords \texttt{overrideVertices} and \texttt{overrideEdges} indicate that the
+weights given to the vertices and edges in the input file are replaced by values computed
+via this algorithm.
+For example, the trivial filtration algorithm reads as follows:
+\begin{verbatim}
+zero overrideVertices overrideEdges = 0
+\end{verbatim}
+You have to recompile \textsc{flagser} by executing \texttt{make} again and can then use the new
+filtration algorithm by passing the option \texttt{--filtration your\_chosen\_name} to
+\textsc{flagser}.
+
+\subsection{The mathematical input language}
+The language for defining filtration algorithms is given in a special format, described in this
+section.
+You can use basic arithmetic expressions \verb|+, -, *, /, ^| and the exponential map \verb|exp( )|.
+In addition to that, you can access several constants like the dimension of the current cell or
+weights, as well as built-in functions.
+Below we give a list of all these available constants and commands.
+
+\vspace{1em}
+
+On the top level you can perform a case distinction by dimension:
+
+\noindent
+\textbf{cases: dim \textit{n1}: \textit{formula1} dim \textit{n2}: \textit{formula2} \ldots else:
+\textit{formula}}
+\begin{example*}
+  To assign vertices and edges the value 0 and all other faces their dimension as weights,
+  we would define
+  \begin{verbatim}
+  modified_dimension = cases:
+    dim 0: 0
+    dim 1: 0
+    else: dimension
+  \end{verbatim}
+\end{example*}
+If an algorithm requires a certain filtration to be provided by the input file (which is only
+reasonable for dimension 0 and 1 of course), then you can add an error message shown to the user
+whenever this data is missing by using \textbf{error~\textit{error\_message}}
+\begin{example*}
+  If you require weights for all vertices and edges, you write a filtration algorithm as
+  follows:
+  \begin{verbatim}
+  needs_vertex_and_edge_weights = cases:
+    dim 0: error "Please provide weights for the vertices."
+    dim 1: error "Please provide weights for the edges."
+    else: some_formula
+  \end{verbatim}
+\end{example*}
+
+As available constants for your formulas you can use the following:
+\begin{description}
+  \item[dimension] the dimension of the current cell
+  \item[faceWeights] the list of weights of the faces of the current cell
+  \item[cellVertices] the ordered list of vertices of the current cell
+  \item[vertexOutDegrees] the outgoing degrees of all vertices of the graph
+  \item[vertexInDegrees] the incoming degrees of all vertices of the graph
+  \item[vertexWeights] the weights of all vertices of the graph
+\end{description}
+\begin{example*}
+  You get individual entries of the lists above by appending \texttt{[index]} to them, e.g.
+  \begin{verbatim}  cellVertices[0]\end{verbatim}
+  gives the first vertex in the cell,
+  \begin{verbatim}  faceWeights[dimension]\end{verbatim}
+  gives the weight of the last face of the current cell and
+  \begin{verbatim}  vertexInDegrees[cellVertices[2]]\end{verbatim}
+  gives the incoming degree of the third (notice the indexing starting from zero) vertex of the
+  current cell.
+\end{example*}
+
+For the lists (except for the vertex degrees and the vertex weight) you can use the following
+functions:
+
+\noindent
+\textbf{min/max(\textit{list} [, \textit{from}, \textit{to}])}:
+These commands return the minimal and maximal element of the given list.
+If you pass \texttt{from} and \texttt{to}, the elements before \texttt{from} and after \texttt{to}
+are disregarded.
+If the specified part of the list is empty, then 0 is returned.
+\begin{example*}
+  The following examples show the usage of those two functions.
+  \begin{verbatim}
+  maximum = max(faceWeights)
+  maximum_plus_minimum_of_first_three_faces
+      = max(faceWeights) + min(faceWeights, 0, 2)
+  \end{verbatim}
+\end{example*}
+
+
+\noindent
+\textbf{sum/product(\textit{list} [, \textit{from}, \textit{to}] [, \textit{function}])}:
+These commands return the sum or the product of the elements in the given list.
+If you pass \texttt{from} and \texttt{to}, the elements before \texttt{from} and after \texttt{to}
+are disregarded.
+If the specified part of the list is empty, then 0 is returned.
+
+If you pass a \texttt{function}, each element is mapped through this function before adding or
+multiplying.
+A \textbf{function} is defined in the form \verb+x -> expression_in_x+, for example
+\begin{verbatim}
+    x -> x^2
+\end{verbatim}
+denotes the function that squares each element,
+\begin{verbatim}
+    z -> 3*z-5*exp(1/z)
+\end{verbatim}
+denotes the function $z\mapsto 3z-5e^{1/z}$.
+\begin{example*}
+  The following examples show the usage of those two functions.
+  \begin{verbatim}
+  sum = sum(faceWeights)
+  sum_squared = sum(faceWeights, 2, dimension, x -> x^2)
+  product_vertex_weights
+      = product(cellVertices, v -> vertexWeights[v])
+  \end{verbatim}
+\end{example*}
+
+\noindent
+\textbf{combine/reduce(\textit{list} [, \textit{from}, \textit{to}], \textit{function},
+\textit{initial\_value})}:
+These two commands are the same, and they combine elements in a list into a single number.
+If you pass \texttt{from} and \texttt{to}, the elements before \texttt{from} and after \texttt{to}
+are disregarded.
+If the specified part of the list is empty, then \texttt{initial\_value} is returned.
+
+The \texttt{function} you pass must take two elements and produce a third one, i.e.\ it must be of
+the form \verb+carry x -> expression_in_carry_and_x+.
+The first argument of the function is the accumulated result, the second one is the next value.
+In the first step, \texttt{initial\_value} is passed as the accumulated result.
+
+For example, we have the following equivalences:
+\begin{verbatim}
+  sum(array) == combine(array, carry x -> carry + x, 0)
+  product(array) == combine(array, carry x -> carry * x, 1)
+\end{verbatim}
+
+\begin{example*}
+  The following example shows the usage of this function.
+  \begin{verbatim}
+  squaring = combine(
+    faceWeights,
+    carry x -> (carry + x)^2,
+    vertexWeights[cellVertices[0]]
+  )
+  \end{verbatim}
+\end{example*}
+
+\vfill
+
+\end{document}
