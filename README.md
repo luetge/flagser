@@ -13,7 +13,7 @@ run flagser:
 ```sh
 git clone git@gitlab.com:luetge/flagser.git
 cd flagser
-make
+(mkdir -p build && cd build && cmake .. && make -j)
 ./test/run
 ```
 
