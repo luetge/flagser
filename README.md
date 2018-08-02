@@ -1,5 +1,7 @@
 # flagser
 
+Copyright © 2017–2018 Daniel Lütgehetmann.
+
 ### Description
 
 flagser computes the homology of directed flag complexes. For a more detailed
