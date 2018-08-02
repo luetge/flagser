@@ -7,7 +7,7 @@ description consult the documentation under `docs/documentation_flagser.pdf`.
 
 ### Building
 
-Flagser requires a C++11 compiler and python. Here is how to obtain, build, and
+Flagser requires a C++14 compiler and cmake. Here is how to obtain, build, and
 run flagser:
 
 ```sh
