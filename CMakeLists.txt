@@ -48,6 +48,11 @@ add_executable(flagser-coefficients-memory src/flagser.cpp include/algorithms.h)
 target_compile_definitions(flagser-coefficients-memory PRIVATE USE_COEFFICIENTS=1 KEEP_FLAG_COMPLEX_IN_MEMORY=1)
 add_dependencies(flagser-coefficients-memory generate_custom_algorithms)
 
+add_executable(ripser src/ripser.cpp)
+
+add_executable(ripser-coefficients src/ripser.cpp)
+target_compile_definitions(ripser-coefficients PRIVATE USE_COEFFICIENTS=1)
+
 add_executable(flagser-count src/flagser-count.cpp)
 
 add_executable(er src/er.cpp)
@@ -63,6 +68,8 @@ TARGET_LINK_LIBRARIES(flagser-memory ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(flagser-coefficients-memory ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(flagser-count ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(er ${HDF5_LIBRARIES})
+TARGET_LINK_LIBRARIES(ripser ${HDF5_LIBRARIES})
+TARGET_LINK_LIBRARIES(ripser-coefficients ${HDF5_LIBRARIES})
 
 install(TARGETS flagser flagser-coefficients flagser-memory flagser-coefficients-memory flagser-count RUNTIME DESTINATION bin)
 
@@ -81,6 +88,12 @@ add_custom_command(
 add_custom_command(
     TARGET flagser-count POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser-count ${CMAKE_SOURCE_DIR})
+add_custom_command(
+    TARGET ripser POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ripser ${CMAKE_SOURCE_DIR})
+add_custom_command(
+    TARGET ripser-coefficients POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ripser-coefficients ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET er POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/er ${CMAKE_SOURCE_DIR}/tools)

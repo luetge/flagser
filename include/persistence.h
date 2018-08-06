@@ -397,8 +397,8 @@ template <typename Entry, typename Complex> struct greater_filtration_or_better_
 		if (get_filtration(a) > get_filtration(b)) return true;
 		if (get_filtration(a) < get_filtration(b)) return false;
 
-		const auto& ta = get_coboundary_size_and_gap_and_pivot(get_index(a));
-		const auto& tb = get_coboundary_size_and_gap_and_pivot(get_index(b));
+		const auto& ta = get_coboundary_size_and_gap_and_pivot(a);
+		const auto& tb = get_coboundary_size_and_gap_and_pivot(b);
 
 		// Then the number of non-trivial coboundary entries
 		if (std::get<0>(ta) < std::get<0>(tb)) return true;
@@ -424,7 +424,7 @@ private:
 	// reduction chains.
 	// The second sort criterium is for it to be small because the small pivots will be
 	// used the most.
-	std::tuple<size_t, size_t, index_t> get_coboundary_size_and_gap_and_pivot(index_t a) const {
+	std::tuple<size_t, size_t, index_t> get_coboundary_size_and_gap_and_pivot(filtration_entry_t a) const {
 		// Look at the first two gaps of the pivot and the next element
 		index_t pivot = 0;
 		size_t gap_after_pivot = 0;
@@ -756,7 +756,7 @@ protected:
 #endif
 					coface_entries.clear();
 
-					auto coboundary = complex.coboundary(get_index(cell));
+					auto coboundary = complex.coboundary(cell);
 
 					while (coboundary.has_next()) {
 						filtration_entry_t coface = coboundary.next();

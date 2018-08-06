@@ -1,6 +1,6 @@
 DerivedData
 ripser
-ripser-coeff
+ripser-coefficients
 er
 flagser
 flagser-debug
@@ -8,8 +8,6 @@ flagser-memory
 flagser-count
 flagser-coefficients
 flagser-coefficients-memory
-pathhom
-pathhom-count
 *.dSYM
 *.flag
 *.homology
@@ -19,6 +17,5 @@ pathhom-count
 test/tmp
 include/algorithms.h
 *.vscode
-.install-consent
 .cache
 build/

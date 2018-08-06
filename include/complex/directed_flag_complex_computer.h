@@ -18,18 +18,21 @@ template <typename Complex> class coboundary_iterator_t {
 	short dimension;
 	const compressed_sparse_matrix<entry_t>& matrix;
 	const index_t index;
+  const coefficient_t coefficient;
+  const coefficient_t modulus;
 	size_t current_offset = 0;
 
 public:
 	coboundary_iterator_t(const Complex* _complex, short _dimension, const compressed_sparse_matrix<entry_t>& _matrix,
-	                      index_t _index)
-	    : complex(_complex), dimension(_dimension), matrix(_matrix), index(_index) {}
+	                      index_t _index, coefficient_t _coefficient, coefficient_t _modulus)
+	    : complex(_complex), dimension(_dimension), matrix(_matrix), index(_index), coefficient(_coefficient), modulus(_modulus) {}
 
 	bool has_next() { return index != -1 && matrix.cbegin(index) + current_offset != matrix.cend(index); }
 
 	filtration_entry_t next() {
 		entry_t entry = *(matrix.cbegin(index) + current_offset++);
-		return std::make_pair(complex->filtration(dimension + 1, get_index(entry)), entry);
+    coefficient_t coface_coefficient = get_coefficient(entry) * coefficient % modulus;
+		return filtration_entry_t(complex->filtration(dimension + 1, get_index(entry)), get_index(entry), coface_coefficient);
 	}
 };
 
@@ -263,16 +266,16 @@ public:
 	// Note: Gets called with consecutive dimensions, starting with zero
 	void prepare_next_dimension(int dimension);
 
-	inline coboundary_iterator_t<directed_flag_complex_computer_t> coboundary(index_t cell) {
+	inline coboundary_iterator_t<directed_flag_complex_computer_t> coboundary(filtration_entry_t cell) {
 		if (current_dimension > max_dimension || is_top_dimension()) {
 			return coboundary_iterator_t<directed_flag_complex_computer_t>(this, current_dimension,
-			                                                               coboundary_matrix[0], -1);
+			                                                               coboundary_matrix[0], -1, 1, modulus);
 		}
 
 		int i = 0;
-		while (i < PARALLEL_THREADS - 1 && coboundary_matrix_offsets[i + 1] <= cell) { i++; }
+		while (i < PARALLEL_THREADS - 1 && coboundary_matrix_offsets[i + 1] <= get_index(cell)) { i++; }
 		return coboundary_iterator_t<directed_flag_complex_computer_t>(this, current_dimension, coboundary_matrix[i],
-		                                                               cell - coboundary_matrix_offsets[i]);
+		                                                               get_index(cell) - coboundary_matrix_offsets[i], get_coefficient(cell), modulus);
 	}
 
 	bool is_top_dimension() { return _is_top_dimension; }

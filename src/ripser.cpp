@@ -40,12 +40,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <unordered_map>
 
-#ifdef USE_COEFFICIENTS
-coefficient_t modulus = 2;
-#else
-const coefficient_t modulus = 2;
-#endif
-
 class binomial_coeff_table {
 	std::vector<std::vector<index_t>> B;
 	index_t n_max, k_max;
@@ -311,13 +305,14 @@ template <typename DistanceMatrix> class vietoris_rips_complex_t {
 	rips_filtration_comparator<DistanceMatrix>* next_comparator = nullptr;
 	DistanceMatrix& distance_matrix;
 	binomial_coeff_table binomial_coeff;
+  coefficient_t modulus;
 
 	mutable std::vector<index_t> _vertices_of_edge;
 
 public:
-	vietoris_rips_complex_t(DistanceMatrix& _distance_matrix, unsigned short _max_dimension)
+	vietoris_rips_complex_t(DistanceMatrix& _distance_matrix, unsigned short _max_dimension, coefficient_t _modulus)
 	    : distance_matrix(_distance_matrix), n(_distance_matrix.size()), max_dimension(_max_dimension),
-	      binomial_coeff(n, _max_dimension + 2), _vertices_of_edge(2, 0) {}
+	      binomial_coeff(n, _max_dimension + 2), _vertices_of_edge(2, 0), modulus(_modulus) {}
 
 	size_t number_of_cells(int dimension) const { return binomial_coeff(n, dimension + 1); }
 
@@ -353,11 +348,12 @@ public:
 	}
 
 	inline simplex_coboundary_enumerator<DistanceMatrix> coboundary(filtration_entry_t cell) {
-		return simplex_coboundary_enumerator<DistanceMatrix>(cell, current_dimension, n, modulus, distance_matrix,
-		                                                     binomial_coeff);
+		return simplex_coboundary_enumerator<DistanceMatrix>(cell, current_dimension, n, modulus, distance_matrix, binomial_coeff);
 	}
 
 	bool is_top_dimension() { return false; }
+
+  size_t top_dimension() { return n - 1; }
 
 	// Partial result output
 	void computation_result(int dimension, long long betti, long long skipped) {}
@@ -600,13 +596,12 @@ int main(int argc, char** argv) {
 
 	dim_max = std::min(dim_max, n - 2);
 
-	vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max);
+	vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max, modulus);
 
 	auto arguments = parse_arguments(argc, argv);
 	auto positional_arguments = get_positional_arguments(arguments);
 	auto named_arguments = get_named_arguments(arguments);
-	output_t* output = get_output(vietoris_rips_complex, named_arguments);
-	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output, dim_max,
-	                                                                             threshold, 0);
+	auto* output = get_output<decltype(vietoris_rips_complex)>(named_arguments);
+	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output, dim_max, threshold, 0);
 	persistence_computer.compute_persistence(0, std::numeric_limits<unsigned short>::max());
 }

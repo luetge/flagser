@@ -63,3 +63,7 @@ void print_ram_usage(std::string msg = "") {
 #else
 void print_ram_usage(std::string msg = "") { std::cerr << "Sorry, can only print ram on MacOS for now." << std::endl; }
 #endif
+
+#ifndef USE_COEFFICIENTS
+const coefficient_t modulus = 2;
+#endif
