@@ -475,15 +475,15 @@ public:
 	void set_print_betti_numbers(bool print_betti_numbers) { print_betti_numbers_to_console = print_betti_numbers; }
 
 	void compute_persistence(unsigned short min_dimension = 0,
-	                         unsigned short max_dimension = std::numeric_limits<unsigned short>::max()) {
+	                         unsigned short max_dimension = std::numeric_limits<unsigned short>::max(), bool check_euler_characteristic = true) {
 		compute_zeroth_persistence(min_dimension, max_dimension);
 		compute_higher_persistence(min_dimension, max_dimension);
 		complex.finished();
-		output->finished();
+		output->finished(check_euler_characteristic);
 
 		// Sanity check whether there were any problems computing the homology
 		bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
-		if (computed_full_homology && max_entries == std::numeric_limits<size_t>::max()) {
+		if (check_euler_characteristic && computed_full_homology && max_entries == std::numeric_limits<size_t>::max()) {
 			index_t cell_euler_characteristic = 0;
 			for (size_t i = 0; i <= complex.top_dimension(); i++)
 				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * complex.number_of_cells(i);
@@ -500,7 +500,7 @@ public:
 	}
 
 protected:
-	void compute_zeroth_persistence(unsigned short min_dimension, unsigned short max_dimension) {
+	void compute_zeroth_persistence(unsigned short min_dimension, unsigned short) {
 		complex.prepare_next_dimension(0);
 
 		// Only compute this if we actually need it

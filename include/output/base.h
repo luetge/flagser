@@ -10,7 +10,7 @@ template <typename Complex> class output_t {
 public:
 	virtual void set_complex(Complex* complex){};
 	virtual void print(std::string s){};
-	virtual void finished(){};
+	virtual void finished(bool with_cell_counts){};
 	virtual void computing_barcodes_in_dimension(unsigned short dimension){};
 	virtual void new_barcode(value_t birth, value_t death){};
 	virtual void new_infinite_barcode(value_t birth){};

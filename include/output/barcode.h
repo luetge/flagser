@@ -25,16 +25,19 @@ public:
 
 	void set_complex(Complex* _complex) { complex = _complex; }
 
-	void finished() {
-		index_t cell_euler_characteristic = 0;
-		for (size_t i = 0; i <= complex->top_dimension(); i++)
-			cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * complex->number_of_cells(i);
+	void finished(bool with_cell_counts = true) {
 
-		bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
-		if (computed_full_homology) {
-			file_output_t<Complex>::outstream << std::endl;
-			file_output_t<Complex>::outstream << "# Euler characteristic: " << cell_euler_characteristic << std::endl;
-		}
+		index_t cell_euler_characteristic = 0;
+    if (with_cell_counts) {
+        for (size_t i = 0; i <= complex->top_dimension(); i++)
+          cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * complex->number_of_cells(i);
+
+        bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
+        if (computed_full_homology) {
+          file_output_t<Complex>::outstream << std::endl;
+          file_output_t<Complex>::outstream << "# Euler characteristic: " << cell_euler_characteristic << std::endl;
+        }
+    }
 
 		file_output_t<Complex>::outstream << std::endl;
 		file_output_t<Complex>::outstream << "# Betti numbers:" << std::endl;
@@ -45,11 +48,13 @@ public:
 			file_output_t<Complex>::outstream << std::endl;
 		}
 
-		file_output_t<Complex>::outstream << std::endl;
-		file_output_t<Complex>::outstream << "# Cell counts:" << std::endl;
-		for (size_t i = std::max(0, min_dimension - 1); i <= complex->top_dimension(); i++)
-			file_output_t<Complex>::outstream << "#\t\tdim C_" << i << " = " << complex->number_of_cells(i)
-			                                  << std::endl;
+    if (with_cell_counts) {
+        file_output_t<Complex>::outstream << std::endl;
+        file_output_t<Complex>::outstream << "# Cell counts:" << std::endl;
+        for (size_t i = std::max(0, min_dimension - 1); i <= complex->top_dimension(); i++)
+          file_output_t<Complex>::outstream << "#\t\tdim C_" << i << " = " << complex->number_of_cells(i)
+                                            << std::endl;
+    }
 	}
 	void computing_barcodes_in_dimension(unsigned short dimension) {
 		if (dimension >= min_dimension && dimension <= max_dimension)

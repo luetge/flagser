@@ -62,17 +62,21 @@ public:
 
 	void set_complex(Complex* _complex) override { complex = _complex; }
 
-	void finished() override {
+	void finished(bool with_cell_counts = true) override {
 		flush_if_necessary(true);
+    total_top_dimension = std::max(total_top_dimension, complex->top_dimension());
 
-		std::vector<size_t> number_of_cells;
-		for (int i = 0; i <= complex->top_dimension(); i++) number_of_cells.push_back(complex->number_of_cells(i));
-		// print_ordinary(file_output_t<Complex>::outstream, min_dimension, max_dimension, complex->top_dimension(),
-		//  number_of_cells, betti, skipped, approximate_computation);
-		total_top_dimension = std::max(total_top_dimension, complex->top_dimension());
+    if (with_cell_counts) {
+        std::vector<size_t> number_of_cells;
+        for (int i = 0; i <= complex->top_dimension(); i++) number_of_cells.push_back(complex->number_of_cells(i));
+        // print_ordinary(file_output_t<Complex>::outstream, min_dimension, max_dimension, complex->top_dimension(),
+        //  number_of_cells, betti, skipped, approximate_computation);
 
-		total_cell_count.resize(complex->top_dimension() + 1, 0);
-		for (int i = 0; i <= complex->top_dimension(); i++) total_cell_count[i] += complex->number_of_cells(i);
+        total_cell_count.resize(complex->top_dimension() + 1, 0);
+        for (int i = 0; i <= complex->top_dimension(); i++) total_cell_count[i] += complex->number_of_cells(i);
+    } else {
+      total_cell_count.resize(0);
+    }
 
 		total_betti.resize(betti.size(), 0);
 		for (size_t idx = 0; idx < betti.size(); idx++) total_betti[idx] += betti[idx];
@@ -82,7 +86,7 @@ public:
 	}
 
 	virtual void print_aggregated_results() override {
-		bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
+		bool computed_full_homology = total_cell_count.size() > 0 && min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
 
 		int first_dimension = std::max(0, min_dimension - 1);
 		int last_dimension = total_top_dimension;
@@ -101,7 +105,7 @@ public:
 			H5Dclose(dataset);
 		}
 
-		{
+		if (total_cell_count.size() > 0) {
 			// Write cell counts
 			hsize_t dims[1]{static_cast<hsize_t>(last_dimension - first_dimension + 1)};
 			hsize_t max_dims[1]{static_cast<hsize_t>(last_dimension - first_dimension + 1)};
@@ -147,6 +151,7 @@ public:
 			H5Dclose(dataset);
 		}
 	}
+
 	void computing_barcodes_in_dimension(unsigned short dimension) override {
 		if (output_bars) {
 

@@ -28,6 +28,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../include/argparser.h"
 #include "../include/output/output_classes.h"
+#include "../include/usage/ripser.h"
 #include "../include/persistence.h"
 
 #include <algorithm>
@@ -351,9 +352,9 @@ public:
 		return simplex_coboundary_enumerator<DistanceMatrix>(cell, current_dimension, n, modulus, distance_matrix, binomial_coeff);
 	}
 
-	bool is_top_dimension() { return false; }
+	bool is_top_dimension() { return current_dimension >= max_dimension; }
 
-  size_t top_dimension() { return n - 1; }
+  size_t top_dimension() { return current_dimension; }
 
 	// Partial result output
 	void computation_result(int dimension, long long betti, long long skipped) {}
@@ -490,46 +491,11 @@ compressed_lower_distance_matrix read_file(std::istream& input_stream, file_form
 	}
 }
 
-void print_usage_and_exit(int exit_code) {
-	std::cerr << "Usage: "
-	          << "ripser "
-	          << "[options] [filename]" << std::endl
-	          << std::endl
-	          << "Options:" << std::endl
-	          << std::endl
-	          << "  --help           print this screen" << std::endl
-	          << "  --format         use the specified file format for the input. "
-	             "Options are:"
-	          << std::endl
-	          << "                     lower-distance (lower triangular distance "
-	             "matrix; default)"
-	          << std::endl
-	          << "                     upper-distance (upper triangular distance "
-	             "matrix)"
-	          << std::endl
-	          << "                     distance       (full distance matrix)" << std::endl
-	          << "                     point-cloud    (point cloud in Euclidean space)" << std::endl
-	          << "                     dipha          (distance matrix in DIPHA file "
-	             "format)"
-	          << std::endl
-	          << "  --dim <k>        compute persistent homology up to dimension <k>" << std::endl
-	          << "  --threshold <t>  compute Rips complexes up to filtration <t>" << std::endl
-#ifdef USE_COEFFICIENTS
-	          << "  --modulus <p>    compute homology with coefficients in the prime "
-	             "field Z/<p>Z"
-#endif
-	          << std::endl;
-
-	exit(exit_code);
-}
-
 int main(int argc, char** argv) {
-
-	const char* filename = nullptr;
-
 	file_format format = DISTANCE_MATRIX;
 
 	index_t dim_max = 1;
+	index_t dim_min = 0;
 	value_t threshold = std::numeric_limits<value_t>::max();
 
 #ifdef USE_COEFFICIENTS
@@ -538,54 +504,65 @@ int main(int argc, char** argv) {
 	const coefficient_t modulus = 2;
 #endif
 
-	for (index_t i = 1; i < argc; ++i) {
-		const std::string arg(argv[i]);
-		if (arg == "--help") {
-			print_usage_and_exit(0);
-		} else if (arg == "--dim") {
-			std::string parameter = std::string(argv[++i]);
+	auto arguments = parse_arguments(argc, argv);
+	auto positional_arguments = get_positional_arguments(arguments);
+	auto named_arguments = get_named_arguments(arguments);
+
+	if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
+  if (positional_arguments.size() == 0) print_usage_and_exit(-1);
+
+	named_arguments_t::const_iterator it;
+	if ((it = named_arguments.find("format")) != named_arguments.end()) {
+			if (it->second == std::string("lower-distance"))
+				format = LOWER_DISTANCE_MATRIX;
+			else if (it->second == std::string("upper-distance"))
+				format = UPPER_DISTANCE_MATRIX;
+			else if (it->second == std::string("distance"))
+				format = DISTANCE_MATRIX;
+			else if (it->second == std::string("point-cloud"))
+				format = POINT_CLOUD;
+			else if (it->second == std::string("dipha"))
+				format = DIPHA;
+      else {
+        std::cerr << "The input format " << format << " is not supported." << std::endl;
+        print_usage_and_exit(-1);
+      }
+  }
+
+	if ((it = named_arguments.find("max-dim")) != named_arguments.end()) {
+			std::string parameter = std::string(it->second);
 			size_t next_pos;
 			dim_max = std::stol(parameter, &next_pos);
 			if (next_pos != parameter.size()) print_usage_and_exit(-1);
-		} else if (arg == "--threshold") {
-			std::string parameter = std::string(argv[++i]);
+  }
+
+	if ((it = named_arguments.find("threshold")) != named_arguments.end()) {
+			std::string parameter = std::string(it->second);
 			size_t next_pos;
 			threshold = std::stof(parameter, &next_pos);
 			if (next_pos != parameter.size()) print_usage_and_exit(-1);
-		} else if (arg == "--format") {
-			std::string parameter = std::string(argv[++i]);
-			if (parameter == "lower-distance")
-				format = LOWER_DISTANCE_MATRIX;
-			else if (parameter == "upper-distance")
-				format = UPPER_DISTANCE_MATRIX;
-			else if (parameter == "distance")
-				format = DISTANCE_MATRIX;
-			else if (parameter == "point-cloud")
-				format = POINT_CLOUD;
-			else if (parameter == "dipha")
-				format = DIPHA;
-			else
-				print_usage_and_exit(-1);
-#ifdef USE_COEFFICIENTS
-		} else if (arg == "--modulus") {
-			std::string parameter = std::string(argv[++i]);
-			size_t next_pos;
-			modulus = std::stol(parameter, &next_pos);
-			if (next_pos != parameter.size() || !is_prime(modulus)) print_usage_and_exit(-1);
-#endif
-		} else {
-			if (filename) { print_usage_and_exit(-1); }
-			filename = argv[i];
-		}
-	}
+  }
 
-	std::ifstream file_stream(filename);
-	if (filename && file_stream.fail()) {
-		std::cerr << "couldn't open file " << filename << std::endl;
+#ifdef USE_COEFFICIENTS
+	if ((it = named_arguments.find("modulus")) != named_arguments.end()) {
+			std::string parameter = std::string(it->second);
+      size_t next_pos;
+      modulus = std::stol(parameter, &next_pos);
+      if (next_pos != parameter.size() || !is_prime(modulus)) print_usage_and_exit(-1);
+  }
+#endif
+
+	size_t max_entries = std::numeric_limits<size_t>::max();
+	if ((it = named_arguments.find("approximate")) != named_arguments.end()) { max_entries = atoi(it->second); }
+
+
+	std::ifstream file_stream(positional_arguments[0]);
+	if (positional_arguments[0] && file_stream.fail()) {
+		std::cerr << "couldn't open file " << positional_arguments[0] << std::endl;
 		exit(-1);
 	}
 
-	compressed_lower_distance_matrix dist = read_file(filename ? file_stream : std::cin, format);
+	compressed_lower_distance_matrix dist = read_file(positional_arguments[0] ? file_stream : std::cin, format);
 
 	index_t n = dist.size();
 
@@ -596,12 +573,12 @@ int main(int argc, char** argv) {
 
 	dim_max = std::min(dim_max, n - 2);
 
-	vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max, modulus);
 
-	auto arguments = parse_arguments(argc, argv);
-	auto positional_arguments = get_positional_arguments(arguments);
-	auto named_arguments = get_named_arguments(arguments);
+	vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max, modulus);
 	auto* output = get_output<decltype(vietoris_rips_complex)>(named_arguments);
-	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output, dim_max, threshold, 0);
-	persistence_computer.compute_persistence(0, std::numeric_limits<unsigned short>::max());
+  output->set_complex(&vietoris_rips_complex);
+
+	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output, max_entries, modulus, threshold);
+	persistence_computer.compute_persistence(dim_min, dim_max, false);
+	output->print_aggregated_results();
 }

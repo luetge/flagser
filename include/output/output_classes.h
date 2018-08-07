@@ -39,6 +39,6 @@ template <typename Complex> output_t<Complex>* get_output(const named_arguments_
 std::vector<std::string> available_output_formats = {"barcode", "betti"
 #ifdef WITH_HDF5
                                                      ,
-                                                     "betti:hdf5"
+                                                     "barcode:hdf5"
 #endif
 };
