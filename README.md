@@ -32,6 +32,9 @@ program `flagser-memory` is a variant of flagser storing the full directed flag
 complex in memory, speeding up parts of the computation but requiring more
 memory.
 
+Included in this package is also the original program `ripser`, modified only
+in that the features of `flagser` are supported.
+
 ### Euler characteristic and cell counts
 
 To only compute the Euler characteristic and cell counts, run
