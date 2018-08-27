@@ -23,6 +23,7 @@ filtered_directed_graph_t read_graph_flagser(const std::string filename, const n
 	int current_dimension = 0;
 	std::vector<value_t> vertex_filtration;
 	HAS_EDGE_FILTRATION has_edge_filtration = HAS_EDGE_FILTRATION::TOO_EARLY_TO_DECIDE;
+	bool directed = std::string(get_argument_or_default(named_arguments, "undirected", "directed")) != "true";
 
 	std::ifstream input_stream;
 	open_file(filename, input_stream);
@@ -33,7 +34,7 @@ filtered_directed_graph_t read_graph_flagser(const std::string filename, const n
 		if (line.length() == 0) continue;
 		if (line[0] == 'd' && line[1] == 'i' && line[2] == 'm') {
 			if (line[4] == '1') {
-				graph = new filtered_directed_graph_t(vertex_filtration);
+				graph = new filtered_directed_graph_t(vertex_filtration, directed);
 				current_dimension = 1;
 				has_edge_filtration = HAS_EDGE_FILTRATION::MAYBE;
 			}

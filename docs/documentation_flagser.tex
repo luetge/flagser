@@ -45,7 +45,7 @@ homology for directed flag complexes with different filtrations.
 \section{Requirements}
 \noindent
 \textsc{flagser} requires a C++14 compiler and \textsc{CMake}.
-For custom filtration algorithms, additionally \textsc{python} (including $\textsc{pip}$) are required.
+For custom filtration algorithms, additionally \textsc{python} (including $\textsc{pip}$) is required.
 To see the \textsc{python} packages needed in this case, see \texttt{requirements.txt}.
 If you want to read .h5 files, you need to install the HDF5 library as well (https://support.hdfgroup.org/HDF5/).
 
@@ -75,7 +75,7 @@ After building \textsc{flagser}, you can compute persistent homology as follows:
 
 \vspace{1em}
 
-You can slightly increase the speed of computation by using more memory:
+You can increase the speed of computation by using more memory:
 
 \vspace{1em}
 
@@ -114,6 +114,7 @@ The following \texttt{[options]} exist:
   \item [-{}-components] compute the directed flag complex for each individual connected
     component of the input graph. \emph{Warning: this currently only works for the trivial
     filtration. Additionally, this ignores all isolated vertices.}
+  \item [-{}-undirected] computes the \emph{undirected} flag complex instead
   \item [-{}-help] print a help screen
 \end{description}
 The available filtration algorithms are printed when executing \texttt{./flagser --help}.

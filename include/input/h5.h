@@ -4,7 +4,7 @@
 
 #ifndef WITH_HDF5
 
-filtered_directed_graph_t read_graph_h5(const std::string filename, const named_arguments_t& named_arguments) {
+filtered_directed_graph_t read_graph_h5(const std::string, const named_arguments_t&) {
 	std::cerr << "Error: flagser was compiled without support for .h5-files. Please install the HDF5-library "
 	             "(https://support.hdfgroup.org/HDF5/) and rebuild flagser by running \"make\" again."
 	          << std::endl;
@@ -73,6 +73,7 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 	int current_dimension = 0;
 	std::vector<value_t> vertex_filtration;
 	std::string type = get_argument_or_default(named_arguments, "h5-type", "matrix");
+	bool directed = std::string(get_argument_or_default(named_arguments, "undirected", "directed")) != "true";
 	bool with_filtration = std::string(get_argument_or_default(named_arguments, "filtration",
 	                                                           "no-filtration-specified")) != "no-filtration-specified";
 
@@ -113,7 +114,7 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 		}
 
 		// We now know the number of vertices
-		graph = new filtered_directed_graph_t(std::vector<value_t>(vertex_number));
+		graph = new filtered_directed_graph_t(std::vector<value_t>(vertex_number), directed);
 
 		if (with_filtration) {
 			value_t* entries = new value_t[vertex_number * vertex_number];
@@ -195,7 +196,7 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 		}
 
 		// We now know the number of vertices
-		graph = new filtered_directed_graph_t(std::vector<value_t>(offset));
+		graph = new filtered_directed_graph_t(std::vector<value_t>(offset), directed);
 
 		hid_t enumtype = H5Tcreate(H5T_ENUM, sizeof(index_t));
 		index_t val = 0;

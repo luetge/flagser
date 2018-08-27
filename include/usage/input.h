@@ -21,6 +21,7 @@ void print_input_usage() {
 #ifndef WITH_HDF5
 	          << " [HDF5 library not found]" << std::endl
 #endif
+	          << "  --undirected       compute the *undirected* flag complex" << std::endl
 	          << "  --components       compute the directed flag complex for each individual connected" << std::endl
 	          << "                     component of the input graph. Warning: this currently only works" << std::endl
 	          << "                     for the trivial filtration. Additionally, isolated vertices are" << std::endl

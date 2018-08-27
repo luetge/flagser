@@ -35,7 +35,7 @@ const cli_arguments_t parse_arguments(int argc, char** argv) {
 	positional_arguments_t positional_arguments;
 	named_arguments_t named_arguments;
 
-	for (size_t i = 1; i < argc; ++i) {
+	for (int i = 1; i < argc; ++i) {
 		std::string arg(argv[i]);
 
 		if (arg[0] != '-' || arg[1] != '-') {
@@ -52,9 +52,9 @@ const cli_arguments_t parse_arguments(int argc, char** argv) {
 			break;
 		}
 
-		// Also components has no data attached to it.
+		// Also components and undirected has no data attached to it.
 		// TODO: How to make this nicer without a lot of overhead
-		if (arg == "components") {
+		if (arg == "components" || arg == "undirected") {
 			named_arguments.insert(std::make_pair(arg, "true"));
 			continue;
 		}
