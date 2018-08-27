@@ -68,7 +68,7 @@ public:
 		file_output_t<Complex>::outstream << " [" << birth << ", )" << std::endl;
 	}
 	inline void skipped_column(value_t birth) {
-		file_output_t<Complex>::outstream << "[?" << birth << ", ?)" << std::endl;
+		file_output_t<Complex>::outstream << " [?" << birth << ", ?)" << std::endl;
 	}
 	void betti_number(size_t _betti, size_t _skipped) {
 		const auto shifted_dimension = current_dimension - min_dimension;
