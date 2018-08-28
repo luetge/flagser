@@ -110,7 +110,10 @@ The following \texttt{[options]} exist:
   \item [-{}-min-dim \textit{dim}] the minimal homology dimension to be computed
   \item [-{}-approximate \textit{n}] skip all cells creating columns in the reduction matrix with
     more than $n$ entries. Use this for hard problems, a good value is often 100000. Increase for
-    higher precision, decrease for faster computation
+    higher precision, decrease for faster computation. Warning: for non-trivial filtrations, this
+    makes for hard to estimate theoretical bounds on the error, although usually the real error is
+    much lower than the theoretical one. Use for exploration and validate later with longer computation
+    time
   \item [-{}-components] compute the directed flag complex for each individual connected
     component of the input graph. \emph{Warning: this currently only works for the trivial
     filtration. Additionally, this ignores all isolated vertices.}
