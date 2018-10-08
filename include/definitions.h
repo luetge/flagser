@@ -21,12 +21,7 @@ typedef int64_t index_t;
 typedef float value_t;
 typedef int16_t coefficient_t;
 
-#ifdef OPENMP_SUPPORT
-#include <parallel/algorithm>
-namespace std_algorithms = __gnu_parallel;
-#else
 namespace std_algorithms = std;
-#endif
 
 #ifdef USE_GOOGLE_HASHMAP
 #include <sparsehash/sparse_hash_map>

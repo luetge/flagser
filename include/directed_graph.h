@@ -46,7 +46,7 @@ public:
 		const size_t ww = w >> 6;
 
     // Prevent multiple insertions
-		if (incidence_outgoing[v * incidence_row_length + ww] | (1UL << ((w - (ww << 6))))) return false;
+		if (incidence_outgoing[v * incidence_row_length + ww] & (1UL << ((w - (ww << 6))))) return false;
 
 		outdegrees[v]++;
 		indegrees[w]++;
