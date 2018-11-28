@@ -62,6 +62,7 @@ message("** CMAKE_CXX_FLAGS: \t\t\t${CMAKE_CXX_FLAGS}")
 message("** CMAKE_CXX_LINK_FLAGS: \t\t${CMAKE_CXX_LINK_FLAGS}")
 message("")
 
+IF(HDF5_FOUND)
 TARGET_LINK_LIBRARIES(flagser ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(flagser-coefficients ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(flagser-memory ${HDF5_LIBRARIES})
@@ -70,6 +71,7 @@ TARGET_LINK_LIBRARIES(flagser-count ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(er ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(ripser ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(ripser-coefficients ${HDF5_LIBRARIES})
+ENDIF()
 
 install(TARGETS flagser flagser-coefficients flagser-memory flagser-coefficients-memory flagser-count RUNTIME DESTINATION bin)
 
