@@ -527,18 +527,18 @@ protected:
 
 		for (auto e : edges) {
 			const auto vertices = complex.vertices_of_edge(get_index(e));
-			index_t u = dset.find(vertices.first), v = dset.find(vertices.second);
+			index_t u = dset.find(vertices.first), v = dset.find(vertices.second);	
 
 			if (u != v) {
 				// Only output bars if we are interested in zeroth homology
 				const auto filtration_u = complex.filtration(0, u);
 				const auto filtration_v = complex.filtration(0, v);
+				dset.link(u, v);
 				if (min_dimension == 0 && get_filtration(e) > std::max(filtration_u, filtration_v)) {
 					// Check which vertex is merged into which other vertex.
 					const auto f = dset.find(u) == u ? filtration_v : filtration_u;
 					output->new_barcode(f, get_filtration(e));
 				}
-				dset.link(u, v);
 			} else {
 				columns_to_reduce.push_back(e);
 			}
