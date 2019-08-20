@@ -11,9 +11,6 @@ void print_homology_usage(bool no_filtration = false) {
                 << std::endl;
 
             for (auto f : custom_filtration_computer) std::cerr << "                         " << f << std::endl;
-
-            std::cerr << "                         remove_edges" << std::endl
-                      << "                         vertex_degree" << std::endl;
   }
 
   std::cerr
