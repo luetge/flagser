@@ -45,4 +45,4 @@ To only compute the Euler characteristic and cell counts, run
 
 ### License
 
-flagser is licensed under the LGPL 3.0. Please contact the author if you want to use flagser in your software under a different license.
+flagser is licensed under the MIT license (COPYING.txt), with an extra clause (CONTRIBUTING.txt) clarifying the license for modifications released without an explicit written license agreement. Please contact the author if you want to use Ripser in your software under a different license.
