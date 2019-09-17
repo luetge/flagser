@@ -460,6 +460,9 @@ private:
 #endif
 	std::vector<coefficient_t> multiplicative_inverse;
 	std::deque<filtration_index_t> columns_to_reduce;
+#ifdef RETRIEVE_PERSISTENCE
+	std::vector<size_t> betti_numbers;
+#endif
 
 public:
 	persistence_computer_t(Complex& _complex, output_t<Complex>* _output,
@@ -500,8 +503,11 @@ public:
 	}
 
 #ifdef RETRIEVE_PERSISTENCE
-    index_t get_euler_characteristic() { return euler_characteristic; }
+	index_t get_euler_characteristic() { return euler_characteristic; }
 
+	std::vector<size_t> get_betti_numbers() { return betti_numbers; }
+
+	size_t get_betti_numbers(size_t dimension) { return betti_numbers[dimension]; }
 #endif
 
 protected:
@@ -516,7 +522,12 @@ protected:
 		          << "computing persistent homology in dimension 0" << std::flush << "\r";
 #endif
 
+#ifdef RETRIEVE_PERSISTENCE
+		betti_numbers.push_back(0);
+		auto betti_number = betti_numbers.back();
+#else
 		long long betti_number = 0;
+#endif
 		size_t n = complex.number_of_cells(0);
 		filtered_union_find dset(complex.vertex_filtration());
 		std::vector<filtration_index_t> edges;
@@ -606,6 +617,9 @@ protected:
 			auto betti = compute_pairs(dimension, pivot_column_index, dimension >= min_dimension);
 			if (dimension >= min_dimension) {
 				complex.computation_result(dimension, betti.first, betti.second);
+#ifdef RETRIEVE_PERSISTENCE
+				betti_numbers.push_back(betti.first);
+#endif
 				output->betti_number(betti.first, betti.second);
 				euler_characteristic += (dimension & 1 ? -1 : 1) * betti.first;
 
