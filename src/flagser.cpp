@@ -27,6 +27,14 @@
 
 #include "../include/usage/flagser.h"
 
+#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
+typedef directed_flag_complex_in_memory_computer_t
+    directed_flag_complex_compute_t;
+#else
+typedef directed_flag_complex_computer_t 
+    directed_flag_complex_compute_t;
+#endif
+
 void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& named_arguments, size_t max_entries,
                       coefficient_t modulus) {
 
@@ -41,19 +49,11 @@ void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t&
 	std::vector<filtered_directed_graph_t> subgraphs{graph};
 	if (split_into_connected_components) { subgraphs = graph.get_connected_subgraphs(2); }
 
-#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
-	auto output = get_output<directed_flag_complex_in_memory_computer_t>(named_arguments);
-#else
-	auto output = get_output<directed_flag_complex_computer_t>(named_arguments);
-#endif
+	auto output = get_output<directed_flag_complex_compute_t>(named_arguments);
 
 	size_t component_number = 1;
 	for (auto subgraph : subgraphs) {
-#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
-		directed_flag_complex_in_memory_computer_t complex(subgraph, named_arguments);
-#else
-		directed_flag_complex_computer_t complex(subgraph, named_arguments);
-#endif
+		directed_flag_complex_compute_t complex(subgraph, named_arguments);
 
 		output->set_complex(&complex);
 		if (split_into_connected_components) {
