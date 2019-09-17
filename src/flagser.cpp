@@ -49,8 +49,11 @@ void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t&
 	std::vector<filtered_directed_graph_t> subgraphs{graph};
 	if (split_into_connected_components) { subgraphs = graph.get_connected_subgraphs(2); }
 
-	auto output = get_output<directed_flag_complex_compute_t>(named_arguments);
+#ifdef RETRIEVE_PERSISTENCE
+	std::vector<persistence_computer_t<directed_flag_complex_compute_t>> complex_subgraphs;
+#endif
 
+	auto output = get_output<directed_flag_complex_compute_t>(named_arguments);
 	size_t component_number = 1;
 	for (auto subgraph : subgraphs) {
 		directed_flag_complex_compute_t complex(subgraph, named_arguments);
@@ -71,8 +74,13 @@ void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t&
 			component_number++;
 		}
 
+#ifdef RETRIEVE_PERSISTENCE
+		complex_subgraphs.push_back(persistence_computer_t<decltype(complex)>(complex, output, max_entries, modulus));
+		complex_subgraphs.back().compute_persistence(min_dimension, max_dimension);
+#else
 		persistence_computer_t<decltype(complex)> persistence_computer(complex, output, max_entries, modulus);
 		persistence_computer.compute_persistence(min_dimension, max_dimension);
+#endif
 	}
 
 	if (split_into_connected_components) { output->print("\n## Total\n"); }
