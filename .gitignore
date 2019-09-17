@@ -3,6 +3,7 @@ ripser
 ripser-coefficients
 er
 flagser
+flagser_retrieve_persistence
 flagser-debug
 flagser-memory
 flagser-count
