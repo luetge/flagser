@@ -499,6 +499,11 @@ public:
 		}
 	}
 
+#ifdef RETRIEVE_PERSISTENCE
+    index_t get_euler_characteristic() { return euler_characteristic; }
+
+#endif
+
 protected:
 	void compute_zeroth_persistence(unsigned short min_dimension, unsigned short) {
 		complex.prepare_next_dimension(0);
