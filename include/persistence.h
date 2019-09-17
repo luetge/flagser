@@ -462,6 +462,7 @@ private:
 	std::deque<filtration_index_t> columns_to_reduce;
 #ifdef RETRIEVE_PERSISTENCE
 	std::vector<size_t> betti_numbers;
+	std::vector<std::vector<std::pair<value_t, value_t>>> birth_deaths_by_dim;
 #endif
 
 public:
@@ -508,6 +509,12 @@ public:
 	std::vector<size_t> get_betti_numbers() { return betti_numbers; }
 
 	size_t get_betti_numbers(size_t dimension) { return betti_numbers[dimension]; }
+
+	std::vector<std::vector<std::pair<value_t, value_t>>> get_persistence_diagram() { return birth_deaths_by_dim; }
+
+	std::vector<std::pair<value_t, value_t>> get_persistence_diagram(size_t dimension) {
+		return birth_deaths_by_dim[dimension];
+	}
 #endif
 
 protected:
@@ -525,6 +532,7 @@ protected:
 #ifdef RETRIEVE_PERSISTENCE
 		betti_numbers.push_back(0);
 		auto betti_number = betti_numbers.back();
+		std::vector<std::pair<value_t, value_t>> birth_death;
 #else
 		long long betti_number = 0;
 #endif
@@ -554,6 +562,9 @@ protected:
 					// Check which vertex is merged into which other vertex.
 					const auto f = dset.find(u) == u ? filtration_v : filtration_u;
 					output->new_barcode(f, get_filtration(e));
+#ifdef RETRIEVE_PERSISTENCE
+					birth_death.push_back(std::make_pair(f, get_filtration(e)));
+#endif
 				}
 			} else {
 				columns_to_reduce.push_back(e);
@@ -562,15 +573,30 @@ protected:
 		std::reverse(columns_to_reduce.begin(), columns_to_reduce.end());
 
 		// If we don't care about zeroth homology, then we can stop here
+#ifdef RETRIEVE_PERSISTENCE
+		// Store the first persistence diagram
+		if (min_dimension == 1) {
+			birth_deaths_by_dim.push_back(birth_death);
+			return;
+		}
+#else
 		if (min_dimension == 1) return;
+#endif
 
 		for (index_t index = 0; index < n; ++index) {
 			if (dset.find(index) == index) {
 				output->new_infinite_barcode(complex.filtration(0, index));
 				betti_number++;
+#ifdef RETRIEVE_PERSISTENCE
+				birth_death.push_back(
+				    std::make_pair(complex.filtration(0, index), std::numeric_limits<value_t>::infinity()));
+#endif
 			}
 		}
 
+#ifdef RETRIEVE_PERSISTENCE
+		birth_deaths_by_dim.push_back(birth_death);
+#endif
 		// Report the betti number back to the complex and the output
 		complex.computation_result(0, betti_number, 0);
 		output->betti_number(betti_number, 0);
@@ -709,6 +735,9 @@ protected:
 		std::vector<filtration_entry_t> reduction_coefficients;
 #endif
 #endif
+#ifdef RETRIEVE_PERSISTENCE
+		std::vector<std::pair<value_t, value_t>> birth_death;
+#endif
 
 		std::vector<filtration_entry_t> coface_entries;
 
@@ -813,6 +842,10 @@ protected:
 				if (iterations > max_entries) {
 					// Abort, this is too expensive
 					if (generate_output) output->skipped_column(filtration);
+#ifdef RETRIEVE_PERSISTENCE
+					birth_death.push_back(
+					    std::make_pair(filtration, std::numeric_limits<value_t>::signaling_NaN()));
+#endif
 					betti_error++;
 					break;
 				}
@@ -839,13 +872,21 @@ protected:
 					if (generate_output) {
 						output->new_infinite_barcode(filtration);
 						betti++;
+#ifdef RETRIEVE_PERSISTENCE
+						birth_death.push_back(std::make_pair(filtration, std::numeric_limits<value_t>::infinity()));
+#endif
 					}
 					break;
 				}
 
 			found_persistence_pair:
 				value_t death = get_filtration(pivot);
-				if (generate_output && filtration != death) { output->new_barcode(filtration, death); }
+				if (generate_output && filtration != death) {
+					output->new_barcode(filtration, death);
+#ifdef RETRIEVE_PERSISTENCE
+					birth_death.push_back(std::make_pair(filtration, death));
+#endif
+				}
 
 #ifdef USE_ARRAY_HASHMAP
 				pivot_column_index[get_index(pivot)] = i;
@@ -882,6 +923,9 @@ protected:
 
 #ifdef INDICATE_PROGRESS
 		std::cout << "\033[K";
+#endif
+#ifdef RETRIEVE_PERSISTENCE
+		birth_deaths_by_dim.push_back(birth_death);
 #endif
 		return std::make_pair(betti, betti_error);
 	}
