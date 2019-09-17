@@ -36,6 +36,10 @@ add_custom_target(generate_custom_algorithms DEPENDS include/algorithms.h)
 add_executable(flagser src/flagser.cpp include/algorithms.h)
 add_dependencies(flagser generate_custom_algorithms)
 
+add_executable(flagser_retrieve_persistence src/flagser.cpp include/algorithms.h)
+add_dependencies(flagser_retrieve_persistence generate_custom_algorithms)
+target_compile_definitions(flagser_retrieve_persistence PRIVATE RETRIEVE_PERSISTENCE)
+
 add_executable(flagser-coefficients src/flagser.cpp)
 add_dependencies(flagser-coefficients generate_custom_algorithms)
 target_compile_definitions(flagser-coefficients PRIVATE USE_COEFFICIENTS=1)
@@ -64,6 +68,7 @@ message("")
 
 IF(HDF5_FOUND)
 TARGET_LINK_LIBRARIES(flagser ${HDF5_LIBRARIES})
+TARGET_LINK_LIBRARIES(flagser_retrieve_persistence ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(flagser-coefficients ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(flagser-memory ${HDF5_LIBRARIES})
 TARGET_LINK_LIBRARIES(flagser-coefficients-memory ${HDF5_LIBRARIES})
@@ -78,6 +83,9 @@ install(TARGETS flagser flagser-coefficients flagser-memory flagser-coefficients
 add_custom_command(
     TARGET flagser POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser ${CMAKE_SOURCE_DIR})
+add_custom_command(
+    TARGET flagser_retrieve_persistence POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser_retrieve_persistence ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET flagser-coefficients POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser-coefficients ${CMAKE_SOURCE_DIR})
