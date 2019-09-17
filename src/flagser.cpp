@@ -35,8 +35,13 @@ typedef directed_flag_complex_computer_t
     directed_flag_complex_compute_t;
 #endif
 
-void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& named_arguments, size_t max_entries,
-                      coefficient_t modulus) {
+#ifdef RETRIEVE_PERSISTENCE
+std::vector<persistence_computer_t<directed_flag_complex_compute_t>>
+#else
+void
+#endif
+compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& named_arguments, size_t max_entries,
+                 coefficient_t modulus) {
 
 	unsigned short max_dimension = std::numeric_limits<unsigned short>::max();
 	unsigned short min_dimension = 0;
@@ -86,6 +91,10 @@ void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t&
 	if (split_into_connected_components) { output->print("\n## Total\n"); }
 
 	output->print_aggregated_results();
+
+#ifdef RETRIEVE_PERSISTENCE
+	return complex_subgraphs;
+#endif
 }
 
 int main(int argc, char** argv) {
