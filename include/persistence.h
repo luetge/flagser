@@ -463,6 +463,7 @@ private:
 #ifdef RETRIEVE_PERSISTENCE
 	std::vector<size_t> betti_numbers;
 	std::vector<std::vector<std::pair<value_t, value_t>>> birth_deaths_by_dim;
+	std::vector<size_t> cell_count;
 #endif
 
 public:
@@ -489,8 +490,12 @@ public:
 		bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
 		if (check_euler_characteristic && computed_full_homology && max_entries == std::numeric_limits<size_t>::max()) {
 			index_t cell_euler_characteristic = 0;
-			for (size_t i = 0; i <= complex.top_dimension(); i++)
+			for (size_t i = 0; i <= complex.top_dimension(); i++) {
 				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * complex.number_of_cells(i);
+#ifdef RETRIEVE_PERSISTENCE
+				cell_count.push_back(complex.number_of_cells(i));
+#endif
+			}
 
 			if (print_betti_numbers_to_console)
 				std::cout << "The Euler characteristic is given by: " << cell_euler_characteristic << std::endl;
@@ -515,6 +520,10 @@ public:
 	std::vector<std::pair<value_t, value_t>> get_persistence_diagram(size_t dimension) {
 		return birth_deaths_by_dim[dimension];
 	}
+
+	std::vector<size_t> get_cell_count() { return cell_count; }
+
+	size_t get_cell_count(size_t dimension) { return cell_count[dimension]; }
 #endif
 
 protected:
