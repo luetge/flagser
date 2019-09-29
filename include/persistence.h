@@ -460,6 +460,11 @@ private:
 #endif
 	std::vector<coefficient_t> multiplicative_inverse;
 	std::deque<filtration_index_t> columns_to_reduce;
+#ifdef RETRIEVE_PERSISTENCE
+	std::vector<size_t> betti_numbers;
+	std::vector<std::vector<std::pair<value_t, value_t>>> birth_deaths_by_dim;
+	std::vector<size_t> cell_count;
+#endif
 
 public:
 	persistence_computer_t(Complex& _complex, output_t<Complex>* _output,
@@ -485,8 +490,12 @@ public:
 		bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
 		if (check_euler_characteristic && computed_full_homology && max_entries == std::numeric_limits<size_t>::max()) {
 			index_t cell_euler_characteristic = 0;
-			for (size_t i = 0; i <= complex.top_dimension(); i++)
+			for (size_t i = 0; i <= complex.top_dimension(); i++) {
 				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * complex.number_of_cells(i);
+#ifdef RETRIEVE_PERSISTENCE
+				cell_count.push_back(complex.number_of_cells(i));
+#endif
+			}
 
 			if (print_betti_numbers_to_console)
 				std::cout << "The Euler characteristic is given by: " << cell_euler_characteristic << std::endl;
@@ -498,6 +507,24 @@ public:
 			}
 		}
 	}
+
+#ifdef RETRIEVE_PERSISTENCE
+	index_t get_euler_characteristic() { return euler_characteristic; }
+
+	std::vector<size_t> get_betti_numbers() { return betti_numbers; }
+
+	size_t get_betti_numbers(size_t dimension) { return betti_numbers[dimension]; }
+
+	std::vector<std::vector<std::pair<value_t, value_t>>> get_persistence_diagram() { return birth_deaths_by_dim; }
+
+	std::vector<std::pair<value_t, value_t>> get_persistence_diagram(size_t dimension) {
+		return birth_deaths_by_dim[dimension];
+	}
+
+	std::vector<size_t> get_cell_count() { return cell_count; }
+
+	size_t get_cell_count(size_t dimension) { return cell_count[dimension]; }
+#endif
 
 protected:
 	void compute_zeroth_persistence(unsigned short min_dimension, unsigned short) {
@@ -511,7 +538,13 @@ protected:
 		          << "computing persistent homology in dimension 0" << std::flush << "\r";
 #endif
 
+#ifdef RETRIEVE_PERSISTENCE
+		betti_numbers.push_back(0);
+		auto betti_number = betti_numbers.back();
+		std::vector<std::pair<value_t, value_t>> birth_death;
+#else
 		long long betti_number = 0;
+#endif
 		size_t n = complex.number_of_cells(0);
 		filtered_union_find dset(complex.vertex_filtration());
 		std::vector<filtration_index_t> edges;
@@ -538,6 +571,9 @@ protected:
 					// Check which vertex is merged into which other vertex.
 					const auto f = dset.find(u) == u ? filtration_v : filtration_u;
 					output->new_barcode(f, get_filtration(e));
+#ifdef RETRIEVE_PERSISTENCE
+					birth_death.push_back(std::make_pair(f, get_filtration(e)));
+#endif
 				}
 			} else {
 				columns_to_reduce.push_back(e);
@@ -546,15 +582,30 @@ protected:
 		std::reverse(columns_to_reduce.begin(), columns_to_reduce.end());
 
 		// If we don't care about zeroth homology, then we can stop here
+#ifdef RETRIEVE_PERSISTENCE
+		// Store the first persistence diagram
+		if (min_dimension == 1) {
+			birth_deaths_by_dim.push_back(birth_death);
+			return;
+		}
+#else
 		if (min_dimension == 1) return;
+#endif
 
 		for (index_t index = 0; index < n; ++index) {
 			if (dset.find(index) == index) {
 				output->new_infinite_barcode(complex.filtration(0, index));
 				betti_number++;
+#ifdef RETRIEVE_PERSISTENCE
+				birth_death.push_back(
+				    std::make_pair(complex.filtration(0, index), std::numeric_limits<value_t>::infinity()));
+#endif
 			}
 		}
 
+#ifdef RETRIEVE_PERSISTENCE
+		birth_deaths_by_dim.push_back(birth_death);
+#endif
 		// Report the betti number back to the complex and the output
 		complex.computation_result(0, betti_number, 0);
 		output->betti_number(betti_number, 0);
@@ -601,6 +652,9 @@ protected:
 			auto betti = compute_pairs(dimension, pivot_column_index, dimension >= min_dimension);
 			if (dimension >= min_dimension) {
 				complex.computation_result(dimension, betti.first, betti.second);
+#ifdef RETRIEVE_PERSISTENCE
+				betti_numbers.push_back(betti.first);
+#endif
 				output->betti_number(betti.first, betti.second);
 				euler_characteristic += (dimension & 1 ? -1 : 1) * betti.first;
 
@@ -689,6 +743,9 @@ protected:
 #ifdef USE_COEFFICIENTS
 		std::vector<filtration_entry_t> reduction_coefficients;
 #endif
+#endif
+#ifdef RETRIEVE_PERSISTENCE
+		std::vector<std::pair<value_t, value_t>> birth_death;
 #endif
 
 		std::vector<filtration_entry_t> coface_entries;
@@ -794,6 +851,10 @@ protected:
 				if (iterations > max_entries) {
 					// Abort, this is too expensive
 					if (generate_output) output->skipped_column(filtration);
+#ifdef RETRIEVE_PERSISTENCE
+					birth_death.push_back(
+					    std::make_pair(filtration, std::numeric_limits<value_t>::signaling_NaN()));
+#endif
 					betti_error++;
 					break;
 				}
@@ -820,13 +881,21 @@ protected:
 					if (generate_output) {
 						output->new_infinite_barcode(filtration);
 						betti++;
+#ifdef RETRIEVE_PERSISTENCE
+						birth_death.push_back(std::make_pair(filtration, std::numeric_limits<value_t>::infinity()));
+#endif
 					}
 					break;
 				}
 
 			found_persistence_pair:
 				value_t death = get_filtration(pivot);
-				if (generate_output && filtration != death) { output->new_barcode(filtration, death); }
+				if (generate_output && filtration != death) {
+					output->new_barcode(filtration, death);
+#ifdef RETRIEVE_PERSISTENCE
+					birth_death.push_back(std::make_pair(filtration, death));
+#endif
+				}
 
 #ifdef USE_ARRAY_HASHMAP
 				pivot_column_index[get_index(pivot)] = i;
@@ -863,6 +932,9 @@ protected:
 
 #ifdef INDICATE_PROGRESS
 		std::cout << "\033[K";
+#endif
+#ifdef RETRIEVE_PERSISTENCE
+		birth_deaths_by_dim.push_back(birth_death);
 #endif
 		return std::make_pair(betti, betti_error);
 	}

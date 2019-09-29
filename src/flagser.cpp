@@ -27,8 +27,21 @@
 
 #include "../include/usage/flagser.h"
 
-void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& named_arguments, size_t max_entries,
-                      coefficient_t modulus) {
+#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
+typedef directed_flag_complex_in_memory_computer_t
+    directed_flag_complex_compute_t;
+#else
+typedef directed_flag_complex_computer_t 
+    directed_flag_complex_compute_t;
+#endif
+
+#ifdef RETRIEVE_PERSISTENCE
+std::vector<persistence_computer_t<directed_flag_complex_compute_t>>
+#else
+void
+#endif
+compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& named_arguments, size_t max_entries,
+                 coefficient_t modulus) {
 
 	unsigned short max_dimension = std::numeric_limits<unsigned short>::max();
 	unsigned short min_dimension = 0;
@@ -41,19 +54,14 @@ void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t&
 	std::vector<filtered_directed_graph_t> subgraphs{graph};
 	if (split_into_connected_components) { subgraphs = graph.get_connected_subgraphs(2); }
 
-#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
-	auto output = get_output<directed_flag_complex_in_memory_computer_t>(named_arguments);
-#else
-	auto output = get_output<directed_flag_complex_computer_t>(named_arguments);
+#ifdef RETRIEVE_PERSISTENCE
+	std::vector<persistence_computer_t<directed_flag_complex_compute_t>> complex_subgraphs;
 #endif
 
+	auto output = get_output<directed_flag_complex_compute_t>(named_arguments);
 	size_t component_number = 1;
 	for (auto subgraph : subgraphs) {
-#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
-		directed_flag_complex_in_memory_computer_t complex(subgraph, named_arguments);
-#else
-		directed_flag_complex_computer_t complex(subgraph, named_arguments);
-#endif
+		directed_flag_complex_compute_t complex(subgraph, named_arguments);
 
 		output->set_complex(&complex);
 		if (split_into_connected_components) {
@@ -71,13 +79,22 @@ void compute_homology(filtered_directed_graph_t& graph, const named_arguments_t&
 			component_number++;
 		}
 
+#ifdef RETRIEVE_PERSISTENCE
+		complex_subgraphs.push_back(persistence_computer_t<decltype(complex)>(complex, output, max_entries, modulus));
+		complex_subgraphs.back().compute_persistence(min_dimension, max_dimension);
+#else
 		persistence_computer_t<decltype(complex)> persistence_computer(complex, output, max_entries, modulus);
 		persistence_computer.compute_persistence(min_dimension, max_dimension);
+#endif
 	}
 
 	if (split_into_connected_components) { output->print("\n## Total\n"); }
 
 	output->print_aggregated_results();
+
+#ifdef RETRIEVE_PERSISTENCE
+	return complex_subgraphs;
+#endif
 }
 
 int main(int argc, char** argv) {
