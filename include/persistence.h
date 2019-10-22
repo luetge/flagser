@@ -560,7 +560,7 @@ protected:
 
 		for (auto e : edges) {
 			const auto vertices = complex.vertices_of_edge(get_index(e));
-			index_t u = dset.find(vertices.first), v = dset.find(vertices.second);	
+			index_t u = dset.find(vertices.first), v = dset.find(vertices.second);
 
 			if (u != v) {
 				// Only output bars if we are interested in zeroth homology
@@ -621,16 +621,15 @@ protected:
 
 	void compute_higher_persistence(unsigned short min_dimension, unsigned short max_dimension) {
 		for (index_t dimension = 1; dimension <= max_dimension; ++dimension) {
+			complex.prepare_next_dimension(dimension);
+
 			if (dimension + 1 == min_dimension) {
 				// Here we need to reduce *all* cells because we did not compute anything of smaller dimension
-				// Also, we do not care about the filtration, so we can just set it to be trivial
 				index_t number_of_cells = complex.number_of_cells(dimension);
 				for (index_t index = 0; index < number_of_cells; index++) {
 					columns_to_reduce.push_back(std::make_pair(complex.filtration(dimension, index), index));
 				}
-			}
-
-			complex.prepare_next_dimension(dimension);
+      }
 
 			if (dimension + 1 < min_dimension) continue;
 
