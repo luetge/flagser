@@ -538,12 +538,9 @@ protected:
 		          << "computing persistent homology in dimension 0" << std::flush << "\r";
 #endif
 
-#ifdef RETRIEVE_PERSISTENCE
-		betti_numbers.push_back(0);
-		auto betti_number = betti_numbers.back();
-		std::vector<std::pair<value_t, value_t>> birth_death;
-#else
 		long long betti_number = 0;
+#ifdef RETRIEVE_PERSISTENCE
+		std::vector<std::pair<value_t, value_t>> birth_death;
 #endif
 		size_t n = complex.number_of_cells(0);
 		filtered_union_find dset(complex.vertex_filtration());
@@ -604,6 +601,7 @@ protected:
 		}
 
 #ifdef RETRIEVE_PERSISTENCE
+                betti_numbers.push_back(betti_number);
 		birth_deaths_by_dim.push_back(birth_death);
 #endif
 		// Report the betti number back to the complex and the output
