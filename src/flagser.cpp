@@ -92,6 +92,9 @@ compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& name
 
 	output->print_aggregated_results();
 
+    // Closes output files, prevent memory leaks
+    delete output;
+
 #ifdef RETRIEVE_PERSISTENCE
 	return complex_subgraphs;
 #endif
