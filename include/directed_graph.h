@@ -9,6 +9,49 @@
 #include "definitions.h"
 #include "persistence.h"
 
+
+// Because windows compiler does not implement `ctzl`, a custom method with
+// similar performace is used. This method is inspired from:
+// https://stackoverflow.com/a/20468180
+// TODO: Is it the good way to return `64` when all 0 ?
+#ifdef _MSC_VER
+#include <intrin.h>
+
+uint64_t __inline ctzl( uint64_t value )
+{
+    unsigned long trailing_zero = 0;
+
+    if ( _BitScanForward64( &trailing_zero, value ) )
+    {
+        return trailing_zero;
+    }
+    else
+    {
+        // This is undefined, I better choose 64 than 0
+        return 64;
+    }
+}
+
+uint64_t __inline clzl( uint64_t value )
+{
+    unsigned long leading_zero = 0;
+
+    if ( _BitScanReverse64( &leading_zero, value ) )
+    {
+       return 63 - leading_zero;
+    }
+    else
+    {
+         // Same remarks as above
+         return 64;
+    }
+}
+
+#define __builtin_clzl(x) clzl(x)
+#define __builtin_ctzl(x) ctzl(x)
+
+#endif
+
 class directed_graph_t {
 public:
 	// The filtration values of the vertices
