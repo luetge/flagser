@@ -2,6 +2,14 @@
 
 #include <functional>
 
+#ifdef _MSC_VER
+
+// Windows compiler does not support `not`, `and`, etc. keywords out of the box
+#include <iso646.h>
+
+#endif
+
+
 #include "base.h"
 
 // String to number conversion
