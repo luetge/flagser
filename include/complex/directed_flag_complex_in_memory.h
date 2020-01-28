@@ -212,7 +212,7 @@ void construction_worker_thread(int number_of_threads, int thread_id,
 				int b = __builtin_ctzl(bits);
 
 				// Unset this bit
-				bits &= ~(1UL << b);
+				bits &= ~(ONE_ << b);
 				possible_vertices.push_back(vertex_offset + b);
 			}
 		}

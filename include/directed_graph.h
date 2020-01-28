@@ -89,22 +89,22 @@ public:
 		const size_t ww = w >> 6;
 
     // Prevent multiple insertions
-		if (incidence_outgoing[v * incidence_row_length + ww] & (1UL << ((w - (ww << 6))))) return false;
+		if (incidence_outgoing[v * incidence_row_length + ww] & (ONE_ << ((w - (ww << 6))))) return false;
 
 		outdegrees[v]++;
 		indegrees[w]++;
 		edges.push_back(v);
 		edges.push_back(w);
 
-		incidence_outgoing[v * incidence_row_length + ww] |= 1UL << ((w - (ww << 6)));
+		incidence_outgoing[v * incidence_row_length + ww] |= ONE_ << ((w - (ww << 6)));
 
-		incidence_incoming[w * incidence_row_length + vv] |= 1UL << (v - (vv << 6));
+		incidence_incoming[w * incidence_row_length + vv] |= ONE_ << (v - (vv << 6));
     return true;
 	}
 
 	bool is_connected_by_an_edge(vertex_index_t from, vertex_index_t to) const {
 		const auto t = to >> 6;
-		return incidence_outgoing[incidence_row_length * from + t] & (1UL << (to - (t << 6)));
+		return incidence_outgoing[incidence_row_length * from + t] & (ONE_ << (to - (t << 6)));
 	}
 
 	size_t get_outgoing_chunk(vertex_index_t from, size_t chunk_number) const {
@@ -145,7 +145,7 @@ public:
 					int b = __builtin_ctzl(bits);
 
 					// Unset this bit
-					bits &= ~(1UL << b);
+					bits &= ~(ONE_ << b);
 
 					if (subset.find(vertex_offset + b) != subset.end())
 						add_filtered_edge(vertex_indices[v], vertex_indices[vertex_offset + b], 0);

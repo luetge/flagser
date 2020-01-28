@@ -21,6 +21,12 @@ typedef int64_t index_t;
 typedef float value_t;
 typedef int16_t coefficient_t;
 
+// An issue was discover when porting the code on windows
+// 1UL on windows is ALWAYS 32 bits, when on unix systems is pointer size
+// See https://stackoverflow.com/a/57213178
+// Portable solutio not have a value of ptr size
+#define ONE_ uintptr_t(1)
+
 namespace std_algorithms = std;
 
 #ifdef USE_GOOGLE_HASHMAP

@@ -245,7 +245,7 @@ private:
 						int b = __builtin_ctzl(bits);
 
 						// Unset this bit
-						bits &= ~(1UL << b);
+						bits &= ~(ONE_ << b);
 
 						new_possible_vertices.push_back(vertex_offset + b);
 					}
