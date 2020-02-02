@@ -37,7 +37,7 @@ for filename, hom in tests.iteritems():
     except OSError:
         pass
     result = ''.join(subprocess.Popen(
-        './flagser --out ./test/tmp --filtration {alg} ./test/{filename}.flag'.format(
+        'bash flagser --out ./test/tmp --filtration {alg} test/{filename}.flag'.format(
             alg="zero" if filename in zero_filtration else "max", filename=filename),
         shell=True,
         stdout=subprocess.PIPE,
