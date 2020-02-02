@@ -1,14 +1,10 @@
 language: cpp
 compiler:
   - gcc
-  - clang
 
 matrix:
   fast_finish: true
   include:
-    - os: linux
-      dist: trusty
-      group: edge
     - os: linux
       dist: trusty
       group: edge
