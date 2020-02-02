@@ -1,0 +1,25 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - os: windows
+  include:
+    - os: linux
+      dist: trusty
+      group: edge
+    - os: osx
+      osx_image: xcode7.3
+    - os: windows
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+  - cmake --build .
+  - ctest . --output-on-failure
