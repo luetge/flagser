@@ -3,12 +3,10 @@ compiler:
   - gcc
   - clang
 
-jobs:
-  allow_failures:
-    - os: windows
-
 matrix:
   fast_finish: true
+  allow_failures:
+    - os: windows
   include:
     - os: linux
       dist: trusty
