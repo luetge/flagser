@@ -60,7 +60,8 @@ for filename, hom in tests.iteritems():
                 print('\x1b[0m')
                 success = False
                 break
-    except:
+    except Exception as e:
+        print("EXCEPTION: " + str(e))
         success = False
 
     if success:
