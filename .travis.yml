@@ -18,7 +18,7 @@ matrix:
 before_script:
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_VS_PLATFORM_NAME=x64
+  - cmake .. -A x64
 
 script:
   - cmake --build .
