@@ -9,6 +9,7 @@
 #include "barcode.h"
 #include "base.h"
 #include "betti.h"
+#include "trivial.h"
 
 #ifdef WITH_HDF5
 #include "barcode_hdf5.h"
@@ -27,6 +28,8 @@ template <typename Complex> output_t<Complex>* get_output(const named_arguments_
 	if (output_name == "betti" || has_zero_filtration_and_no_explicit_output(named_arguments))
 		return new betti_output_t<Complex>(named_arguments);
 	if (output_name == "barcode") return new barcode_output_t<Complex>(named_arguments);
+
+	if (output_name == "none") return new trivial_output_t<Complex>(named_arguments);
 
 #ifdef WITH_HDF5
 	if (output_name == "barcode:hdf5") return new barcode_hdf5_output_t<Complex>(named_arguments);

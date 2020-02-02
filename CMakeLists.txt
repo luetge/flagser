@@ -103,3 +103,9 @@ add_custom_command(
 add_custom_command(
     TARGET er POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/er ${CMAKE_SOURCE_DIR}/tools)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+    add_subdirectory(test)
+    enable_testing()
+endif()
