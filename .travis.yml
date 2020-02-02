@@ -1,0 +1,17 @@
+dist: bionic
+language: cpp
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-7
+      - g++-7
+script:
+  - export CC=gcc-7
+  - export CXX=g++-7
+  - mkdir -p build
+  - cd build
+  - cmake ..
+  - make -j
+  - make -j test
