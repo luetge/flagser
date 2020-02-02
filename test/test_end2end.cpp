@@ -80,8 +80,10 @@ int main(int argc, char** argv) {
   compute("../../test/d4-allzero.flag", {{1, 0, 0, 9}});
   compute("../../test/d5.flag", {{1, 0, 0, 0, 44}});
   compute("../../test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
+#ifndef _MSC_VER
   compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
   compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+#endif
 
   return 0;
 }

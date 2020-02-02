@@ -32,7 +32,7 @@ public:
 		incidence_outgoing.resize(incidence_row_length * _number_of_vertices, 0);
 
 		size_t vertex_number = (size_t)_number_of_vertices;
-		edges.reserve(vertex_number * density_hint * vertex_number * 2);
+		edges.reserve(size_t(vertex_number * density_hint * vertex_number * 2));
 	}
 
 	vertex_index_t vertex_number() const { return number_of_vertices; }

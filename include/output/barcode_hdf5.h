@@ -266,12 +266,7 @@ private:
 			const auto dataset = skipped_datasets[current_dataset_index()];
 
 			hsize_t dims[2];
-			{
-				hsize_t maxdim[2];
-				auto space = H5Dget_space(dataset);
-				const auto size = H5Sget_simple_extent_dims(space, dims, maxdim);
-				dims[0] += new_size;
-			}
+      dims[0] += new_size;
 			H5Dset_extent(dataset, dims);
 			auto filespace = H5Dget_space(dataset);
 			hsize_t offset[2]{dims[0] - new_size, 0};
