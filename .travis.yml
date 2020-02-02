@@ -1,18 +1,16 @@
-dist: bionic
 language: cpp
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-7
-      - g++-7
-script:
-  - export CC=gcc-7
-  - export CXX=g++-7
-  - mkdir -p build
+compiler:
+  - gcc
+  - clang
+
+before_install:
+  - sudo apt-get update -qq
+
+before_script:
+  - mkdir build
   - cd build
   - cmake ..
-  - make -j
-  - cd ..
+
+script:
+  - cmake --build .
   - ./test/run
