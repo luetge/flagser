@@ -112,9 +112,9 @@ public:
 			const auto dataspace = H5Screate_simple(1, dims, max_dims);
 			const auto dataset = H5Dcreate2(info_group_id, "cell_counts", H5T_NATIVE_INT, dataspace, H5P_DEFAULT,
 			                                H5P_DEFAULT, H5P_DEFAULT);
-			int data[last_dimension - first_dimension + 1];
+            std::vector<int> data(last_dimension - first_dimension + 1);
 			for (int i = first_dimension; i <= last_dimension; i++) data[i] = total_cell_count[i];
-			H5Dwrite(dataset, H5T_NATIVE_INT, dataspace, dataspace, H5P_DEFAULT, data);
+			H5Dwrite(dataset, H5T_NATIVE_INT, dataspace, dataspace, H5P_DEFAULT, data.data());
 			H5Sclose(dataspace);
 			H5Dclose(dataset);
 		}
@@ -127,9 +127,9 @@ public:
 			const auto dataspace = H5Screate_simple(1, dims, max_dims);
 			const auto dataset = H5Dcreate2(info_group_id, "betti_numbers", H5T_NATIVE_INT, dataspace, H5P_DEFAULT,
 			                                H5P_DEFAULT, H5P_DEFAULT);
-			int data[last_dimension - first_dimension + 1];
+            std::vector<int> data(last_dimension - first_dimension + 1);
 			for (int i = first_dimension; i < total_betti.size(); i++) data[i] = total_betti[i];
-			H5Dwrite(dataset, H5T_NATIVE_INT, dataspace, dataspace, H5P_DEFAULT, data);
+			H5Dwrite(dataset, H5T_NATIVE_INT, dataspace, dataspace, H5P_DEFAULT, data.data());
 			H5Sclose(dataspace);
 			H5Dclose(dataset);
 		}

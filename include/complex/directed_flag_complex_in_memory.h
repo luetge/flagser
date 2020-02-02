@@ -163,10 +163,10 @@ public:
 	void worker_thread(int number_of_threads, int thread_id, Func* f, int min_dimension, int max_dimension) {
 		const size_t number_of_vertices = vertex_cells.size();
 
-		vertex_index_t prefix[max_dimension + 1];
+        std::vector<vertex_index_t> prefix(max_dimension + 1);
 
 		for (vertex_index_t index = thread_id; index < number_of_vertices; index += number_of_threads) {
-			vertex_cells[index].for_each_cell(f, min_dimension, max_dimension, prefix);
+			vertex_cells[index].for_each_cell(f, min_dimension, max_dimension, prefix.data());
 		}
 
 		f->done();
@@ -212,7 +212,7 @@ void construction_worker_thread(int number_of_threads, int thread_id,
 				int b = __builtin_ctzl(bits);
 
 				// Unset this bit
-				bits &= ~(1UL << b);
+				bits &= ~(ONE_ << b);
 				possible_vertices.push_back(vertex_offset + b);
 			}
 		}

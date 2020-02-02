@@ -349,7 +349,7 @@ struct store_coboundaries_in_cache_t {
 
 				for (int j = 0; bits > 0 && j < size; j++) {
 					// Remove the vertices already making up the cellk
-					if (vertex_offsets[j] == offset) bits &= ~(1UL << (first_vertex[j] - (vertex_offsets[j] << 6)));
+					if (vertex_offsets[j] == offset) bits &= ~(ONE_ << (first_vertex[j] - (vertex_offsets[j] << 6)));
 
 					// Intersect with the outgoing/incoming edges of the current vertex
 					bits &= j < i ? graph.get_outgoing_chunk(first_vertex[j], offset)
@@ -362,7 +362,7 @@ struct store_coboundaries_in_cache_t {
 					int b = __builtin_ctzl(bits);
 
 					// Unset this bit
-					bits &= ~(1UL << b);
+					bits &= ~(ONE_ << b);
 
 					// Now insert the appropriate vertex at this position
 					const auto& cb = cell.insert_vertex(i, vertex_offset + b);

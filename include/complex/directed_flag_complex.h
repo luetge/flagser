@@ -207,9 +207,9 @@ private:
 		for (size_t index = thread_id; index < number_of_vertices; index += number_of_threads)
 			first_position_vertices.push_back(index);
 
-		vertex_index_t prefix[max_dimension + 1];
+        std::vector<vertex_index_t> prefix(max_dimension + 1);
 
-		do_for_each_cell(f, min_dimension, max_dimension, first_position_vertices, prefix, 0);
+		do_for_each_cell(f, min_dimension, max_dimension, first_position_vertices, prefix.data(), 0);
 
 		f->done();
 	}
@@ -245,7 +245,7 @@ private:
 						int b = __builtin_ctzl(bits);
 
 						// Unset this bit
-						bits &= ~(1UL << b);
+						bits &= ~(ONE_ << b);
 
 						new_possible_vertices.push_back(vertex_offset + b);
 					}
