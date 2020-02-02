@@ -7,19 +7,15 @@ enable_language(CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations -Ofast -D NDEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -D NDEBUG -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_POSITION_INDEPENDANT}")
+
+find_package(Threads REQUIRED)
 
 find_package(HDF5)
 IF(HDF5_FOUND)
     include_directories(${HDF5_INCLUDE_DIR})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_HDF5")
-ENDIF()
-
-FIND_PACKAGE(OpenMP)
-IF(OPENMP_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DOPENMP_SUPPORT")
 ENDIF()
 
 # Also add the time of the file + output file into consideration
@@ -67,15 +63,15 @@ message("** CMAKE_CXX_LINK_FLAGS: \t\t${CMAKE_CXX_LINK_FLAGS}")
 message("")
 
 IF(HDF5_FOUND)
-TARGET_LINK_LIBRARIES(flagser ${HDF5_LIBRARIES})
-TARGET_LINK_LIBRARIES(flagser_retrieve_persistence ${HDF5_LIBRARIES})
-TARGET_LINK_LIBRARIES(flagser-coefficients ${HDF5_LIBRARIES})
-TARGET_LINK_LIBRARIES(flagser-memory ${HDF5_LIBRARIES})
-TARGET_LINK_LIBRARIES(flagser-coefficients-memory ${HDF5_LIBRARIES})
-TARGET_LINK_LIBRARIES(flagser-count ${HDF5_LIBRARIES})
-TARGET_LINK_LIBRARIES(er ${HDF5_LIBRARIES})
-TARGET_LINK_LIBRARIES(ripser ${HDF5_LIBRARIES})
-TARGET_LINK_LIBRARIES(ripser-coefficients ${HDF5_LIBRARIES})
+TARGET_LINK_LIBRARIES(flagser ${HDF5_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(flagser_retrieve_persistence ${HDF5_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(flagser-coefficients ${HDF5_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(flagser-memory ${HDF5_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(flagser-coefficients-memory ${HDF5_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(flagser-count ${HDF5_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(er ${HDF5_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(ripser ${HDF5_LIBRARIES} pthread)
+TARGET_LINK_LIBRARIES(ripser-coefficients ${HDF5_LIBRARIES} pthread)
 ENDIF()
 
 install(TARGETS flagser flagser-coefficients flagser-memory flagser-coefficients-memory flagser-count RUNTIME DESTINATION bin)
@@ -107,3 +103,9 @@ add_custom_command(
 add_custom_command(
     TARGET er POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/er ${CMAKE_SOURCE_DIR}/tools)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+    add_subdirectory(test)
+    enable_testing()
+endif()

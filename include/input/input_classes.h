@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 
 #include "../argparser.h"
 #include "../definitions.h"

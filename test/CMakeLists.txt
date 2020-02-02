@@ -1,0 +1,10 @@
+function(make_test test)
+        get_filename_component(test_name ${test} NAME_WE)
+        add_executable(${test_name} ${test})
+        IF(HDF5_FOUND)
+          TARGET_LINK_LIBRARIES(${test_name} ${HDF5_LIBRARIES} pthread)
+        ENDIF()
+        add_test(${test_name} ${test_name})
+endfunction()
+
+make_test(test_end2end)

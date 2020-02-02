@@ -37,7 +37,7 @@ for filename, hom in tests.iteritems():
     except OSError:
         pass
     result = ''.join(subprocess.Popen(
-        './flagser --out ./test/tmp --filtration {alg} ./test/{filename}.flag'.format(
+        'bash flagser --out ./test/tmp --filtration {alg} test/{filename}.flag'.format(
             alg="zero" if filename in zero_filtration else "max", filename=filename),
         shell=True,
         stdout=subprocess.PIPE,
@@ -49,22 +49,26 @@ for filename, hom in tests.iteritems():
         for idx, val in enumerate(hom):
             if re.search('dim H_{dim} = {rank}'.format(dim=idx, rank=val), result) == None:
                 # The computation was wrong
-                computed_rank = re.search(
-                    'dim H_{dim} = (.*)$'.format(dim=idx), result, re.M).group(1)
                 print('\x1b[0;31m' + 'Failure 𐄂' + '\x1b[0m')
                 print('')
-                print('\x1b[0;31m' + 'The rank of H_{dim} should have been {rank}, but flagser computed {computed_rank}:'.format(
-                    dim=idx, rank=val, computed_rank=computed_rank) + '\x1b[0m')
                 print('\x1b[2m')
                 sys.stdout.write(result)
                 print('\x1b[0m')
+                computed_rank = re.search(
+                    'dim H_{dim} = (.*)$'.format(dim=idx), result, re.M).group(1)
+                print('\x1b[0;31m' + 'The rank of H_{dim} should have been {rank}, but flagser computed {computed_rank}:'.format(
+                    dim=idx, rank=val, computed_rank=computed_rank) + '\x1b[0m')
+                print('\x1b[0m')
                 success = False
                 break
-    except:
+    except Exception as e:
+        print("EXCEPTION: " + str(e))
         success = False
 
     if success:
         print('\x1b[0;32m' + 'Success ✔' + '\x1b[0m')
+    else:
+        raise ValueError("The test failed.")
 
 # Cleanup
 try:
