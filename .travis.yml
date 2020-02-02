@@ -6,11 +6,12 @@ compiler:
 matrix:
   fast_finish: true
   include:
-    #- os: linux
-    #  dist: trusty
-    #  group: edge
-    #- os: osx
-    #  osx_image: xcode7.3
+    - os: linux
+      dist: trusty
+      group: edge
+    - os: osx
+      osx_image: xcode7.3
+  allow_failures:
     - os: windows
 
 before_script:
