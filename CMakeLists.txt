@@ -16,12 +16,6 @@ IF(HDF5_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_HDF5")
 ENDIF()
 
-FIND_PACKAGE(OpenMP)
-IF(OPENMP_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DOPENMP_SUPPORT")
-ENDIF()
-
 # Also add the time of the file + output file into consideration
 # Add the include dir to the watch list
 

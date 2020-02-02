@@ -1,6 +1,7 @@
 language: cpp
 compiler:
   - gcc
+  - clang
 
 matrix:
   fast_finish: true
