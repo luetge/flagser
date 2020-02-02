@@ -1,6 +1,5 @@
 #pragma once
 
-#include <deque>
 #include <sstream>
 #include <string>
 #include <unordered_set>
@@ -20,8 +19,8 @@ public:
   bool directed = true;
 
 	// These are the incidences as a matrix of 64-bit masks
-	std::deque<size_t> incidence_incoming;
-	std::deque<size_t> incidence_outgoing;
+	std::vector<size_t> incidence_incoming;
+	std::vector<size_t> incidence_outgoing;
 	size_t incidence_row_length;
 
 	// Assume by default that the edge density will be roughly one percent
