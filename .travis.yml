@@ -18,7 +18,7 @@ matrix:
 before_script:
   - mkdir build
   - cd build
-  - cmake .. -A x64
+  - cmake ..
 
 script:
   - cmake --build .
