@@ -3,8 +3,17 @@ compiler:
   - gcc
   - clang
 
-before_install:
-  - sudo apt-get update -qq
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      dist: trusty
+      group: edge
+    - os: linux
+      dist: trusty
+      group: edge
+    - os: osx
+      osx_image: xcode7.3
 
 before_script:
   - mkdir build
