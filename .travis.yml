@@ -11,8 +11,8 @@ matrix:
       group: edge
     - os: osx
       osx_image: xcode7.3
-  allow_failures:
     - os: windows
+      allow_failures: true
 
 before_script:
   - mkdir build
