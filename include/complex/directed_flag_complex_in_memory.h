@@ -145,7 +145,7 @@ public:
 	void for_each_cell(std::array<Func*, number_of_threads>& fs, int min_dimension, int max_dimension = -1) {
 		if (max_dimension == -1) max_dimension = min_dimension;
 
-		std::thread t[number_of_threads - 1];
+		std::thread t[number_of_threads]; // avoid problems with zero sized arrays
 
 		for (int index = 0; index < number_of_threads - 1; ++index)
 			t[index] = std::thread(&directed_flag_complex_in_memory_t<ExtraData>::worker_thread<Func>, this,
