@@ -117,8 +117,8 @@ class filtered_union_find {
 
 public:
 	filtered_union_find(const std::vector<value_t>& _filtration)
-	    : rank(_filtration.size(), 0), filtration(_filtration), parent(_filtration.size()) {
-		for (size_t i = 0; i < _filtration.size(); ++i) parent[i] = i;
+	    : parent(_filtration.size()), rank(_filtration.size(), 0), filtration(_filtration) {
+		for (size_t i = 0ul; i < _filtration.size(); ++i) parent[i] = index_t(i);
 	}
 
 	index_t find(index_t x) {
@@ -786,7 +786,9 @@ protected:
 #endif
 #endif
 
+#ifndef SKIP_APPARENT_PAIRS
 			bool might_be_apparent_pair = (i == j);
+#endif
 
 			index_t iterations = 0;
 			do {

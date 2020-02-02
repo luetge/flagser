@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 		if (arg == "--help") {
 			print_usage_and_exit(0);
 		} else if (arg == "--density") {
-			density = atof(argv[++i]);
+			density = float(atof(argv[++i]));
 		} else if (arg == "--random-edge-filtration") {
 			edge_filtration = true;
 		} else if (arg == "--undirected") {
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 		exit(-1);
 	}
 
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	std::ostream& output_stream = filename ? file_stream : std::cout;
 	output_stream << "dim 0" << std::endl;
 	for (int i = 0; i < n; i++) output_stream << 0 << " ";
