@@ -20,5 +20,4 @@ before_script:
 
 script:
   - cmake --build .
-  - cd ..
-  - python test/run
+  - ctest . --output-on-failure

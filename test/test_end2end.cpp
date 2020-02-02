@@ -65,23 +65,23 @@ void compute(std::string&& filename, std::vector<size_t> homology) {
 }
 
 int main(int argc, char** argv) {
-  compute("test/d2.flag", {{1ul, 1ul}});
-  compute("test/a.flag", {{1ul, 2ul, 0ul}});
-  compute("test/b.flag", {{1ul, 0ul, 0ul}});
-  compute("test/c.flag", {{1ul, 5ul}});
-  compute("test/d.flag", {{1ul, 0ul, 1ul}});
-  compute("test/e.flag", {{1ul, 0ul, 0ul, 0ul}});
-  compute("test/f.flag", {{1ul, 0ul, 0ul}});
-  compute("test/d3.flag", {{1ul, 0ul, 2ul}});
-  compute("test/d3-allzero.flag", {{1ul, 0ul, 2ul}});
-  compute("test/double-d3.flag", {{1, 0, 5}});
-  compute("test/double-d3-allzero.flag", {{1, 0, 5}});
-  compute("test/d4.flag", {{1, 0, 0, 9}});
-  compute("test/d4-allzero.flag", {{1, 0, 0, 9}});
-  compute("test/d5.flag", {{1, 0, 0, 0, 44}});
-  compute("test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
-  compute("test/medium-test-data.flag", {{14237, 39477, 378, 0}});
-  compute("test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+  compute("../../test/d2.flag", {{1ul, 1ul}});
+  compute("../../test/a.flag", {{1ul, 2ul, 0ul}});
+  compute("../../test/b.flag", {{1ul, 0ul, 0ul}});
+  compute("../../test/c.flag", {{1ul, 5ul}});
+  compute("../../test/d.flag", {{1ul, 0ul, 1ul}});
+  compute("../../test/e.flag", {{1ul, 0ul, 0ul, 0ul}});
+  compute("../../test/f.flag", {{1ul, 0ul, 0ul}});
+  compute("../../test/d3.flag", {{1ul, 0ul, 2ul}});
+  compute("../../test/d3-allzero.flag", {{1ul, 0ul, 2ul}});
+  compute("../../test/double-d3.flag", {{1, 0, 5}});
+  compute("../../test/double-d3-allzero.flag", {{1, 0, 5}});
+  compute("../../test/d4.flag", {{1, 0, 0, 9}});
+  compute("../../test/d4-allzero.flag", {{1, 0, 0, 9}});
+  compute("../../test/d5.flag", {{1, 0, 0, 0, 44}});
+  compute("../../test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
+  compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
+  compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
 
   return 0;
 }
