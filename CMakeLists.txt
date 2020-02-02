@@ -7,7 +7,7 @@ enable_language(CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations -Ofast -D NDEBUG -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -D NDEBUG -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_POSITION_INDEPENDANT}")
 
 find_package(Threads REQUIRED)
