@@ -9,7 +9,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -D NDEBUG -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_POSITION_INDEPENDANT}")
-set(CMAKE_GENERATOR_PLATFORM "x64")
 set(CMAKE_VS_PLATFORM_NAME "x64")
 set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE "x64")
 
@@ -81,31 +80,31 @@ install(TARGETS flagser flagser-coefficients flagser-memory flagser-coefficients
 
 add_custom_command(
     TARGET flagser POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser ${CMAKE_SOURCE_DIR})
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET flagser_retrieve_persistence POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser_retrieve_persistence ${CMAKE_SOURCE_DIR})
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser_retrieve_persistence> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET flagser-coefficients POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser-coefficients ${CMAKE_SOURCE_DIR})
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser-coefficients> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET flagser-memory POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser-memory ${CMAKE_SOURCE_DIR})
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser-memory> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET flagser-coefficients-memory POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser-coefficients-memory ${CMAKE_SOURCE_DIR})
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser-coefficients-memory> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET flagser-count POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/flagser-count ${CMAKE_SOURCE_DIR})
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser-count> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET ripser POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ripser ${CMAKE_SOURCE_DIR})
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:ripser> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET ripser-coefficients POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ripser-coefficients ${CMAKE_SOURCE_DIR})
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:ripser-coefficients> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET er POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/er ${CMAKE_SOURCE_DIR}/tools)
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:er> ${CMAKE_SOURCE_DIR}/tools)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
