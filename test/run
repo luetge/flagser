@@ -62,10 +62,11 @@ for filename, hom in tests.iteritems():
                 break
     except:
         success = False
-        raise ValueError("Test failed!")
 
     if success:
         print('\x1b[0;32m' + 'Success ✔' + '\x1b[0m')
+    else:
+        raise ValueError("The test failed.")
 
 # Cleanup
 try:
