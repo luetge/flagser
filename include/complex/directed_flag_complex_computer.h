@@ -556,7 +556,7 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 		std::vector<store_coboundaries_in_cache_t> store_coboundaries;
 		for (int i = 0; i < PARALLEL_THREADS; i++) coboundary_matrix[i] = compressed_sparse_matrix<entry_t>();
 		for (int i = 0; i < PARALLEL_THREADS; i++) {
-			store_coboundaries.push_back(store_coboundaries_in_cache_t(coboundary_matrix[i], dimension, graph,
+			store_coboundaries.push_back(store_coboundaries_in_cache_t(int(coboundary_matrix[i]), dimension, graph,
 			                                                           _cache_next_cells, _cache_next_cells_offsets,
 			                                                           int(cell_count[dimension]), i == 0, modulus));
 		}
