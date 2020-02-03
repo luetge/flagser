@@ -30,7 +30,7 @@ public:
 		index_t cell_euler_characteristic = 0;
     if (with_cell_counts) {
         for (size_t i = 0; i <= complex->top_dimension(); i++)
-          cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex->number_of_cells(i));
+          cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex->number_of_cells(index_t(i)));
 
         bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
         if (computed_full_homology) {

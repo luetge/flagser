@@ -401,7 +401,7 @@ private:
 	}
 };
 template <class Container, class Comparator>
-const filtration_entry_t priority_queue_t<Container, Comparator>::dummy(filtration_entry_t(std::make_pair(0.0, -1)));
+const filtration_entry_t priority_queue_t<Container, Comparator>::dummy(filtration_entry_t(std::make_pair(0.0f, -1)));
 
 #ifdef SORT_COLUMNS_BY_PIVOT
 template <typename Entry, typename Complex> struct greater_filtration_or_better_pivot_or_smaller_index {
@@ -510,7 +510,7 @@ public:
 		if (check_euler_characteristic && computed_full_homology && max_entries == std::numeric_limits<size_t>::max()) {
 			index_t cell_euler_characteristic = 0;
 			for (size_t i = 0; i <= complex.top_dimension(); i++) {
-				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex.number_of_cells(i));
+				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex.number_of_cells(index_t(i)));
 #ifdef RETRIEVE_PERSISTENCE
 				cell_count.push_back(complex.number_of_cells(i));
 #endif
