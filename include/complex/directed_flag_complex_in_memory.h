@@ -123,7 +123,7 @@ public:
 	}
 
 	template <typename Func> void for_each_cell(Func& f, int min_dimension, int max_dimension = -1) {
-		std::array<Func*, 1> fs{&f};
+		std::array<Func*, 1> fs{{&f}};
 		for_each_cell(fs, min_dimension, max_dimension);
 	}
 

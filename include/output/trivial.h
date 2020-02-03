@@ -39,7 +39,7 @@ public:
 		skipped.resize(current_dimension + 1, 0);
 		betti[current_dimension] = _betti;
 		skipped[current_dimension] = _skipped;
-		euler_characteristic += (current_dimension & 1 ? -1 : 1) * _betti;
+		euler_characteristic += index_t((current_dimension & 1 ? -1 : 1) * _betti);
 	}
 
 	virtual void print_aggregated_results() override;

@@ -510,7 +510,7 @@ public:
 		if (check_euler_characteristic && computed_full_homology && max_entries == std::numeric_limits<size_t>::max()) {
 			index_t cell_euler_characteristic = 0;
 			for (size_t i = 0; i <= complex.top_dimension(); i++) {
-				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * complex.number_of_cells(i);
+				cell_euler_characteristic += index_t((i % 2 == 1 ? -1 : 1) * complex.number_of_cells(i));
 #ifdef RETRIEVE_PERSISTENCE
 				cell_count.push_back(complex.number_of_cells(i));
 #endif
@@ -564,7 +564,7 @@ protected:
 		size_t n = complex.number_of_cells(0);
 		filtered_union_find dset(complex.vertex_filtration());
 		std::vector<filtration_index_t> edges;
-		index_t number_of_edges = complex.number_of_cells(1);
+		index_t number_of_edges = index_t(complex.number_of_cells(1));
 		for (index_t index = 0; index < number_of_edges; index++) {
 			value_t filtration = complex.filtration(1, index);
 			if (filtration <= max_filtration) edges.push_back(std::make_pair(filtration, index));
@@ -633,7 +633,7 @@ protected:
 			          << std::endl
 			          << "dim H_0 = " << betti_number << std::endl;
 		}
-		euler_characteristic += betti_number;
+		euler_characteristic += index_t(betti_number);
 	}
 
 	void compute_higher_persistence(unsigned short min_dimension, unsigned short max_dimension) {
@@ -642,7 +642,7 @@ protected:
 
 			if (dimension + 1 == min_dimension) {
 				// Here we need to reduce *all* cells because we did not compute anything of smaller dimension
-				index_t number_of_cells = complex.number_of_cells(dimension);
+				index_t number_of_cells = index_t(complex.number_of_cells(dimension));
 				for (index_t index = 0; index < number_of_cells; index++) {
 					columns_to_reduce.push_back(std::make_pair(complex.filtration(dimension, index), index));
 				}
@@ -696,7 +696,7 @@ protected:
 	}
 
 	void assemble_columns_to_reduce(index_t dimension, pivot_column_index_t& pivot_column_index) {
-		index_t num_cells = complex.number_of_cells(dimension + 1);
+		index_t num_cells = index_t(complex.number_of_cells(dimension + 1));
 
 		columns_to_reduce.clear();
 

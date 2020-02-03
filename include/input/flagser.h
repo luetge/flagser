@@ -14,7 +14,7 @@
 
 // String to number conversion
 unsigned int string_to_uint(std::string s) { return atoi(s.c_str()); }
-float string_to_float(std::string s) { return atof(s.c_str()); }
+float string_to_float(std::string s) { return float(atof(s.c_str())); }
 template <typename t>
 std::vector<t> split(const std::string& s, char delim, const std::function<t(std::string)>& transform) {
 	std::vector<t> elems;
@@ -65,12 +65,12 @@ filtered_directed_graph_t read_graph_flagser(const std::string filename, const n
 				graph.add_edge(vertices[0], vertices[1]);
 			} else {
 				std::vector<value_t> vertices = split<value_t>(line, ' ', string_to_float);
-				if (vertices[2] < std::max(vertex_filtration[vertices[0]], vertex_filtration[vertices[1]])) {
+				if (value_t(vertices[2]) < std::max(vertex_filtration[size_t(vertices[0])], vertex_filtration[size_t(vertices[1])])) {
 					std::cerr << "The flagser file contained an edge filtration that contradicts the vertex "
 					             "filtration, the edge ("
 					          << vertices[0] << ", " << vertices[1] << ") has filtration value " << vertices[2]
-					          << ", which is lower than min(" << vertex_filtration[vertices[0]] << ", "
-					          << vertex_filtration[vertices[1]] << "), the filtrations of its vertices.";
+					          << ", which is lower than min(" << vertex_filtration[size_t(vertices[0])] << ", "
+					          << vertex_filtration[size_t(vertices[1])] << "), the filtrations of its vertices.";
 					exit(-1);
 				}
 				graph.add_filtered_edge((vertex_index_t)vertices[0], (vertex_index_t)vertices[1], vertices[2]);

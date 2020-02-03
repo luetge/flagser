@@ -362,13 +362,13 @@ struct store_coboundaries_in_cache_t {
 				size_t vertex_offset = offset << 6;
 				while (bits > 0) {
 					// Get the least significant non-zero bit
-					int b = __builtin_ctzl(bits);
+					int b = __builtin_ctzl(index_t(bits));
 
 					// Unset this bit
 					bits &= ~(ONE_ << b);
 
 					// Now insert the appropriate vertex at this position
-					const auto& cb = cell.insert_vertex(i, vertex_offset + b);
+					const auto& cb = cell.insert_vertex(i, vertex_index_t(vertex_offset + b));
 					short thread_index = cb.vertex(0) % PARALLEL_THREADS;
 					auto pair = cell_hash[thread_index].find(cb);
 					if (pair == cell_hash[thread_index].end()) {
@@ -379,7 +379,7 @@ struct store_coboundaries_in_cache_t {
 						exit(-1);
 					}
 					coboundary_matrix.push_back(
-					    make_entry(pair->second + cell_hash_offsets[thread_index], i & 1 ? -1 + modulus : 1));
+					    make_entry(index_t(pair->second + cell_hash_offsets[thread_index]), i & 1 ? -1 + modulus : 1));
 				}
 			}
 		}
