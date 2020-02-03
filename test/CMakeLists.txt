@@ -9,5 +9,7 @@ endfunction()
 
 make_test(test_flagser)
 make_test(test_flagser_memory)
+IF(NOT MSVC)
 make_test(test_flagser_coefficients)
 make_test(test_flagser_coefficients_memory)
+ENDIF()
