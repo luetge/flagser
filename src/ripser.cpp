@@ -487,6 +487,8 @@ compressed_lower_distance_matrix read_file(std::istream& input_stream, file_form
 		return read_point_cloud(input_stream);
 	case DIPHA:
 		return read_dipha(input_stream);
+  default:
+    throw std::logic_error("Format not known.");
 	}
 }
 
