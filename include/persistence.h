@@ -84,7 +84,7 @@ index_t get_index(filtration_index_t i) { return i.second; }
 class filtration_entry_t : public std::pair<value_t, entry_t> {
 public:
 	filtration_entry_t(std::pair<value_t, entry_t> p) : std::pair<value_t, entry_t>(p) {}
-	filtration_entry_t(entry_t e) : std::pair<value_t, entry_t>(0, e) {}
+	filtration_entry_t(entry_t e) : std::pair<value_t, entry_t>(value_t(0), e) {}
 	filtration_entry_t() : filtration_entry_t(0) {}
 	filtration_entry_t(value_t _filtration, index_t _index, coefficient_t _coefficient)
 	    : std::pair<value_t, entry_t>(_filtration, make_entry(_index, _coefficient)) {}
@@ -510,7 +510,7 @@ public:
 		if (check_euler_characteristic && computed_full_homology && max_entries == std::numeric_limits<size_t>::max()) {
 			index_t cell_euler_characteristic = 0;
 			for (size_t i = 0; i <= complex.top_dimension(); i++) {
-				cell_euler_characteristic += index_t((i % 2 == 1 ? -1 : 1) * complex.number_of_cells(i));
+				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex.number_of_cells(i));
 #ifdef RETRIEVE_PERSISTENCE
 				cell_count.push_back(complex.number_of_cells(i));
 #endif

@@ -36,7 +36,7 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 	// Aggregated counts
 	std::vector<size_t> total_cell_count;
 
-	index_t total_euler_characteristic = 0;
+	int64_t total_euler_characteristic = 0;
 	size_t total_max_dim = 0;
 
 #ifdef WITH_HDF5

@@ -149,7 +149,7 @@ public:
 					bits &= ~(ONE_ << b);
 
 					if (subset.find(vertex_index_t(vertex_offset + b)) != subset.end())
-						add_filtered_edge(vertex_indices[v], vertex_indices[vertex_offset + b], 0);
+						add_filtered_edge(vertex_indices[v], vertex_indices[vertex_index_t(vertex_offset + b)], 0);
 				}
 			}
 		}

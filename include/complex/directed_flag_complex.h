@@ -189,7 +189,7 @@ public:
         std::vector<std::thread> t(number_of_threads);
 
 		for (size_t index = 0; index < number_of_threads - 1; ++index)
-			t[index] = std::thread(&directed_flag_complex_t::worker_thread<Func>, this, number_of_threads, index,
+			t[index] = std::thread(&directed_flag_complex_t::worker_thread<Func>, this, number_of_threads, int(index),
 			                       std::ref(fs[index]), min_dimension, max_dimension);
 
 		// Also do work in this thread, namely the last bit

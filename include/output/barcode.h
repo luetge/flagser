@@ -30,7 +30,7 @@ public:
 		index_t cell_euler_characteristic = 0;
     if (with_cell_counts) {
         for (size_t i = 0; i <= complex->top_dimension(); i++)
-          cell_euler_characteristic += index_t((i % 2 == 1 ? -1 : 1) * complex->number_of_cells(i));
+          cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex->number_of_cells(i));
 
         bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
         if (computed_full_homology) {
@@ -52,7 +52,7 @@ public:
         file_output_t<Complex>::outstream << std::endl;
         file_output_t<Complex>::outstream << "# Cell counts:" << std::endl;
         for (size_t i = size_t(std::max(0, min_dimension - 1)); i <= complex->top_dimension(); i++)
-          file_output_t<Complex>::outstream << "#\t\tdim C_" << i << " = " << complex->number_of_cells(i)
+          file_output_t<Complex>::outstream << "#\t\tdim C_" << i << " = " << complex->number_of_cells(index_t(i))
                                             << std::endl;
     }
 	}
@@ -76,7 +76,7 @@ public:
 		skipped.resize(shifted_dimension + 1, 0);
 		betti[shifted_dimension] = _betti;
 		skipped[shifted_dimension] = _skipped;
-		euler_characteristic += index_t((shifted_dimension & 1 ? -1 : 1) * _betti);
+		euler_characteristic += (shifted_dimension & 1 ? -1 : 1) * index_t(_betti);
 	}
 	void remaining_homology_is_trivial() {
 		file_output_t<Complex>::outstream << std::endl << "The remaining homology groups are trivial." << std::endl;

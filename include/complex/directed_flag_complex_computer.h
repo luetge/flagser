@@ -275,7 +275,7 @@ public:
 		int i = 0;
 		while (i < PARALLEL_THREADS - 1 && index_t(coboundary_matrix_offsets[i + 1]) <= get_index(cell)) { i++; }
 		return coboundary_iterator_t<directed_flag_complex_computer_t>(this, current_dimension, coboundary_matrix[i],
-		                                                               get_index(cell) - coboundary_matrix_offsets[i],
+		                                                               get_index(cell) - index_t(coboundary_matrix_offsets[i]),
 		                                                               get_coefficient(cell), modulus);
 	}
 
@@ -497,7 +497,7 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 				std::vector<compute_filtration_t> compute_filtration;
 				for (int i = 0; i < PARALLEL_THREADS; i++) {
 					_cache_current_cells_offsets[i] = offset;
-					if (filtration_algorithm->needs_face_filtration()) 
+					if (filtration_algorithm->needs_face_filtration())
                     {
                         offset += _cache_current_cells[i].size();
                     }
