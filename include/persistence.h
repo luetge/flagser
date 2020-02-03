@@ -680,7 +680,7 @@ protected:
 					if (betti.second > 0) { std::cout << " (skipped " << betti.second << ")"; }
 					std::cout << std::endl;
 				}
-			} else if (dimension == min_dimension - 1 && print_betti_numbers_to_console &&
+			} else if (int(dimension) == min_dimension - 1 && print_betti_numbers_to_console &&
 			           max_entries < std::numeric_limits<size_t>::max()) {
 				std::cout << "\033[K"
 				          << "# Skipped columns in dimension " << dimension << ": " << betti.second << std::endl;
