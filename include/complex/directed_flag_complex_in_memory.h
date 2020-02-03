@@ -91,7 +91,7 @@ public:
 
 template <typename ExtraData> struct euler_characteristic_computer_t {
 	void done() {}
-	void operator()(vertex_index_t* first_vertex, int size, ExtraData data) {
+	void operator()(vertex_index_t*, int size, ExtraData) {
 		// Add (-1)^size to the Euler characteristic
 		if (size & 1)
 			ec++;
@@ -129,13 +129,13 @@ public:
 
 	index_t euler_characteristic() {
 		std::array<euler_characteristic_computer_t<ExtraData>*, PARALLEL_THREADS> compute_euler_characteristic;
-		for (int i = 0; i < PARALLEL_THREADS; i++)
+		for (auto i = 0ul; i < PARALLEL_THREADS; i++)
 			compute_euler_characteristic[i] = new euler_characteristic_computer_t<ExtraData>();
 
 		// TODO: Remove the 10000-hack
 		for_each_cell(compute_euler_characteristic, 0, 10000);
 		index_t euler_characteristic = 0;
-		for (int i = 0; i < PARALLEL_THREADS; i++)
+		for (auto i = 0ul; i < PARALLEL_THREADS; i++)
 			euler_characteristic += compute_euler_characteristic[i]->euler_characteristic();
 
 		return euler_characteristic;
@@ -147,7 +147,7 @@ public:
 
 		std::thread t[number_of_threads]; // avoid problems with zero sized arrays
 
-		for (int index = 0; index < number_of_threads - 1; ++index)
+		for (auto index = 0ul; index < number_of_threads - 1; ++index)
 			t[index] = std::thread(&directed_flag_complex_in_memory_t<ExtraData>::worker_thread<Func>, this,
 			                       number_of_threads, index, fs[index], min_dimension, max_dimension);
 
@@ -156,7 +156,7 @@ public:
 		              max_dimension);
 
 		// Wait until all threads stopped
-		for (int i = 0; i < number_of_threads - 1; ++i) t[i].join();
+		for (auto i = 0ul; i < number_of_threads - 1; ++i) t[i].join();
 	}
 
 	template <typename Func>
@@ -236,7 +236,7 @@ directed_flag_complex_in_memory_t<ExtraData>::directed_flag_complex_in_memory_t(
 	// Now we start a few threads to construct the flag complex
 	std::thread t[PARALLEL_THREADS - 1];
 
-	for (int index = 0; index < PARALLEL_THREADS - 1; ++index)
+	for (auto index = 0ul; index < PARALLEL_THREADS - 1; ++index)
 		t[index] =
 		    std::thread(&construction_worker_thread<ExtraData>, PARALLEL_THREADS, index, this, &graph, max_dimension);
 
@@ -245,5 +245,5 @@ directed_flag_complex_in_memory_t<ExtraData>::directed_flag_complex_in_memory_t(
 	construction_worker_thread(PARALLEL_THREADS, PARALLEL_THREADS - 1, this, &graph, max_dimension);
 
 	// Wait until all threads stopped
-	for (int i = 0; i < PARALLEL_THREADS - 1; ++i) t[i].join();
+	for (auto i = 0ul; i < PARALLEL_THREADS - 1; ++i) t[i].join();
 }

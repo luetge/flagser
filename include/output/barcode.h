@@ -19,9 +19,9 @@ template <typename Complex> class barcode_output_t : public file_output_t<Comple
 public:
 	barcode_output_t(const named_arguments_t& named_arguments)
 	    : file_output_t<Complex>(named_arguments),
-	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
 	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
-	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))) {}
+	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
+	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))) {}
 
 	void set_complex(Complex* _complex) { complex = _complex; }
 

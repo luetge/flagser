@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 	bool edge_filtration = false;
 	bool undirected = false;
 
-	for (size_t i = 1; i < argc; ++i) {
+	for (int i = 0; i < argc; ++i) {
 		const std::string arg(argv[i]);
 		if (arg == "--help") {
 			print_usage_and_exit(0);

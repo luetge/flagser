@@ -152,12 +152,12 @@ public:
 
 template <class DistanceMatrix> class simplex_coboundary_enumerator {
 private:
-	index_t idx_below, idx_above, v, k;
-	std::vector<index_t> vertices;
 	const filtration_entry_t simplex;
+	index_t idx_below, idx_above, v, k;
 	const coefficient_t modulus;
-	const DistanceMatrix& dist;
 	const binomial_coeff_table& binomial_coeff;
+	const DistanceMatrix& dist;
+	std::vector<index_t> vertices;
 
 public:
 	simplex_coboundary_enumerator(const filtration_entry_t _simplex, index_t _dim, index_t _n,
@@ -209,8 +209,8 @@ public:
 	    : distances(mat.size() * (mat.size() - 1) / 2), rows(mat.size()) {
 		init_rows();
 
-		for (index_t i = 1; i < size(); ++i)
-			for (index_t j = 0; j < i; ++j) rows[i][j] = mat(i, j);
+		for (size_t i = 1ul; i < size(); ++i)
+			for (size_t j = 0ul; j < i; ++j) rows[i][j] = mat(i, j);
 	}
 
 	value_t operator()(const index_t i, const index_t j) const;
@@ -220,7 +220,7 @@ public:
 
 template <> void compressed_distance_matrix<LOWER_TRIANGULAR>::init_rows() {
 	value_t* pointer = &distances[0];
-	for (index_t i = 1; i < size(); ++i) {
+	for (auto i = 1ul; i < size(); ++i) {
 		rows[i] = pointer;
 		pointer += i;
 	}
@@ -228,7 +228,7 @@ template <> void compressed_distance_matrix<LOWER_TRIANGULAR>::init_rows() {
 
 template <> void compressed_distance_matrix<UPPER_TRIANGULAR>::init_rows() {
 	value_t* pointer = &distances[0] - 1;
-	for (index_t i = 0; i < size() - 1; ++i) {
+	for (auto i = 0ul; i < size() - 1; ++i) {
 		rows[i] = pointer;
 		pointer += size() - i - 2;
 	}
@@ -299,16 +299,15 @@ public:
 };
 
 template <typename DistanceMatrix> class vietoris_rips_complex_t {
+	DistanceMatrix& distance_matrix;
 	size_t n;
 	unsigned short max_dimension;
 	int current_dimension = 0;
 	rips_filtration_comparator<DistanceMatrix>* comparator = nullptr;
 	rips_filtration_comparator<DistanceMatrix>* next_comparator = nullptr;
-	DistanceMatrix& distance_matrix;
 	binomial_coeff_table binomial_coeff;
-  coefficient_t modulus;
-
 	mutable std::vector<index_t> _vertices_of_edge;
+  coefficient_t modulus;
 
 public:
 	vietoris_rips_complex_t(DistanceMatrix& _distance_matrix, unsigned short _max_dimension, coefficient_t _modulus)
@@ -357,7 +356,7 @@ public:
   size_t top_dimension() { return current_dimension; }
 
 	// Partial result output
-	void computation_result(int dimension, long long betti, long long skipped) {}
+	void computation_result(int, long long, long long) {}
 	void finished() {}
 
 	// compute_pairs(columns_to_reduce, pivot_column_index, dim, n, threshold,

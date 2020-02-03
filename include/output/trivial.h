@@ -25,9 +25,9 @@ template <typename Complex> class trivial_output_t : public output_t<Complex> {
 
 public:
 	trivial_output_t(const named_arguments_t& named_arguments)
-	    : modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
-	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
+	    : min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
 	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
+        modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
 	      approximate_computation(argument_was_passed(named_arguments, "approximate")),
 	      aggregate_results(argument_was_passed(named_arguments, "components")) {}
 
@@ -51,6 +51,6 @@ template <typename Complex> std::vector<size_t> trivial_output_t<Complex>::total
 
 template <typename Complex> size_t trivial_output_t<Complex>::total_top_dimension = 0;
 
-template <typename Complex> void trivial_output_t<Complex>::finished(bool with_cell_counts) {}
+template <typename Complex> void trivial_output_t<Complex>::finished(bool) {}
 
 template <typename Complex> void trivial_output_t<Complex>::print_aggregated_results() {}

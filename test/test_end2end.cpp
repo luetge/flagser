@@ -31,7 +31,6 @@ void compute(std::string&& filename, std::vector<size_t> homology) {
 	unsigned short min_dimension = 0;
 
 	auto output = get_output<directed_flag_complex_computer_t>(named_arguments);
-	size_t component_number = 1;
   directed_flag_complex_computer_t complex(graph, named_arguments);
 
   output.set_complex(&complex);
@@ -64,7 +63,7 @@ void compute(std::string&& filename, std::vector<size_t> homology) {
   std::cout << "All good." << std::endl;
 }
 
-int main(int argc, char** argv) {
+int main(int, char**) {
   compute("../../test/d2.flag", {{1ul, 1ul}});
   compute("../../test/a.flag", {{1ul, 2ul, 0ul}});
   compute("../../test/b.flag", {{1ul, 0ul, 0ul}});

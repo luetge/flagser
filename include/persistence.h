@@ -61,9 +61,9 @@ std::ostream& operator<<(std::ostream& stream, const entry_t& e) {
 
 typedef index_t entry_t;
 index_t get_index(entry_t i) { return i; }
-index_t get_coefficient(entry_t i) { return 1; }
-entry_t make_entry(index_t _index, coefficient_t _value) { return entry_t(_index); }
-void set_coefficient(index_t& e, const coefficient_t c) {}
+index_t get_coefficient(entry_t) { return 1; }
+entry_t make_entry(index_t _index, coefficient_t) { return entry_t(_index); }
+void set_coefficient(index_t&, const coefficient_t) {}
 
 #endif
 
@@ -96,7 +96,7 @@ public:
 
 const entry_t& get_entry(const filtration_entry_t& p) { return p.second; }
 entry_t& get_entry(filtration_entry_t& p) { return p.second; }
-const index_t get_index(const filtration_entry_t& p) { return get_index(get_entry(p)); }
+index_t get_index(const filtration_entry_t& p) { return get_index(get_entry(p)); }
 coefficient_t get_coefficient(const filtration_entry_t& p) { return get_coefficient(get_entry(p)); }
 const value_t& get_filtration(const filtration_entry_t& p) { return p.first; }
 void set_coefficient(filtration_entry_t& p, const coefficient_t c) { set_coefficient(get_entry(p), c); }
@@ -148,7 +148,12 @@ public:
 	}
 };
 
-template <typename Heap> filtration_entry_t pop_pivot(Heap& column, coefficient_t modulus) {
+template <typename Heap> filtration_entry_t pop_pivot(
+    Heap& column
+#ifdef USE_COEFFICIENTS
+    , coefficient_t modulus
+#endif
+) {
 	if (column.empty())
 		return filtration_entry_t(-1);
 	else {
@@ -184,8 +189,17 @@ template <typename Heap> filtration_entry_t pop_pivot(Heap& column, coefficient_
 	}
 }
 
-template <typename Heap> filtration_entry_t get_pivot(Heap& column, coefficient_t modulus) {
-	filtration_entry_t result = pop_pivot(column, modulus);
+template <typename Heap> filtration_entry_t get_pivot(
+    Heap& column
+#ifdef USE_COEFFICIENTS
+    , coefficient_t modulus
+#endif
+    ) {
+	filtration_entry_t result = pop_pivot(column
+#ifdef USE_COEFFICIENTS
+    , modulus
+#endif
+  );
 	if (get_index(result) != -1) column.push(result);
 	return result;
 }
@@ -475,6 +489,11 @@ public:
 	      modulus(_modulus),
 #endif
 	      multiplicative_inverse(multiplicative_inverse_vector(modulus)) {
+#ifndef USE_COEFFICIENTS
+          if (_modulus != 2) {
+            throw std::logic_error("If you want to use modulus != 2, please compile with coefficients.");
+          }
+#endif
 	}
 
 	void set_print_betti_numbers(bool print_betti_numbers) { print_betti_numbers_to_console = print_betti_numbers; }
@@ -589,7 +608,7 @@ protected:
 		if (min_dimension == 1) return;
 #endif
 
-		for (index_t index = 0; index < n; ++index) {
+		for (index_t index = 0; index < index_t(n); ++index) {
 			if (dset.find(index) == index) {
 				output.new_infinite_barcode(complex.filtration(0, index));
 				betti_number++;
@@ -618,7 +637,7 @@ protected:
 	}
 
 	void compute_higher_persistence(unsigned short min_dimension, unsigned short max_dimension) {
-		for (index_t dimension = 1; dimension <= max_dimension; ++dimension) {
+		for (auto dimension = 1u; dimension <= max_dimension; ++dimension) {
 			complex.prepare_next_dimension(dimension);
 
 			if (dimension + 1 == min_dimension) {
@@ -728,11 +747,13 @@ protected:
 #endif
 	}
 
-	std::pair<index_t, index_t> compute_pairs(index_t dimension, pivot_column_index_t& pivot_column_index,
+	std::pair<index_t, index_t> compute_pairs(index_t, pivot_column_index_t& pivot_column_index,
 	                                          bool generate_output = true) {
 		index_t betti = 0;
 		index_t betti_error = 0;
-		index_t verbose_logging_threshold = (index_t)columns_to_reduce.size() * 0.90;
+#ifdef INDICATE_PROGRESS
+		auto verbose_logging_threshold = size_t(columns_to_reduce.size() * 0.90);
+#endif
 
 #ifdef ASSEMBLE_REDUCTION_MATRIX
 		compressed_sparse_matrix<filtration_entry_t> reduction_coefficients;
@@ -747,7 +768,7 @@ protected:
 
 		std::vector<filtration_entry_t> coface_entries;
 
-		for (index_t i = 0; i < columns_to_reduce.size(); ++i) {
+		for (auto i = 0ul; i < columns_to_reduce.size(); ++i) {
 			auto column_to_reduce = columns_to_reduce[i];
 
 #ifdef ASSEMBLE_REDUCTION_MATRIX
@@ -787,10 +808,10 @@ protected:
 #endif
 
 #ifndef SKIP_APPARENT_PAIRS
-			bool might_be_apparent_pair = (i == j);
+			bool might_be_apparent_pair = (i == size_t(j));
 #endif
 
-			index_t iterations = 0;
+			size_t iterations = 0;
 			do {
 				const coefficient_t factor = modulus - get_coefficient(pivot);
 
@@ -887,7 +908,9 @@ protected:
 					break;
 				}
 
+#ifndef SKIP_APPARENT_PAIRS
 			found_persistence_pair:
+#endif
 				value_t death = get_filtration(pivot);
 				if (generate_output && filtration != death) {
 					output.new_barcode(filtration, death);
@@ -911,7 +934,11 @@ protected:
 				// by reduction_column (possibly with a different entry on the diagonal)
 				reduction_coefficients.pop_back();
 				while (true) {
+#ifdef USE_COEFFICIENTS
 					filtration_entry_t e = pop_pivot(reduction_column, modulus);
+#else
+					filtration_entry_t e = pop_pivot(reduction_column);
+#endif
 					if (get_index(e) == -1) break;
 #ifdef USE_COEFFICIENTS
 					set_coefficient(e, inverse * get_coefficient(e) % modulus);

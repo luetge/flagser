@@ -46,7 +46,7 @@ struct reorder_edges_t {
 	    : cell_hash(_cell_hash), old_filtration(_old_filtration), new_filtration(_new_filtration),
 	      new_edges(_new_edges), reorder_filtration(_reorder_filtration) {}
 	void done() {}
-	void operator()(vertex_index_t* first_vertex, int size) {
+	void operator()(vertex_index_t* first_vertex, int) {
 		directed_flag_complex_cell_t cell(first_vertex);
 		if (reorder_filtration) new_filtration.push_back(old_filtration[cell_hash.find(cell)->second]);
 		new_edges.push_back(cell.vertex(0));
@@ -224,11 +224,12 @@ class directed_flag_complex_computer_t {
 
 public:
 	directed_flag_complex_computer_t(filtered_directed_graph_t& _graph, const named_arguments_t& named_arguments)
-	    : graph(_graph), flag_complex(graph),
+	    : graph(_graph),
 	      filtration_algorithm(get_filtration_computer(get_argument_or_default(named_arguments, "filtration", "zero"))),
-	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
 	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
+	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
 	      cache(get_argument_or_default(named_arguments, "cache", "")),
+        flag_complex(graph),
 	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))) {
 		cell_count.push_back(_graph.vertex_number());
 		cell_count.push_back(_graph.edge_number());
@@ -272,7 +273,7 @@ public:
 		}
 
 		int i = 0;
-		while (i < PARALLEL_THREADS - 1 && coboundary_matrix_offsets[i + 1] <= get_index(cell)) { i++; }
+		while (i < PARALLEL_THREADS - 1 && index_t(coboundary_matrix_offsets[i + 1]) <= get_index(cell)) { i++; }
 		return coboundary_iterator_t<directed_flag_complex_computer_t>(this, current_dimension, coboundary_matrix[i],
 		                                                               get_index(cell) - coboundary_matrix_offsets[i],
 		                                                               get_coefficient(cell), modulus);
@@ -280,7 +281,7 @@ public:
 
 	bool is_top_dimension() { return _is_top_dimension; }
 
-	void computation_result(int dimension, size_t betti, size_t betti_error = 0) {}
+	void computation_result(int, size_t, size_t) {}
 	void finished() {}
 };
 
@@ -588,7 +589,7 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 			o.write((char*)&(coboundary_matrix_offsets[i]), sizeof(size_t));
 			size_t this_size = coboundary_matrix[i].size();
 			o.write((char*)&this_size, sizeof(size_t));
-			for (int j = 0; j < this_size; j++) {
+			for (auto j = 0ul; j < this_size; j++) {
 				o.write((char*)&(separator), sizeof(index_t));
 				for (auto it = coboundary_matrix[i].cbegin(j); it != coboundary_matrix[i].cend(j); ++it) {
 					o.write((char*)&(*it), sizeof(index_t));

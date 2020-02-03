@@ -40,7 +40,7 @@ struct reorder_edges_t {
 	                bool _reorder_filtration)
 	    : new_edges(_new_edges), new_filtration(_new_filtration), reorder_filtration(_reorder_filtration) {}
 	void done() {}
-	void operator()(vertex_index_t* first_vertex, int size, std::pair<index_t, value_t>& data) {
+	void operator()(vertex_index_t* first_vertex, int, std::pair<index_t, value_t>& data) {
 		new_edges.push_back(*first_vertex++);
 		new_edges.push_back(*first_vertex);
 		if (reorder_filtration) new_filtration.push_back(data.second);
@@ -57,7 +57,7 @@ struct compute_filtration_t {
 	                     directed_flag_complex_in_memory_t<std::pair<index_t, value_t>>& _complex)
 	    : filtration_algorithm(_filtration_algorithm), graph(_graph), complex(_complex) {}
 	void done() {}
-	void operator()(vertex_index_t* first_vertex, int size, std::pair<index_t, value_t>& data) {
+	void operator()(vertex_index_t* first_vertex, int size, std::pair<index_t, value_t>&) {
 		// The index starts at -1, so the first cell gets index 0
 		current_index++;
 
@@ -85,13 +85,13 @@ struct compute_filtration_t {
 
 	std::vector<value_t> filtration() const { return next_filtration; }
 
-	const index_t number_of_cells() const { return current_index + 1; }
+	index_t number_of_cells() const { return current_index + 1; }
 
 private:
 	index_t current_index = -1;
 	filtration_algorithm_t* filtration_algorithm;
-	directed_flag_complex_in_memory_t<std::pair<index_t, value_t>>& complex;
 	filtered_directed_graph_t& graph;
+	directed_flag_complex_in_memory_t<std::pair<index_t, value_t>>& complex;
 
 	value_t* boundary_filtration = nullptr;
 	std::vector<value_t> next_filtration;
@@ -157,16 +157,14 @@ void prepare_graph_filtration(Complex& complex, filtered_directed_graph_t& graph
 
 class directed_flag_complex_in_memory_computer_t {
 	filtered_directed_graph_t& graph;
-	long long euler_characteristic = 0;
+	directed_flag_complex_in_memory_t<std::pair<index_t, value_t>> flag_complex;
 	filtration_algorithm_t* filtration_algorithm;
-	unsigned short max_dimension;
 	unsigned short min_dimension;
+	unsigned short max_dimension;
+	const char* cache;
 	int current_dimension = 0;
 	bool _is_top_dimension = false;
 	std::vector<size_t> cell_count;
-	const char* cache;
-
-	directed_flag_complex_in_memory_t<std::pair<index_t, value_t>> flag_complex;
 
 	// Filtration
 	std::vector<value_t> next_filtration;
@@ -227,14 +225,14 @@ public:
 		}
 
 		int i = 0;
-		while (i < PARALLEL_THREADS - 1 && coboundary_matrix_offsets[i + 1] <= get_index(cell)) { i++; }
+		while (i < PARALLEL_THREADS - 1 && index_t(coboundary_matrix_offsets[i + 1]) <= get_index(cell)) { i++; }
 		return coboundary_iterator_t<directed_flag_complex_in_memory_computer_t>(
 		    this, current_dimension, coboundary_matrix[i], get_index(cell) - coboundary_matrix_offsets[i], get_coefficient(cell), modulus);
 	}
 
 	bool is_top_dimension() { return _is_top_dimension; }
 
-	void computation_result(int dimension, size_t betti, size_t betti_error = 0) {}
+	void computation_result(int, size_t, size_t) {}
 	void finished() {}
 };
 
@@ -243,10 +241,11 @@ struct store_coboundaries_in_cache_t {
 	                              const filtered_directed_graph_t& _graph,
 	                              const directed_flag_complex_in_memory_t<std::pair<index_t, value_t>>& _complex,
 	                              size_t* _cell_index_offsets, size_t _total_cell_number, bool _is_first,
-	                              vertex_index_t _vertices_per_thread, coefficient_t _modulus = 2)
-	    : coboundary_matrix(_coboundary_matrix), current_dimension(_current_dimension), graph(_graph),
+	                              coefficient_t _modulus = 2)
+	    : is_first(_is_first), current_dimension(_current_dimension), coboundary_matrix(_coboundary_matrix), graph(_graph),
 	      complex(_complex), cell_index_offsets(_cell_index_offsets), total_cell_number(_total_cell_number),
-	      is_first(_is_first), vertices_per_thread(_vertices_per_thread), modulus(_modulus) {}
+	      modulus(_modulus) {}
+
 	void done() {
 #ifdef INDICATE_PROGRESS
 		if (is_first)
@@ -255,7 +254,7 @@ struct store_coboundaries_in_cache_t {
 			          << "\r";
 #endif
 	}
-	void operator()(vertex_index_t* first_vertex, int size, std::pair<index_t, value_t>& data) {
+	void operator()(vertex_index_t* first_vertex, int size, std::pair<index_t, value_t>&) {
 #ifdef INDICATE_PROGRESS
 		if (is_first && (current_index + 1) % 10000 == 0) {
 			std::cout << "\033[K"
@@ -311,12 +310,10 @@ private:
 	bool is_first;
 	int current_dimension;
 	compressed_sparse_matrix<entry_t>& coboundary_matrix;
-	bool is_cache_presized = false;
 	const filtered_directed_graph_t& graph;
 	const directed_flag_complex_in_memory_t<std::pair<index_t, value_t>>& complex;
 	size_t* cell_index_offsets;
 	size_t total_cell_number;
-	vertex_index_t vertices_per_thread;
 	coefficient_t modulus;
 };
 
@@ -331,8 +328,6 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 
 	if (dimension > max_dimension || _is_top_dimension) return;
 
-	vertex_index_t vertices_per_thread = graph.number_of_vertices / PARALLEL_THREADS;
-
 	{
 		size_t _next_cells_offsets[PARALLEL_THREADS];
 		{
@@ -345,7 +340,6 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 				          << "preparing dimension " << dimension << ": computing the filtration of all "
 				          << (dimension + 1) << "-dimensional cells" << std::flush << "\r";
 #endif
-				size_t offset = 0;
 				std::array<compute_filtration_t*, PARALLEL_THREADS> compute_filtration;
 				for (int i = 0; i < PARALLEL_THREADS; i++) {
 					compute_filtration[i] = new compute_filtration_t(filtration_algorithm, graph, flag_complex);
@@ -390,7 +384,7 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 			for (int i = 0; i < PARALLEL_THREADS; i++) {
 				store_coboundaries[i] = new store_coboundaries_in_cache_t(
 				    coboundary_matrix[i], dimension, graph, flag_complex, _next_cells_offsets, cell_count[dimension],
-				    i == 0, vertices_per_thread, modulus);
+				    i == 0, modulus);
 			}
 			flag_complex.for_each_cell(store_coboundaries, dimension);
 

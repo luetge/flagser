@@ -8,16 +8,16 @@
 
 template <typename Complex> class output_t {
 public:
-    // Due to polymorphism, it's necessary to implement virtual destructor 
-    virtual ~output_t(){}; 
-	virtual void set_complex(Complex* complex){};
-	virtual void print(std::string s){};
-	virtual void finished(bool with_cell_counts){};
-	virtual void computing_barcodes_in_dimension(unsigned short dimension){};
-	virtual void new_barcode(value_t birth, value_t death){};
-	virtual void new_infinite_barcode(value_t birth){};
-	virtual void skipped_column(value_t birth){};
-	virtual void betti_number(size_t _betti, size_t _skipped){};
+    // Due to polymorphism, it's necessary to implement virtual destructor
+    virtual ~output_t(){};
+	virtual void set_complex(Complex*){};
+	virtual void print(std::string){};
+	virtual void finished(bool){};
+	virtual void computing_barcodes_in_dimension(unsigned short){};
+	virtual void new_barcode(value_t, value_t){};
+	virtual void new_infinite_barcode(value_t){};
+	virtual void skipped_column(value_t){};
+	virtual void betti_number(size_t, size_t){};
 	virtual void remaining_homology_is_trivial(){};
 	virtual void print_aggregated_results(){};
 };

@@ -72,7 +72,7 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 				else
 					ec--;
 
-				if (cell_counts.size() < size) { cell_counts.resize(size, 0); }
+				if (cell_counts.size() < size_t(size)) { cell_counts.resize(size, 0); }
 				cell_counts[size - 1]++;
 
 #ifdef WITH_HDF5
