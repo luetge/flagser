@@ -38,11 +38,11 @@ void compute(std::string&& filename, std::vector<size_t> homology) {
   }
 
   if (!correct) {
-    std::cerr << "Expected betti numbers: ";
-    for (auto b : homology) std::cerr << std::to_string(b) << " ";
-    std::cerr << "; computed: ";
-    for (auto b : result.get_betti_numbers()) std::cerr << std::to_string(b) << " ";
-    std::cerr << std::endl;
+    std::cout << "Expected betti numbers: ";
+    for (auto b : homology) std::cout << std::to_string(b) << " ";
+    std::cout << "; computed: ";
+    for (auto b : result.get_betti_numbers()) std::cout << std::to_string(b) << " ";
+    std::cout << std::endl;
     throw std::logic_error(std::string("Wrong betti numbers computed."));
   }
 
