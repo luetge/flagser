@@ -362,7 +362,7 @@ struct store_coboundaries_in_cache_t {
 				size_t vertex_offset = offset << 6;
 				while (bits > 0) {
 					// Get the least significant non-zero bit
-					int b = __builtin_ctzl(index_t(bits));
+					auto b = __builtin_ctzl(bits);
 
 					// Unset this bit
 					bits &= ~(ONE_ << b);
