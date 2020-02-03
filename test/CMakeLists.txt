@@ -7,4 +7,7 @@ function(make_test test)
         add_test(${test_name} ${test_name})
 endfunction()
 
-make_test(test_end2end)
+make_test(test_flagser)
+make_test(test_flagser_memory)
+make_test(test_flagser_coefficients)
+make_test(test_flagser_coefficients_memory)

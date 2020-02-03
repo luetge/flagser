@@ -1,21 +1,7 @@
-#define ASSEMBLE_REDUCTION_MATRIX
-#define INDICATE_PROGRESS
-#define SKIP_APPARENT_PAIRS
-#define USE_ARRAY_HASHMAP
-#define USE_CELLS_WITHOUT_DIMENSION
-#define SORT_COLUMNS_BY_PIVOT
-#define RETRIEVE_PERSISTENCE
-// #define WITH_HDF5
-// #define KEEP_FLAG_COMPLEX_IN_MEMORY
-// #define USE_COEFFICIENTS
-// #define MANY_VERTICES
-
-
 #include "../include/persistence.h"
 #include "../include/complex/directed_flag_complex_computer.h"
 #include "../include/input/input_classes.h"
 #include "../include/output/output_classes.h"
-
 
 void compute(std::string&& filename, std::vector<size_t> homology) {
   std::cout << "Testing " << filename << "..." << std::endl;
@@ -63,7 +49,7 @@ void compute(std::string&& filename, std::vector<size_t> homology) {
   std::cout << "All good." << std::endl;
 }
 
-int main(int, char**) {
+void run_all(bool full=false) {
   compute("../../test/d2.flag", {{1ul, 1ul}});
   compute("../../test/a.flag", {{1ul, 2ul, 0ul}});
   compute("../../test/b.flag", {{1ul, 0ul, 0ul}});
@@ -79,10 +65,9 @@ int main(int, char**) {
   compute("../../test/d4-allzero.flag", {{1, 0, 0, 9}});
   compute("../../test/d5.flag", {{1, 0, 0, 0, 44}});
   compute("../../test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
-#ifndef _MSC_VER
-  compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
-  compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
-#endif
 
-  return 0;
+  if (full) {
+    compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
+    compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+  }
 }
