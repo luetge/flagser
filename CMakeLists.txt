@@ -86,7 +86,11 @@ TARGET_LINK_LIBRARIES(flagser-coefficients-memory ${HDF5_LIBRARIES} pthread)
 ENDIF()
 ENDIF()
 
+IF(NOT MSVC)
 install(TARGETS flagser flagser-coefficients flagser-memory flagser-coefficients-memory flagser-count RUNTIME DESTINATION bin)
+ELSE()
+install(TARGETS flagser flagser-memory flagser-count RUNTIME DESTINATION bin)
+ENDIF()
 
 add_custom_command(
     TARGET flagser POST_BUILD
