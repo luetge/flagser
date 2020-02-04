@@ -199,7 +199,7 @@ public:
 	void init_rows();
 
 	compressed_distance_matrix(std::vector<value_t>&& _distances)
-	    : distances(_distances), rows(value_t(1 + std::sqrt(1 + 8 * distances.size())) / 2) {
+	    : distances(_distances), rows(value_t(1 + std::sqrt(value_t(1 + 8 * distances.size()))) / 2) {
 		assert(distances.size() == size() * (size() - 1) / 2);
 		init_rows();
 	}

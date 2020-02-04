@@ -512,7 +512,7 @@ public:
 			for (size_t i = 0; i <= complex.top_dimension(); i++) {
 				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex.number_of_cells(index_t(i)));
 #ifdef RETRIEVE_PERSISTENCE
-				cell_count.push_back(index_t(complex.number_of_cells(i)));
+				cell_count.push_back(index_t(complex.number_of_cells(index_t(i))));
 #endif
 			}
 

@@ -296,7 +296,7 @@ struct store_coboundaries_in_cache_t {
 					auto cb = cell.insert_vertex(i, vertex_index_t(vertex_offset + b));
 					short thread_index = cb.vertex(0) % PARALLEL_THREADS;
 					coboundary_matrix.push_back(
-					    make_entry(complex.get_data(current_dimension + 1, cb).first + cell_index_offsets[thread_index],
+					    make_entry(complex.get_data(current_dimension + 1, cb).first + index_t(cell_index_offsets[thread_index]),
 					               index_t(i & 1 ? -1 + modulus : 1)));
 				}
 			}
