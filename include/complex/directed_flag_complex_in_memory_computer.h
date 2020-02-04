@@ -227,7 +227,7 @@ public:
 		int i = 0;
 		while (i < PARALLEL_THREADS - 1 && index_t(coboundary_matrix_offsets[i + 1]) <= get_index(cell)) { i++; }
 		return coboundary_iterator_t<directed_flag_complex_in_memory_computer_t>(
-		    this, current_dimension, coboundary_matrix[i], get_index(cell) - coboundary_matrix_offsets[i], get_coefficient(cell), modulus);
+		    this, current_dimension, coboundary_matrix[i], index_t(get_index(cell) - coboundary_matrix_offsets[i]), get_coefficient(cell), modulus);
 	}
 
 	bool is_top_dimension() { return _is_top_dimension; }
@@ -287,17 +287,17 @@ struct store_coboundaries_in_cache_t {
 				size_t vertex_offset = offset << 6;
 				while (bits > 0) {
 					// Get the least significant non-zero bit
-					int b = __builtin_ctzl(bits);
+					auto b = __builtin_ctzl(bits);
 
 					// Unset this bit
 					bits &= ~(ONE_ << b);
 
 					// Now insert the appropriate vertex at this position
-					auto cb = cell.insert_vertex(i, vertex_offset + b);
+					auto cb = cell.insert_vertex(i, vertex_index_t(vertex_offset + b));
 					short thread_index = cb.vertex(0) % PARALLEL_THREADS;
 					coboundary_matrix.push_back(
 					    make_entry(complex.get_data(current_dimension + 1, cb).first + cell_index_offsets[thread_index],
-					               i & 1 ? -1 + modulus : 1));
+					               index_t(i & 1 ? -1 + modulus : 1)));
 				}
 			}
 		}

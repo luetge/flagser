@@ -87,7 +87,7 @@ directed_flag_complex_coboundary_cell_t directed_flag_complex_cell_t::insert_ver
 #ifdef USE_CELLS_WITHOUT_DIMENSION
 	return directed_flag_complex_coboundary_cell_t(vertices, vertex, (unsigned short)position);
 #else
-	return directed_flag_complex_coboundary_cell_t(dim, vertices, vertex, position);
+	return directed_flag_complex_coboundary_cell_t(dim, vertices, vertex, (unsigned short)position);
 #endif
 }
 

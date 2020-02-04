@@ -130,7 +130,7 @@ public:
 
 	value_t filtration(const index_t index) const {
 		value_t filtr = 0;
-		get_simplex_vertices(index, dim, dist.size(), binomial_coeff, vertices.begin());
+		get_simplex_vertices(index, dim, index_t(dist.size()), binomial_coeff, vertices.begin());
 
 		for (index_t i = 0; i <= dim; ++i)
 			for (index_t j = 0; j < i; ++j) { filtr = std::max(filtr, dist(vertices[i], vertices[j])); }
@@ -199,7 +199,7 @@ public:
 	void init_rows();
 
 	compressed_distance_matrix(std::vector<value_t>&& _distances)
-	    : distances(_distances), rows((1 + std::sqrt(1 + 8 * distances.size())) / 2) {
+	    : distances(_distances), rows(value_t(1 + std::sqrt(1 + 8 * distances.size())) / 2) {
 		assert(distances.size() == size() * (size() - 1) / 2);
 		init_rows();
 	}
@@ -210,7 +210,7 @@ public:
 		init_rows();
 
 		for (size_t i = 1ul; i < size(); ++i)
-			for (size_t j = 0ul; j < i; ++j) rows[i][j] = mat(i, j);
+			for (size_t j = 0ul; j < i; ++j) rows[i][j] = mat(index_t(i), index_t(j));
 	}
 
 	value_t operator()(const index_t i, const index_t j) const;
@@ -312,9 +312,9 @@ template <typename DistanceMatrix> class vietoris_rips_complex_t {
 public:
 	vietoris_rips_complex_t(DistanceMatrix& _distance_matrix, unsigned short _max_dimension, coefficient_t _modulus)
 	    : distance_matrix(_distance_matrix), n(_distance_matrix.size()), max_dimension(_max_dimension),
-	      binomial_coeff(n, _max_dimension + 2), _vertices_of_edge(2, 0), modulus(_modulus) {}
+	      binomial_coeff(index_t(n), _max_dimension + 2), _vertices_of_edge(2, 0), modulus(_modulus) {}
 
-	size_t number_of_cells(int dimension) const { return binomial_coeff(n, dimension + 1); }
+	size_t number_of_cells(int dimension) const { return binomial_coeff(index_t(n), dimension + 1); }
 
 	const std::vector<value_t> vertex_filtration() const { return std::vector<value_t>(n, 0); }
 
@@ -331,7 +331,7 @@ public:
 
 	std::pair<vertex_index_t, vertex_index_t> vertices_of_edge(index_t edge) const {
 		_vertices_of_edge.clear();
-		get_simplex_vertices(edge, 1, n, binomial_coeff, std::back_inserter(_vertices_of_edge));
+		get_simplex_vertices(edge, 1, index_t(n), binomial_coeff, std::back_inserter(_vertices_of_edge));
 		return std::make_pair(_vertices_of_edge[0], _vertices_of_edge[1]);
 	}
 
@@ -348,7 +348,7 @@ public:
 	}
 
 	inline simplex_coboundary_enumerator<DistanceMatrix> coboundary(filtration_entry_t cell) {
-		return simplex_coboundary_enumerator<DistanceMatrix>(cell, current_dimension, n, modulus, distance_matrix, binomial_coeff);
+		return simplex_coboundary_enumerator<DistanceMatrix>(cell, current_dimension, index_t(n), modulus, distance_matrix, binomial_coeff);
 	}
 
 	bool is_top_dimension() { return current_dimension >= max_dimension; }
@@ -400,7 +400,7 @@ compressed_lower_distance_matrix read_point_cloud(std::istream& input_stream) {
 
 	euclidean_distance_matrix eucl_dist(std::move(points));
 
-	index_t n = eucl_dist.size();
+	index_t n = index_t(eucl_dist.size());
 
 	std::cout << "point cloud with " << n << " points in dimension " << eucl_dist.points.front().size() << std::endl;
 
@@ -461,14 +461,14 @@ compressed_lower_distance_matrix read_dipha(std::istream& input_stream) {
 		exit(-1);
 	}
 
-	index_t n = read<int64_t>(input_stream);
+	index_t n = index_t(read<int64_t>(input_stream));
 
 	std::vector<value_t> distances;
 
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < n; ++j)
 			if (i > j)
-				distances.push_back(read<double>(input_stream));
+				distances.push_back(value_t(read<double>(input_stream)));
 			else
 				read<double>(input_stream);
 
@@ -565,7 +565,7 @@ int main(int argc, char** argv) {
 
 	compressed_lower_distance_matrix dist = read_file(positional_arguments[0] ? file_stream : std::cin, format);
 
-	index_t n = dist.size();
+	index_t n = index_t(dist.size());
 
 	std::cout << "distance matrix with " << n << " points" << std::endl;
 

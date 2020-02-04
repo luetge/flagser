@@ -203,17 +203,16 @@ void construction_worker_thread(int number_of_threads, int thread_id,
 		// Compute possible vertices
 		std::vector<vertex_index_t> possible_vertices;
 		for (size_t offset = 0; offset < graph->incidence_row_length; offset++) {
-			size_t bits = graph->get_outgoing_chunk(index, offset);
-			;
+			size_t bits = graph->get_outgoing_chunk(index, vertex_index_t(offset));
 			size_t vertex_offset = offset << 6;
 
 			while (bits > 0) {
 				// Get the least significant non-zero bit
-				int b = __builtin_ctzl(bits);
+				auto b = __builtin_ctzl(bits);
 
 				// Unset this bit
 				bits &= ~(ONE_ << b);
-				possible_vertices.push_back(vertex_offset + b);
+				possible_vertices.push_back(vertex_index_t(vertex_offset + b));
 			}
 		}
 		construct_children(result->vertex_cells[index], *graph, possible_vertices, max_dimension);
