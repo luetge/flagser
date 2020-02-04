@@ -202,7 +202,7 @@ public:
 
 private:
 	template <typename Func>
-	void worker_thread(int number_of_threads, int thread_id, Func& f, int min_dimension, int max_dimension) {
+	void worker_thread(size_t number_of_threads, int thread_id, Func& f, int min_dimension, int max_dimension) {
 		const size_t number_of_vertices = graph.vertex_number();
 
 		std::vector<vertex_index_t> first_position_vertices;
