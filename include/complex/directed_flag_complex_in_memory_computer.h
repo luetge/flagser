@@ -379,7 +379,7 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 #endif
 
 			// Now compute the coboundaries
-			std::array<store_coboundaries_in_cache_t*, PARALLEL_THREADS> store_coboundaries;
+			std::array<store_coboundaries_in_cache_t*, size_t(PARALLEL_THREADS)> store_coboundaries;
 			for (int i = 0; i < PARALLEL_THREADS; i++) coboundary_matrix[i] = compressed_sparse_matrix<entry_t>();
 			for (int i = 0; i < PARALLEL_THREADS; i++) {
 				store_coboundaries[i] = new store_coboundaries_in_cache_t(
