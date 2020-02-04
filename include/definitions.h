@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 // #define USE_GOOGLE_HASHMAP
-#define PARALLEL_THREADS 8
+#define PARALLEL_THREADS 8ul
 
 #ifndef MANY_VERTICES
 // Assume that we have at most 65k vertices, and that there are at most ~2 billion cells
