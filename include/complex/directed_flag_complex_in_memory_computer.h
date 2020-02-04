@@ -383,10 +383,10 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 			for (int i = 0; i < PARALLEL_THREADS; i++) coboundary_matrix[i] = compressed_sparse_matrix<entry_t>();
 			for (int i = 0; i < PARALLEL_THREADS; i++) {
 				store_coboundaries[i] = new store_coboundaries_in_cache_t(
-				    coboundary_matrix[i], dimension, graph, flag_complex, _next_cells_offsets, cell_count[dimension],
+				    coboundary_matrix[i], dimension, graph, flag_complex, _next_cells_offsets, int(cell_count[dimension]),
 				    i == 0, modulus);
 			}
-			flag_complex.for_each_cell(store_coboundaries, size_t(dimension));
+			flag_complex.for_each_cell(store_coboundaries, dimension);
 
 			size_t _cell_count = 0;
 			for (int i = 0; i < PARALLEL_THREADS; i++) {
