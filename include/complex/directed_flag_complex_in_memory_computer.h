@@ -386,7 +386,7 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 				    coboundary_matrix[i], dimension, graph, flag_complex, _next_cells_offsets, cell_count[dimension],
 				    i == 0, modulus);
 			}
-			flag_complex.for_each_cell(store_coboundaries, dimension);
+			flag_complex.for_each_cell(store_coboundaries, size_t(dimension));
 
 			size_t _cell_count = 0;
 			for (int i = 0; i < PARALLEL_THREADS; i++) {
