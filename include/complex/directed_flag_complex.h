@@ -193,7 +193,7 @@ public:
 			                       std::ref(fs[index]), min_dimension, max_dimension);
 
 		// Also do work in this thread, namely the last bit
-		worker_thread(number_of_threads, number_of_threads - 1, fs[number_of_threads - 1], min_dimension,
+		worker_thread(number_of_threads, int(number_of_threads - 1), fs[number_of_threads - 1], min_dimension,
 		              max_dimension);
 
 		// Wait until all threads stopped
