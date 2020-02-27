@@ -45,7 +45,7 @@ To only compute the Euler characteristic and cell counts, run
 
 ### Online Version
 
-An online version is available here (thanks to @JasonPSmith): https://homepages.abdn.ac.uk/neurotopology/flagser.html
+An online version is available here (thanks to [JasonPSmith]( https://github.com/JasonPSmith )): https://homepages.abdn.ac.uk/neurotopology/flagser.html
 
 ### License
 
