@@ -43,6 +43,10 @@ To only compute the Euler characteristic and cell counts, run
 ./flagser-count example.flag
 ```
 
+### Online Version
+
+An online version is available here (thanks to @JasonPSmith): https://homepages.abdn.ac.uk/neurotopology/flagser.html
+
 ### License
 
 flagser is licensed under the MIT license (COPYING.txt), with an extra clause (CONTRIBUTING.txt) clarifying the license for modifications released without an explicit written license agreement. Please contact the author if you want to use Ripser in your software under a different license.
