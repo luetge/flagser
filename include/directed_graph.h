@@ -67,6 +67,7 @@ public:
 	size_t incidence_row_length;
 
 	// Assume by default that the edge density will be roughly one percent
+    directed_graph_t(){}
 	directed_graph_t(vertex_index_t _number_of_vertices, bool directed = true, float density_hint = 0.01)
 	    : number_of_vertices(_number_of_vertices), directed(directed), incidence_row_length((_number_of_vertices >> 6) + 1) {
 		outdegrees.resize(_number_of_vertices, 0);
@@ -126,6 +127,7 @@ public:
 
 	// WARNING: This does not take the filtration into account!
 	// TODO: Think about how to do this efficiently.
+	filtered_directed_graph_t(){}
 	filtered_directed_graph_t(filtered_directed_graph_t* big_graph, std::unordered_set<vertex_index_t> subset)
 	    : filtered_directed_graph_t(std::vector<value_t>(subset.size(), 0), big_graph->directed) {
 		// Add the edges
