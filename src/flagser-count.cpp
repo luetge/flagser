@@ -88,17 +88,17 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 			std::vector<size_t> cell_counts;
 		};
 
-		std::array<cell_counter_t*, PARALLEL_THREADS> cell_counter;
+		std::vector<cell_counter_t> cell_counter(PARALLEL_THREADS);
 		for (int i = 0; i < PARALLEL_THREADS; i++)
-			cell_counter[i] = new cell_counter_t(
+			cell_counter.push_back(cell_counter_t(
 #ifdef WITH_HDF5
 			    output
 #endif
-			);
+			));
 
 #ifdef WITH_HDF5
 		if (output != nullptr)
-			complex.for_each_cell(*cell_counter[0], 0, 10000);
+			complex.for_each_cell(*cell_counter.data(), 0, 10000);
 		else {
 #endif
 			complex.for_each_cell(cell_counter, 0, 10000);
@@ -106,7 +106,7 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 		}
 #endif
 		int64_t euler_characteristic = 0;
-		for (int i = 0; i < PARALLEL_THREADS; i++) euler_characteristic += cell_counter[i]->euler_characteristic();
+		for (int i = 0; i < PARALLEL_THREADS; i++) euler_characteristic += cell_counter[i].euler_characteristic();
 
 #ifdef INDICATE_PROGRESS
 		std::cout << "\033[K";
@@ -118,7 +118,7 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 		std::array<std::vector<size_t>, PARALLEL_THREADS> cell_counts;
 		size_t max_dim = 0;
 		for (int i = 0; i < PARALLEL_THREADS; i++) {
-			cell_counts[i] = cell_counter[i]->cell_count();
+			cell_counts[i] = cell_counter[i].cell_count();
 			size_t dim = cell_counts[i].size();
 			max_dim = max_dim < dim ? dim : max_dim;
 		}

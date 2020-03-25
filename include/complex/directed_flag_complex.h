@@ -175,19 +175,25 @@ public:
 	directed_flag_complex_t(const filtered_directed_graph_t& _graph) : graph(_graph) {}
 
 public:
-	template <typename Func> void for_each_cell(Func& f, int min_dimension, int max_dimension = -1) {
-		std::array<Func*, 1> fs{&f};
+	template <typename Func> 
+    void for_each_cell(Func& f, int min_dimension, int max_dimension = -1) {
+		std::vector<Func> fs{f};
 		for_each_cell(fs, min_dimension, max_dimension);
+        // Hack because I cannot wrap the reference in the vector, well technically I could use `std::reference_wrapper`
+        // But in this case it doesn't help
+        // What I do is storing the computed value again after computation
+        f = fs[0];
 	}
 
-	template <typename Func, size_t number_of_threads>
-	void for_each_cell(std::array<Func*, number_of_threads>& fs, int min_dimension, int max_dimension = -1) {
+	template <typename Func>
+	void for_each_cell(std::vector<Func>& fs, int min_dimension, int max_dimension = -1) {
 		if (max_dimension == -1) max_dimension = min_dimension;
+        size_t number_of_threads = fs.size();
 		std::thread t[number_of_threads - 1];
 
 		for (size_t index = 0; index < number_of_threads - 1; ++index)
 			t[index] = std::thread(&directed_flag_complex_t::worker_thread<Func>, this, number_of_threads, index,
-			                       fs[index], min_dimension, max_dimension);
+			                       std::ref(fs[index]), min_dimension, max_dimension);
 
 		// Also do work in this thread, namely the last bit
 		worker_thread(number_of_threads, number_of_threads - 1, fs[number_of_threads - 1], min_dimension,
@@ -199,7 +205,7 @@ public:
 
 private:
 	template <typename Func>
-	void worker_thread(int number_of_threads, int thread_id, Func* f, int min_dimension, int max_dimension) {
+	void worker_thread(int number_of_threads, int thread_id, Func& f, int min_dimension, int max_dimension) {
 		const size_t number_of_vertices = graph.vertex_number();
 		const size_t vertices_per_thread = graph.vertex_number() / number_of_threads;
 
@@ -211,15 +217,15 @@ private:
 
 		do_for_each_cell(f, min_dimension, max_dimension, first_position_vertices, prefix.data(), 0);
 
-		f->done();
+		f.done();
 	}
 
 	template <typename Func>
-	void do_for_each_cell(Func* f, int min_dimension, int max_dimension,
+	void do_for_each_cell(Func& f, int min_dimension, int max_dimension,
 	                      const std::vector<vertex_index_t>& possible_next_vertices, vertex_index_t* prefix,
 	                      unsigned short prefix_size = 0) {
 		// As soon as we have the correct dimension, execute f
-		if (prefix_size >= min_dimension + 1) { (*f)(prefix, prefix_size); }
+		if (prefix_size >= min_dimension + 1) { f(prefix, prefix_size); }
 
 		// If this is the last dimension we are interested in, exit this branch
 		if (prefix_size == max_dimension + 1) return;
