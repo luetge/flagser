@@ -447,7 +447,7 @@ private:
 template <typename Complex> class persistence_computer_t {
 private:
 	Complex& complex;
-	output_t<Complex>* output;
+	output_t<Complex> output;
 	value_t max_filtration;
 	size_t max_entries;
 	index_t euler_characteristic = 0;
@@ -467,7 +467,7 @@ private:
 #endif
 
 public:
-	persistence_computer_t(Complex& _complex, output_t<Complex>* _output,
+	persistence_computer_t(Complex& _complex, output_t<Complex> _output,
 	                       size_t _max_entries = std::numeric_limits<size_t>::max(), int _modulus = 2,
 	                       value_t _max_filtration = std::numeric_limits<value_t>::max())
 	    : complex(_complex), output(_output), max_filtration(_max_filtration), max_entries(_max_entries),
@@ -484,7 +484,7 @@ public:
 		compute_zeroth_persistence(min_dimension, max_dimension);
 		compute_higher_persistence(min_dimension, max_dimension);
 		complex.finished();
-		output->finished(check_euler_characteristic);
+		output.finished(check_euler_characteristic);
 
 		// Sanity check whether there were any problems computing the homology
 		bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
@@ -553,7 +553,7 @@ protected:
 		std_algorithms::sort(edges.rbegin(), edges.rend(), greater_filtration_or_smaller_index<filtration_index_t>());
 
 		// Let the output class know that we are now computing zeroth degree barcodes
-		output->computing_barcodes_in_dimension(0);
+		output.computing_barcodes_in_dimension(0);
 
 		for (auto e : edges) {
 			const auto vertices = complex.vertices_of_edge(get_index(e));
@@ -567,7 +567,7 @@ protected:
 				if (min_dimension == 0 && get_filtration(e) > std::max(filtration_u, filtration_v)) {
 					// Check which vertex is merged into which other vertex.
 					const auto f = dset.find(u) == u ? filtration_v : filtration_u;
-					output->new_barcode(f, get_filtration(e));
+					output.new_barcode(f, get_filtration(e));
 #ifdef RETRIEVE_PERSISTENCE
 					birth_death.push_back(std::make_pair(f, get_filtration(e)));
 #endif
@@ -591,7 +591,7 @@ protected:
 
 		for (index_t index = 0; index < n; ++index) {
 			if (dset.find(index) == index) {
-				output->new_infinite_barcode(complex.filtration(0, index));
+				output.new_infinite_barcode(complex.filtration(0, index));
 				betti_number++;
 #ifdef RETRIEVE_PERSISTENCE
 				birth_death.push_back(
@@ -606,7 +606,7 @@ protected:
 #endif
 		// Report the betti number back to the complex and the output
 		complex.computation_result(0, betti_number, 0);
-		output->betti_number(betti_number, 0);
+		output.betti_number(betti_number, 0);
 
 		if (print_betti_numbers_to_console) {
 			std::cout << "\033[K"
@@ -631,7 +631,7 @@ protected:
 
 			if (dimension + 1 < min_dimension) continue;
 
-			output->computing_barcodes_in_dimension(dimension);
+			output.computing_barcodes_in_dimension(dimension);
 
 			sort_columns();
 
@@ -652,7 +652,7 @@ protected:
 #ifdef RETRIEVE_PERSISTENCE
 				betti_numbers.push_back(betti.first);
 #endif
-				output->betti_number(betti.first, betti.second);
+				output.betti_number(betti.first, betti.second);
 				euler_characteristic += (dimension & 1 ? -1 : 1) * betti.first;
 
 				if (print_betti_numbers_to_console) {
@@ -670,7 +670,7 @@ protected:
 
 			// Stop early
 			if (complex.is_top_dimension()) {
-				output->remaining_homology_is_trivial();
+				output.remaining_homology_is_trivial();
 				break;
 			}
 		}
@@ -849,7 +849,7 @@ protected:
 
 				if (iterations > max_entries) {
 					// Abort, this is too expensive
-					if (generate_output) output->skipped_column(filtration);
+					if (generate_output) output.skipped_column(filtration);
 #ifdef RETRIEVE_PERSISTENCE
 					birth_death.push_back(
 					    std::make_pair(filtration, std::numeric_limits<value_t>::signaling_NaN()));
@@ -878,7 +878,7 @@ protected:
 #endif
 				} else {
 					if (generate_output) {
-						output->new_infinite_barcode(filtration);
+						output.new_infinite_barcode(filtration);
 						betti++;
 #ifdef RETRIEVE_PERSISTENCE
 						birth_death.push_back(std::make_pair(filtration, std::numeric_limits<value_t>::infinity()));
@@ -890,7 +890,7 @@ protected:
 			found_persistence_pair:
 				value_t death = get_filtration(pivot);
 				if (generate_output && filtration != death) {
-					output->new_barcode(filtration, death);
+					output.new_barcode(filtration, death);
 #ifdef RETRIEVE_PERSISTENCE
 					birth_death.push_back(std::make_pair(filtration, death));
 #endif

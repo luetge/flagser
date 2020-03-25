@@ -63,12 +63,12 @@ compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& name
 	for (auto subgraph : subgraphs) {
 		directed_flag_complex_compute_t complex(subgraph, named_arguments);
 
-		output->set_complex(&complex);
+		output.set_complex(&complex);
 		if (split_into_connected_components) {
-			if (component_number > 1) output->print("\n");
-			output->print("## Path component number ");
-			output->print(std::to_string(component_number));
-			output->print("\n");
+			if (component_number > 1) output.print("\n");
+			output.print("## Path component number ");
+			output.print(std::to_string(component_number));
+			output.print("\n");
 
 #ifdef INDICATE_PROGRESS
 			std::cout << "\033[K";
@@ -88,12 +88,12 @@ compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& name
 #endif
 	}
 
-	if (split_into_connected_components) { output->print("\n## Total\n"); }
+	if (split_into_connected_components) { output.print("\n## Total\n"); }
 
-	output->print_aggregated_results();
+	output.print_aggregated_results();
 
     // Closes output files, prevent memory leaks
-    delete output;
+    // delete output;
 
 #ifdef RETRIEVE_PERSISTENCE
 	return complex_subgraphs;
