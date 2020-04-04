@@ -34,7 +34,7 @@ void compute(std::string&& filename, std::vector<size_t> homology) {
 	size_t component_number = 1;
   directed_flag_complex_computer_t complex(graph, named_arguments);
 
-  output->set_complex(&complex);
+  output.set_complex(&complex);
 
   auto result = persistence_computer_t<decltype(complex)>(complex, output, max_entries, modulus);
   result.compute_persistence(min_dimension, max_dimension);

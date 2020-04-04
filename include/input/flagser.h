@@ -27,7 +27,7 @@ std::vector<t> split(const std::string& s, char delim, const std::function<t(std
 enum HAS_EDGE_FILTRATION { TOO_EARLY_TO_DECIDE, MAYBE, YES, NO };
 filtered_directed_graph_t read_graph_flagser(const std::string filename, const named_arguments_t& named_arguments) {
 	std::string line;
-	filtered_directed_graph_t* graph;
+	filtered_directed_graph_t graph{};
 	int current_dimension = 0;
 	std::vector<value_t> vertex_filtration;
 	HAS_EDGE_FILTRATION has_edge_filtration = HAS_EDGE_FILTRATION::TOO_EARLY_TO_DECIDE;
@@ -42,7 +42,7 @@ filtered_directed_graph_t read_graph_flagser(const std::string filename, const n
 		if (line.length() == 0) continue;
 		if (line[0] == 'd' && line[1] == 'i' && line[2] == 'm') {
 			if (line[4] == '1') {
-				graph = new filtered_directed_graph_t(vertex_filtration, directed);
+				graph = filtered_directed_graph_t(vertex_filtration, directed);
 				current_dimension = 1;
 				has_edge_filtration = HAS_EDGE_FILTRATION::MAYBE;
 			}
@@ -62,7 +62,7 @@ filtered_directed_graph_t read_graph_flagser(const std::string filename, const n
 
 			if (has_edge_filtration == NO) {
 				std::vector<vertex_index_t> vertices = split<vertex_index_t>(line, ' ', string_to_uint);
-				graph->add_edge(vertices[0], vertices[1]);
+				graph.add_edge(vertices[0], vertices[1]);
 			} else {
 				std::vector<value_t> vertices = split<value_t>(line, ' ', string_to_float);
 				if (vertices[2] < std::max(vertex_filtration[vertices[0]], vertex_filtration[vertices[1]])) {
@@ -73,10 +73,10 @@ filtered_directed_graph_t read_graph_flagser(const std::string filename, const n
 					          << vertex_filtration[vertices[1]] << "), the filtrations of its vertices.";
 					exit(-1);
 				}
-				graph->add_filtered_edge((vertex_index_t)vertices[0], (vertex_index_t)vertices[1], vertices[2]);
+				graph.add_filtered_edge((vertex_index_t)vertices[0], (vertex_index_t)vertices[1], vertices[2]);
 			}
 		}
 	}
 
-	return *graph;
+	return graph;
 }
