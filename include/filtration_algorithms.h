@@ -7,6 +7,8 @@
 #include "directed_graph.h"
 
 struct filtration_algorithm_t {
+  filtration_algorithm_t() = default;
+  virtual ~filtration_algorithm_t() = default;
 	virtual inline value_t compute_filtration(unsigned short /* dimension */, const directed_flag_complex_cell_t& /* cell */,
 	                                          const filtered_directed_graph_t& /* graph */,
 	                                          const value_t* /* boundary_filtration */) const {

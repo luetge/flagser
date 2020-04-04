@@ -80,9 +80,9 @@ public:
 	}
 
 	template <typename Func>
-	void for_each_cell(Func* f, int min_dimension, int max_dimension, vertex_index_t* prefix, int prefix_size = 0) {
+	void for_each_cell(Func& f, int min_dimension, int max_dimension, vertex_index_t* prefix, int prefix_size = 0) {
 		prefix[prefix_size++] = vertex;
-		if (prefix_size >= min_dimension + 1) (*f)(prefix, prefix_size, data);
+		if (prefix_size >= min_dimension + 1) f(prefix, prefix_size, data);
 		if (prefix_size == max_dimension + 1 || children == nullptr) return;
 
 		for (auto child : *children) child.second.for_each_cell(f, min_dimension, max_dimension, prefix, prefix_size);
@@ -123,14 +123,14 @@ public:
 	}
 
 	template <typename Func> void for_each_cell(Func& f, int min_dimension, int max_dimension = -1) {
-		std::array<Func*, 1> fs{{&f}};
+		std::vector<Func> fs{{f}};
 		for_each_cell(fs, min_dimension, max_dimension);
 	}
 
 	index_t euler_characteristic() {
-		std::array<euler_characteristic_computer_t<ExtraData>*, PARALLEL_THREADS> compute_euler_characteristic;
+		std::vector<euler_characteristic_computer_t<ExtraData>> compute_euler_characteristic;
 		for (auto i = 0ul; i < PARALLEL_THREADS; i++)
-			compute_euler_characteristic[i] = new euler_characteristic_computer_t<ExtraData>();
+			compute_euler_characteristic.push_back(euler_characteristic_computer_t<ExtraData>());
 
 		// TODO: Remove the 10000-hack
 		for_each_cell(compute_euler_characteristic, 0, 10000);
@@ -141,15 +141,16 @@ public:
 		return euler_characteristic;
 	}
 
-	template <typename Func, size_t number_of_threads>
-	void for_each_cell(std::array<Func*, number_of_threads>& fs, int min_dimension, int max_dimension = -1) {
+	template <typename Func>
+	void for_each_cell(std::vector<Func>& fs, int min_dimension, int max_dimension = -1) {
 		if (max_dimension == -1) max_dimension = min_dimension;
 
-		std::thread t[number_of_threads]; // avoid problems with zero sized arrays
+    auto number_of_threads = int(fs.size());
+    std::vector<std::thread> t(number_of_threads);
 
 		for (auto index = 0ul; index < number_of_threads - 1; ++index)
 			t[index] = std::thread(&directed_flag_complex_in_memory_t<ExtraData>::worker_thread<Func>, this,
-			                       number_of_threads, index, fs[index], min_dimension, max_dimension);
+			                       number_of_threads, index, std::ref(fs[index]), min_dimension, max_dimension);
 
 		// Also do work in this thread, namely the last bit
 		worker_thread(number_of_threads, number_of_threads - 1, fs[number_of_threads - 1], min_dimension,
@@ -160,7 +161,7 @@ public:
 	}
 
 	template <typename Func>
-	void worker_thread(int number_of_threads, int thread_id, Func* f, int min_dimension, int max_dimension) {
+	void worker_thread(int number_of_threads, int thread_id, Func& f, int min_dimension, int max_dimension) {
 		const size_t number_of_vertices = vertex_cells.size();
 
         std::vector<vertex_index_t> prefix(max_dimension + 1);
@@ -169,7 +170,7 @@ public:
 			vertex_cells[index].for_each_cell(f, min_dimension, max_dimension, prefix.data());
 		}
 
-		f->done();
+		f.done();
 	}
 };
 
@@ -233,7 +234,7 @@ directed_flag_complex_in_memory_t<ExtraData>::directed_flag_complex_in_memory_t(
 		vertex_cells.push_back(directed_flag_complex_cell_in_memory_t<ExtraData>(index));
 
 	// Now we start a few threads to construct the flag complex
-	std::thread t[PARALLEL_THREADS - 1];
+  std::vector<std::thread> t(PARALLEL_THREADS - 1);
 
 	for (auto index = 0ul; index < PARALLEL_THREADS - 1; ++index)
 		t[index] =

@@ -140,10 +140,10 @@ void prepare_graph_filtration(Complex& complex, filtered_directed_graph_t& graph
 	// Now reorder the edges
 	std::vector<vertex_index_t> new_edges[PARALLEL_THREADS];
 	std::vector<value_t> new_filtrations[PARALLEL_THREADS];
-	std::array<reorder_edges_t*, PARALLEL_THREADS> reorder_filtration;
+	std::vector<reorder_edges_t> reorder_filtration;
 	for (int i = 0; i < PARALLEL_THREADS; i++)
-		reorder_filtration[i] = new reorder_edges_t(new_edges[i], new_filtrations[i],
-		                                            !computed_edge_filtration && filtration_algorithm != nullptr);
+		reorder_filtration.push_back(reorder_edges_t(new_edges[i], new_filtrations[i],
+		                                            !computed_edge_filtration && filtration_algorithm != nullptr));
 	complex.for_each_cell(reorder_filtration, 1);
 
 	size_t current_filtration_index = 0;
@@ -340,16 +340,16 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 				          << "preparing dimension " << dimension << ": computing the filtration of all "
 				          << (dimension + 1) << "-dimensional cells" << std::flush << "\r";
 #endif
-				std::array<compute_filtration_t*, PARALLEL_THREADS> compute_filtration;
+				std::vector<compute_filtration_t> compute_filtration;
 				for (int i = 0; i < PARALLEL_THREADS; i++) {
-					compute_filtration[i] = new compute_filtration_t(filtration_algorithm, graph, flag_complex);
+					compute_filtration.push_back(compute_filtration_t(filtration_algorithm, graph, flag_complex));
 				}
 				flag_complex.for_each_cell(compute_filtration, dimension + 1);
 
 				size_t _cell_count = 0;
 				for (int i = 0; i < PARALLEL_THREADS; i++) {
 					_next_cells_offsets[i] = _cell_count;
-					_cell_count += compute_filtration[i]->number_of_cells();
+					_cell_count += compute_filtration[i].number_of_cells();
 				}
 				cell_count[dimension + 1] = _cell_count;
 				if (_cell_count == 0) _is_top_dimension = true;
@@ -359,11 +359,9 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 					next_filtration.clear();
 					next_filtration.reserve(_cell_count);
 					for (int i = 0; i < PARALLEL_THREADS; i++) {
-						for (auto f : compute_filtration[i]->filtration()) next_filtration.push_back(f);
+						for (auto f : compute_filtration[i].filtration()) next_filtration.push_back(f);
 					}
 				}
-
-				for (int i = 0; i < PARALLEL_THREADS; i++) delete compute_filtration[i];
 			}
 		}
 
@@ -379,12 +377,12 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 #endif
 
 			// Now compute the coboundaries
-			std::array<store_coboundaries_in_cache_t*, PARALLEL_THREADS> store_coboundaries;
+			std::vector<store_coboundaries_in_cache_t> store_coboundaries;
 			for (int i = 0; i < PARALLEL_THREADS; i++) coboundary_matrix[i] = compressed_sparse_matrix<entry_t>();
 			for (int i = 0; i < PARALLEL_THREADS; i++) {
-				store_coboundaries[i] = new store_coboundaries_in_cache_t(
+				store_coboundaries.push_back(store_coboundaries_in_cache_t(
 				    coboundary_matrix[i], dimension, graph, flag_complex, _next_cells_offsets, int(cell_count[dimension]),
-				    i == 0, modulus);
+				    i == 0, modulus));
 			}
 			flag_complex.for_each_cell(store_coboundaries, dimension);
 
@@ -394,9 +392,6 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 				_cell_count += coboundary_matrix[i].size();
 			}
 			cell_count[dimension] = _cell_count;
-
-			// Cleanup
-			for (int i = 0; i < PARALLEL_THREADS; i++) delete store_coboundaries[i];
 		}
 	}
 }
