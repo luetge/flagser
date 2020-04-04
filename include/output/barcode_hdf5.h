@@ -240,7 +240,7 @@ private:
 			size_t new_size = barcode_buffer.size() / 2;
 			const auto dataset = barcode_datasets[current_dataset_index()];
 			hsize_t dims[2];
-      dims[0] += new_size;
+      dims[0] = new_size;
 
 			H5Dset_extent(dataset, dims);
 			auto filespace = H5Dget_space(dataset);

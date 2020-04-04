@@ -84,6 +84,10 @@ struct compute_filtration_t {
 				auto bdry = cell.boundary(i);
 
 				if (!cell_hash.size()) {
+            std::cerr << (std::to_string(bdry.vertex(i)) + " vs " + std::to_string(current_filtration.size()) + "\n");
+          if (bdry.vertex(i) >= current_filtration.size()) {
+            std::cerr << bdry.vertex(i) << " vs " << current_filtration.size() << std::endl;
+          }
 					boundary_filtration[i] = current_filtration[bdry.vertex(i)];
 				} else {
 					// The threads are split by the first vertex
