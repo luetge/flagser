@@ -157,7 +157,7 @@ public:
 		              max_dimension);
 
 		// Wait until all threads stopped
-		for (auto i = 0ul; i < number_of_threads - 1; ++i) t[i].join();
+		for (auto i = 0; i < number_of_threads - 1; ++i) t[i].join();
 	}
 
 	template <typename Func>
