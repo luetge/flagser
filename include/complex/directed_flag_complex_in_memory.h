@@ -148,7 +148,7 @@ public:
     auto number_of_threads = int(fs.size());
     std::vector<std::thread> t(number_of_threads);
 
-		for (auto index = 0ul; index < number_of_threads - 1; ++index)
+		for (auto index = 0; index < number_of_threads - 1; ++index)
 			t[index] = std::thread(&directed_flag_complex_in_memory_t<ExtraData>::worker_thread<Func>, this,
 			                       number_of_threads, index, std::ref(fs[index]), min_dimension, max_dimension);
 
