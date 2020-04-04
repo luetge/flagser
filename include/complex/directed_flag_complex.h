@@ -185,19 +185,19 @@ public:
 	template <typename Func>
 	void for_each_cell(std::vector<Func>& fs, int min_dimension, int max_dimension = -1) {
 		if (max_dimension == -1) max_dimension = min_dimension;
-        size_t number_of_threads = fs.size();
-        std::vector<std::thread> t(number_of_threads);
+    auto number_of_threads = int(fs.size());
+    std::vector<std::thread> t(number_of_threads);
 
-		for (size_t index = 0; index < number_of_threads - 1; ++index)
-			t[index] = std::thread(&directed_flag_complex_t::worker_thread<Func>, this, int(number_of_threads), int(index),
+		for (int index = 0; index < number_of_threads - 1; ++index)
+			t[index] = std::thread(&directed_flag_complex_t::worker_thread<Func>, this, number_of_threads, index,
 			                       std::ref(fs[index]), min_dimension, max_dimension);
 
 		// Also do work in this thread, namely the last bit
-		worker_thread(number_of_threads, int(number_of_threads - 1), fs[number_of_threads - 1], min_dimension,
+		worker_thread(number_of_threads, number_of_threads - 1, fs[number_of_threads - 1], min_dimension,
 		              max_dimension);
 
 		// Wait until all threads stopped
-		for (size_t i = 0; i < number_of_threads - 1; ++i) t[i].join();
+		for (int i = 0; i < number_of_threads - 1; ++i) t[i].join();
 	}
 
 private:
