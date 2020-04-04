@@ -46,7 +46,7 @@ struct reorder_edges_t {
 	    : cell_hash(_cell_hash), old_filtration(_old_filtration), new_filtration(_new_filtration),
 	      new_edges(_new_edges), reorder_filtration(_reorder_filtration) {}
 	void done() {}
-	void operator()(vertex_index_t* first_vertex, int size) {
+	void operator()(vertex_index_t* first_vertex, int) {
 		directed_flag_complex_cell_t cell(first_vertex);
 		if (reorder_filtration) new_filtration.push_back(old_filtration[cell_hash.find(cell)->second]);
 		new_edges.push_back(cell.vertex(0));
@@ -224,11 +224,12 @@ class directed_flag_complex_computer_t {
 
 public:
 	directed_flag_complex_computer_t(filtered_directed_graph_t& _graph, const named_arguments_t& named_arguments)
-	    : graph(_graph), flag_complex(graph),
+	    : graph(_graph),
 	      filtration_algorithm(get_filtration_computer(get_argument_or_default(named_arguments, "filtration", "zero"))),
-	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
 	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
+	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
 	      cache(get_argument_or_default(named_arguments, "cache", "")),
+        flag_complex(graph),
 	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))) {
 		cell_count.push_back(_graph.vertex_number());
 		cell_count.push_back(_graph.edge_number());
@@ -272,15 +273,15 @@ public:
 		}
 
 		int i = 0;
-		while (i < PARALLEL_THREADS - 1 && coboundary_matrix_offsets[i + 1] <= get_index(cell)) { i++; }
+		while (i < PARALLEL_THREADS - 1 && index_t(coboundary_matrix_offsets[i + 1]) <= get_index(cell)) { i++; }
 		return coboundary_iterator_t<directed_flag_complex_computer_t>(this, current_dimension, coboundary_matrix[i],
-		                                                               get_index(cell) - coboundary_matrix_offsets[i],
+		                                                               get_index(cell) - index_t(coboundary_matrix_offsets[i]),
 		                                                               get_coefficient(cell), modulus);
 	}
 
 	bool is_top_dimension() { return _is_top_dimension; }
 
-	void computation_result(int dimension, size_t betti, size_t betti_error = 0) {}
+	void computation_result(int, size_t, size_t) {}
 	void finished() {}
 };
 
@@ -361,13 +362,13 @@ struct store_coboundaries_in_cache_t {
 				size_t vertex_offset = offset << 6;
 				while (bits > 0) {
 					// Get the least significant non-zero bit
-					int b = __builtin_ctzl(bits);
+					auto b = __builtin_ctzl(bits);
 
 					// Unset this bit
 					bits &= ~(ONE_ << b);
 
 					// Now insert the appropriate vertex at this position
-					const auto& cb = cell.insert_vertex(i, vertex_offset + b);
+					const auto& cb = cell.insert_vertex(i, vertex_index_t(vertex_offset + b));
 					short thread_index = cb.vertex(0) % PARALLEL_THREADS;
 					auto pair = cell_hash[thread_index].find(cb);
 					if (pair == cell_hash[thread_index].end()) {
@@ -378,7 +379,7 @@ struct store_coboundaries_in_cache_t {
 						exit(-1);
 					}
 					coboundary_matrix.push_back(
-					    make_entry(pair->second + cell_hash_offsets[thread_index], i & 1 ? -1 + modulus : 1));
+					    make_entry(index_t(pair->second + cell_hash_offsets[thread_index]), i & 1 ? -1 + modulus : 1));
 				}
 			}
 		}
@@ -496,7 +497,7 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 				std::vector<compute_filtration_t> compute_filtration;
 				for (int i = 0; i < PARALLEL_THREADS; i++) {
 					_cache_current_cells_offsets[i] = offset;
-					if (filtration_algorithm->needs_face_filtration()) 
+					if (filtration_algorithm->needs_face_filtration())
                     {
                         offset += _cache_current_cells[i].size();
                     }
@@ -557,7 +558,7 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 		for (int i = 0; i < PARALLEL_THREADS; i++) {
 			store_coboundaries.push_back(store_coboundaries_in_cache_t(coboundary_matrix[i], dimension, graph,
 			                                                           _cache_next_cells, _cache_next_cells_offsets,
-			                                                           cell_count[dimension], i == 0, modulus));
+			                                                           int(cell_count[dimension]), i == 0, modulus));
 		}
 		flag_complex.for_each_cell(store_coboundaries, dimension);
 
@@ -588,7 +589,7 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 			o.write((char*)&(coboundary_matrix_offsets[i]), sizeof(size_t));
 			size_t this_size = coboundary_matrix[i].size();
 			o.write((char*)&this_size, sizeof(size_t));
-			for (int j = 0; j < this_size; j++) {
+			for (auto j = 0ul; j < this_size; j++) {
 				o.write((char*)&(separator), sizeof(index_t));
 				for (auto it = coboundary_matrix[i].cbegin(j); it != coboundary_matrix[i].cend(j); ++it) {
 					o.write((char*)&(*it), sizeof(index_t));

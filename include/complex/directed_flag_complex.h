@@ -26,7 +26,7 @@ public:
 	directed_flag_complex_cell_t(const vertex_index_t* vertices) : vertices(vertices) {}
 #else
 	directed_flag_complex_cell_t(unsigned short _dim) : vertices(nullptr), dim(_dim) {}
-	directed_flag_complex_cell_t(unsigned short _dim, const vertex_index_t* vertices) : dim(_dim), vertices(vertices) {}
+	directed_flag_complex_cell_t(unsigned short _dim, const vertex_index_t* vertices) : vertices(vertices), dim(_dim) {}
 #endif
 
 	vertex_index_t operator[](size_t index) const { return vertex(index); }
@@ -42,8 +42,6 @@ public:
 	const std::string to_string(
 #ifdef USE_CELLS_WITHOUT_DIMENSION
 	    unsigned short dim
-#else
-	    unsigned short _dim = -1 // Ignore the dimension if it is saved with the cell
 #endif
 	    ) const {
 		const directed_flag_complex_cell_t* t = this;
@@ -71,8 +69,7 @@ public:
 #else
 	directed_flag_complex_coboundary_cell_t(unsigned short dimension, const vertex_index_t* vertices,
 	                                        vertex_index_t insert_vertex, unsigned short insert_position)
-	    : _insert_position(insert_position), _insert_vertex(insert_vertex),
-	      directed_flag_complex_cell_t(dimension, vertices) {}
+	    : directed_flag_complex_cell_t(dimension, vertices), _insert_position(insert_position), _insert_vertex(insert_vertex) {}
 #endif
 
 	virtual vertex_index_t vertex(size_t index) const override {
@@ -88,9 +85,9 @@ public:
 directed_flag_complex_coboundary_cell_t directed_flag_complex_cell_t::insert_vertex(size_t position,
                                                                                     vertex_index_t vertex) {
 #ifdef USE_CELLS_WITHOUT_DIMENSION
-	return directed_flag_complex_coboundary_cell_t(vertices, vertex, position);
+	return directed_flag_complex_coboundary_cell_t(vertices, vertex, (unsigned short)position);
 #else
-	return directed_flag_complex_coboundary_cell_t(dim, vertices, vertex, position);
+	return directed_flag_complex_coboundary_cell_t(dim, vertices, vertex, (unsigned short)position);
 #endif
 }
 
@@ -103,7 +100,7 @@ public:
 	    : directed_flag_complex_cell_t(vertices), i(_i) {}
 #else
 	directed_flag_complex_boundary_cell_t(unsigned short dimension, const vertex_index_t* vertices, size_t _i)
-	    : i(_i), directed_flag_complex_cell_t(dimension, vertices) {}
+	    : directed_flag_complex_cell_t(dimension, vertices), i(_i) {}
 #endif
 
 	virtual vertex_index_t vertex(size_t index) const override { return vertices[index + (index < i ? 0 : 1)]; }
@@ -175,7 +172,7 @@ public:
 	directed_flag_complex_t(const filtered_directed_graph_t& _graph) : graph(_graph) {}
 
 public:
-	template <typename Func> 
+	template <typename Func>
     void for_each_cell(Func& f, int min_dimension, int max_dimension = -1) {
 		std::vector<Func> fs{f};
 		for_each_cell(fs, min_dimension, max_dimension);
@@ -188,10 +185,10 @@ public:
 	template <typename Func>
 	void for_each_cell(std::vector<Func>& fs, int min_dimension, int max_dimension = -1) {
 		if (max_dimension == -1) max_dimension = min_dimension;
-        size_t number_of_threads = fs.size();
-        std::vector<std::thread> t(number_of_threads - 1);
+    auto number_of_threads = int(fs.size());
+    std::vector<std::thread> t(number_of_threads);
 
-		for (size_t index = 0; index < number_of_threads - 1; ++index)
+		for (int index = 0; index < number_of_threads - 1; ++index)
 			t[index] = std::thread(&directed_flag_complex_t::worker_thread<Func>, this, number_of_threads, index,
 			                       std::ref(fs[index]), min_dimension, max_dimension);
 
@@ -200,20 +197,19 @@ public:
 		              max_dimension);
 
 		// Wait until all threads stopped
-		for (size_t i = 0; i < number_of_threads - 1; ++i) t[i].join();
+		for (int i = 0; i < number_of_threads - 1; ++i) t[i].join();
 	}
 
 private:
 	template <typename Func>
-	void worker_thread(int number_of_threads, int thread_id, Func& f, int min_dimension, int max_dimension) {
+	void worker_thread(size_t number_of_threads, int thread_id, Func& f, int min_dimension, int max_dimension) {
 		const size_t number_of_vertices = graph.vertex_number();
-		const size_t vertices_per_thread = graph.vertex_number() / number_of_threads;
 
 		std::vector<vertex_index_t> first_position_vertices;
 		for (size_t index = thread_id; index < number_of_vertices; index += number_of_threads)
-			first_position_vertices.push_back(index);
+			first_position_vertices.push_back(vertex_index_t(index));
 
-        std::vector<vertex_index_t> prefix(max_dimension + 1);
+    std::vector<vertex_index_t> prefix(max_dimension + 1);
 
 		do_for_each_cell(f, min_dimension, max_dimension, first_position_vertices, prefix.data(), 0);
 
@@ -248,12 +244,12 @@ private:
 					size_t vertex_offset = offset << 6;
 					while (bits > 0) {
 						// Get the least significant non-zero bit
-						int b = __builtin_ctzl(bits);
+						auto b = __builtin_ctzl(bits);
 
 						// Unset this bit
 						bits &= ~(ONE_ << b);
 
-						new_possible_vertices.push_back(vertex_offset + b);
+						new_possible_vertices.push_back(vertex_index_t(vertex_offset + b));
 					}
 				}
 			}

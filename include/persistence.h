@@ -61,9 +61,9 @@ std::ostream& operator<<(std::ostream& stream, const entry_t& e) {
 
 typedef index_t entry_t;
 index_t get_index(entry_t i) { return i; }
-index_t get_coefficient(entry_t i) { return 1; }
-entry_t make_entry(index_t _index, coefficient_t _value) { return entry_t(_index); }
-void set_coefficient(index_t& e, const coefficient_t c) {}
+index_t get_coefficient(entry_t) { return 1; }
+entry_t make_entry(index_t _index, coefficient_t) { return entry_t(_index); }
+void set_coefficient(index_t&, const coefficient_t) {}
 
 #endif
 
@@ -84,7 +84,7 @@ index_t get_index(filtration_index_t i) { return i.second; }
 class filtration_entry_t : public std::pair<value_t, entry_t> {
 public:
 	filtration_entry_t(std::pair<value_t, entry_t> p) : std::pair<value_t, entry_t>(p) {}
-	filtration_entry_t(entry_t e) : std::pair<value_t, entry_t>(0, e) {}
+	filtration_entry_t(entry_t e) : std::pair<value_t, entry_t>(value_t(0), e) {}
 	filtration_entry_t() : filtration_entry_t(0) {}
 	filtration_entry_t(value_t _filtration, index_t _index, coefficient_t _coefficient)
 	    : std::pair<value_t, entry_t>(_filtration, make_entry(_index, _coefficient)) {}
@@ -96,7 +96,7 @@ public:
 
 const entry_t& get_entry(const filtration_entry_t& p) { return p.second; }
 entry_t& get_entry(filtration_entry_t& p) { return p.second; }
-const index_t get_index(const filtration_entry_t& p) { return get_index(get_entry(p)); }
+index_t get_index(const filtration_entry_t& p) { return get_index(get_entry(p)); }
 coefficient_t get_coefficient(const filtration_entry_t& p) { return get_coefficient(get_entry(p)); }
 const value_t& get_filtration(const filtration_entry_t& p) { return p.first; }
 void set_coefficient(filtration_entry_t& p, const coefficient_t c) { set_coefficient(get_entry(p), c); }
@@ -148,7 +148,12 @@ public:
 	}
 };
 
-template <typename Heap> filtration_entry_t pop_pivot(Heap& column, coefficient_t modulus) {
+template <typename Heap> filtration_entry_t pop_pivot(
+    Heap& column
+#ifdef USE_COEFFICIENTS
+    , coefficient_t modulus
+#endif
+) {
 	if (column.empty())
 		return filtration_entry_t(-1);
 	else {
@@ -184,8 +189,17 @@ template <typename Heap> filtration_entry_t pop_pivot(Heap& column, coefficient_
 	}
 }
 
-template <typename Heap> filtration_entry_t get_pivot(Heap& column, coefficient_t modulus) {
-	filtration_entry_t result = pop_pivot(column, modulus);
+template <typename Heap> filtration_entry_t get_pivot(
+    Heap& column
+#ifdef USE_COEFFICIENTS
+    , coefficient_t modulus
+#endif
+    ) {
+	filtration_entry_t result = pop_pivot(column
+#ifdef USE_COEFFICIENTS
+    , modulus
+#endif
+  );
 	if (get_index(result) != -1) column.push(result);
 	return result;
 }
@@ -387,7 +401,7 @@ private:
 	}
 };
 template <class Container, class Comparator>
-const filtration_entry_t priority_queue_t<Container, Comparator>::dummy(filtration_entry_t(std::make_pair(0.0, -1)));
+const filtration_entry_t priority_queue_t<Container, Comparator>::dummy(filtration_entry_t(std::make_pair(value_t(0.0f), entry_t(-1))));
 
 #ifdef SORT_COLUMNS_BY_PIVOT
 template <typename Entry, typename Complex> struct greater_filtration_or_better_pivot_or_smaller_index {
@@ -475,6 +489,11 @@ public:
 	      modulus(_modulus),
 #endif
 	      multiplicative_inverse(multiplicative_inverse_vector(modulus)) {
+#ifndef USE_COEFFICIENTS
+          if (_modulus != 2) {
+            throw std::logic_error("If you want to use modulus != 2, please compile with coefficients.");
+          }
+#endif
 	}
 
 	void set_print_betti_numbers(bool print_betti_numbers) { print_betti_numbers_to_console = print_betti_numbers; }
@@ -491,9 +510,9 @@ public:
 		if (check_euler_characteristic && computed_full_homology && max_entries == std::numeric_limits<size_t>::max()) {
 			index_t cell_euler_characteristic = 0;
 			for (size_t i = 0; i <= complex.top_dimension(); i++) {
-				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * complex.number_of_cells(i);
+				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex.number_of_cells(index_t(i)));
 #ifdef RETRIEVE_PERSISTENCE
-				cell_count.push_back(complex.number_of_cells(i));
+				cell_count.push_back(index_t(complex.number_of_cells(index_t(i))));
 #endif
 			}
 
@@ -545,7 +564,7 @@ protected:
 		size_t n = complex.number_of_cells(0);
 		filtered_union_find dset(complex.vertex_filtration());
 		std::vector<filtration_index_t> edges;
-		index_t number_of_edges = complex.number_of_cells(1);
+		index_t number_of_edges = index_t(complex.number_of_cells(1));
 		for (index_t index = 0; index < number_of_edges; index++) {
 			value_t filtration = complex.filtration(1, index);
 			if (filtration <= max_filtration) edges.push_back(std::make_pair(filtration, index));
@@ -589,7 +608,7 @@ protected:
 		if (min_dimension == 1) return;
 #endif
 
-		for (index_t index = 0; index < n; ++index) {
+		for (index_t index = 0; index < index_t(n); ++index) {
 			if (dset.find(index) == index) {
 				output.new_infinite_barcode(complex.filtration(0, index));
 				betti_number++;
@@ -614,16 +633,16 @@ protected:
 			          << std::endl
 			          << "dim H_0 = " << betti_number << std::endl;
 		}
-		euler_characteristic += betti_number;
+		euler_characteristic += index_t(betti_number);
 	}
 
 	void compute_higher_persistence(unsigned short min_dimension, unsigned short max_dimension) {
-		for (index_t dimension = 1; dimension <= max_dimension; ++dimension) {
+		for (auto dimension = 1u; dimension <= max_dimension; ++dimension) {
 			complex.prepare_next_dimension(dimension);
 
 			if (dimension + 1 == min_dimension) {
 				// Here we need to reduce *all* cells because we did not compute anything of smaller dimension
-				index_t number_of_cells = complex.number_of_cells(dimension);
+				index_t number_of_cells = index_t(complex.number_of_cells(dimension));
 				for (index_t index = 0; index < number_of_cells; index++) {
 					columns_to_reduce.push_back(std::make_pair(complex.filtration(dimension, index), index));
 				}
@@ -661,7 +680,7 @@ protected:
 					if (betti.second > 0) { std::cout << " (skipped " << betti.second << ")"; }
 					std::cout << std::endl;
 				}
-			} else if (dimension == min_dimension - 1 && print_betti_numbers_to_console &&
+			} else if (int(dimension) == min_dimension - 1 && print_betti_numbers_to_console &&
 			           max_entries < std::numeric_limits<size_t>::max()) {
 				std::cout << "\033[K"
 				          << "# Skipped columns in dimension " << dimension << ": " << betti.second << std::endl;
@@ -677,7 +696,7 @@ protected:
 	}
 
 	void assemble_columns_to_reduce(index_t dimension, pivot_column_index_t& pivot_column_index) {
-		index_t num_cells = complex.number_of_cells(dimension + 1);
+		index_t num_cells = index_t(complex.number_of_cells(dimension + 1));
 
 		columns_to_reduce.clear();
 
@@ -728,11 +747,13 @@ protected:
 #endif
 	}
 
-	std::pair<index_t, index_t> compute_pairs(index_t dimension, pivot_column_index_t& pivot_column_index,
+	std::pair<index_t, index_t> compute_pairs(index_t, pivot_column_index_t& pivot_column_index,
 	                                          bool generate_output = true) {
 		index_t betti = 0;
 		index_t betti_error = 0;
-		index_t verbose_logging_threshold = (index_t)columns_to_reduce.size() * 0.90;
+#ifdef INDICATE_PROGRESS
+		auto verbose_logging_threshold = size_t(columns_to_reduce.size() * 0.90);
+#endif
 
 #ifdef ASSEMBLE_REDUCTION_MATRIX
 		compressed_sparse_matrix<filtration_entry_t> reduction_coefficients;
@@ -747,7 +768,7 @@ protected:
 
 		std::vector<filtration_entry_t> coface_entries;
 
-		for (index_t i = 0; i < columns_to_reduce.size(); ++i) {
+		for (auto i = 0ul; i < columns_to_reduce.size(); ++i) {
 			auto column_to_reduce = columns_to_reduce[i];
 
 #ifdef ASSEMBLE_REDUCTION_MATRIX
@@ -787,10 +808,10 @@ protected:
 #endif
 
 #ifndef SKIP_APPARENT_PAIRS
-			bool might_be_apparent_pair = (i == j);
+			bool might_be_apparent_pair = (i == size_t(j));
 #endif
 
-			index_t iterations = 0;
+			size_t iterations = 0;
 			do {
 				const coefficient_t factor = modulus - get_coefficient(pivot);
 
@@ -887,7 +908,9 @@ protected:
 					break;
 				}
 
+#ifndef SKIP_APPARENT_PAIRS
 			found_persistence_pair:
+#endif
 				value_t death = get_filtration(pivot);
 				if (generate_output && filtration != death) {
 					output.new_barcode(filtration, death);
@@ -911,7 +934,11 @@ protected:
 				// by reduction_column (possibly with a different entry on the diagonal)
 				reduction_coefficients.pop_back();
 				while (true) {
+#ifdef USE_COEFFICIENTS
 					filtration_entry_t e = pop_pivot(reduction_column, modulus);
+#else
+					filtration_entry_t e = pop_pivot(reduction_column);
+#endif
 					if (get_index(e) == -1) break;
 #ifdef USE_COEFFICIENTS
 					set_coefficient(e, inverse * get_coefficient(e) % modulus);

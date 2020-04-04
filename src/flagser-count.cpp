@@ -36,7 +36,7 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 	// Aggregated counts
 	std::vector<size_t> total_cell_count;
 
-	index_t total_euler_characteristic = 0;
+	int64_t total_euler_characteristic = 0;
 	size_t total_max_dim = 0;
 
 #ifdef WITH_HDF5
@@ -65,14 +65,18 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 			cell_counter_t(hdf5_output_t* _output = nullptr) : output(_output) {}
 #endif
 			void done() {}
-			void operator()(vertex_index_t* first_vertex, int size) {
+			void operator()(vertex_index_t*
+#ifdef WITH_HDF5
+          first_vertex
+#endif
+          , int size) {
 				// Add (-1)^size to the Euler characteristic
 				if (size & 1)
 					ec++;
 				else
 					ec--;
 
-				if (cell_counts.size() < size) { cell_counts.resize(size, 0); }
+				if (cell_counts.size() < size_t(size)) { cell_counts.resize(size, 0); }
 				cell_counts[size - 1]++;
 
 #ifdef WITH_HDF5

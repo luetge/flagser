@@ -123,7 +123,7 @@ public:
 	std::vector<value_t> edge_filtration;
 
 	filtered_directed_graph_t(const std::vector<value_t> _vertex_filtration, bool directed)
-	    : directed_graph_t(_vertex_filtration.size(), directed), vertex_filtration(_vertex_filtration) {}
+	    : directed_graph_t(vertex_index_t(_vertex_filtration.size()), directed), vertex_filtration(_vertex_filtration) {}
 
 	// WARNING: This does not take the filtration into account!
 	// TODO: Think about how to do this efficiently.
@@ -143,13 +143,13 @@ public:
 
 				while (bits > 0) {
 					// Get the least significant non-zero bit
-					int b = __builtin_ctzl(bits);
+					auto b = __builtin_ctzl(bits);
 
 					// Unset this bit
 					bits &= ~(ONE_ << b);
 
-					if (subset.find(vertex_offset + b) != subset.end())
-						add_filtered_edge(vertex_indices[v], vertex_indices[vertex_offset + b], 0);
+					if (subset.find(vertex_index_t(vertex_offset + b)) != subset.end())
+						add_filtered_edge(vertex_indices[v], vertex_indices[vertex_index_t(vertex_offset + b)], 0);
 				}
 			}
 		}

@@ -26,9 +26,9 @@ template <typename Complex> class betti_output_t : public file_output_t<Complex>
 public:
 	betti_output_t(const named_arguments_t& named_arguments)
 	    : file_output_t<Complex>(named_arguments),
-	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
 	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
 	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
+	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
 	      approximate_computation(argument_was_passed(named_arguments, "approximate")),
 	      aggregate_results(argument_was_passed(named_arguments, "components")) {}
 
@@ -40,7 +40,7 @@ public:
 		skipped.resize(current_dimension + 1, 0);
 		betti[current_dimension] = _betti;
 		skipped[current_dimension] = _skipped;
-		euler_characteristic += (current_dimension & 1 ? -1 : 1) * _betti;
+		euler_characteristic += index_t((current_dimension & 1 ? -1 : 1) * _betti);
 	}
 
 	virtual void print_aggregated_results() override;
@@ -63,7 +63,7 @@ void print_ordinary(std::ostream& outstream, int min_dimension, int max_dimensio
       outstream << std::endl;
 
       index_t cell_euler_characteristic = 0;
-      for (int i = 0; i <= top_dimension; i++) cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * number_of_cells[i];
+      for (int i = 0; i <= top_dimension; i++) cell_euler_characteristic += index_t((i % 2 == 1 ? -1 : 1) * number_of_cells[i]);
 
       bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
       if (computed_full_homology) {
@@ -94,15 +94,15 @@ template <typename Complex> void betti_output_t<Complex>::finished(bool with_cel
   total_top_dimension = std::max(total_top_dimension, complex->top_dimension());
 
   if (with_cell_counts) {
-      for (int i = 0; i <= complex->top_dimension(); i++) number_of_cells.push_back(complex->number_of_cells(i));
+      for (auto i = 0ul; i <= complex->top_dimension(); i++) number_of_cells.push_back(complex->number_of_cells(i));
 
       total_cell_count.resize(complex->top_dimension() + 1, 0);
-      for (int i = 0; i <= complex->top_dimension(); i++) total_cell_count[i] += complex->number_of_cells(i);
+      for (auto i = 0ul; i <= complex->top_dimension(); i++) total_cell_count[i] += complex->number_of_cells(i);
   } else {
     total_cell_count.resize(0);
   }
 
-  print_ordinary(file_output_t<Complex>::outstream, min_dimension, max_dimension, complex->top_dimension(),
+  print_ordinary(file_output_t<Complex>::outstream, int(min_dimension), int(max_dimension), int(complex->top_dimension()),
                  number_of_cells, betti, skipped, approximate_computation, with_cell_counts);
 
   total_betti.resize(betti.size(), 0);
@@ -115,6 +115,6 @@ template <typename Complex> void betti_output_t<Complex>::finished(bool with_cel
 template <typename Complex> void betti_output_t<Complex>::print_aggregated_results() {
 	if (!aggregate_results) return;
 
-	print_ordinary(file_output_t<Complex>::outstream, min_dimension, max_dimension, total_top_dimension,
+	print_ordinary(file_output_t<Complex>::outstream, int(min_dimension), int(max_dimension), int(total_top_dimension),
 	               total_cell_count, total_betti, total_skipped, approximate_computation, total_cell_count.size() > 0);
 }

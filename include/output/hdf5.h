@@ -27,7 +27,7 @@ public:
 		group_id = ids.second;
 	}
 	~hdf5_output_t() {
-		for (int i = 0; i < datasets.size(); i++) flush(i + 2);
+		for (auto i = 0ul; i < datasets.size(); i++) flush(i + 2);
 		for (auto id : datasets) H5Dclose(id);
 		if (group_id != file_id) H5Gclose(group_id);
 		H5Fclose(file_id);
@@ -36,12 +36,12 @@ public:
 	void write_cell(vertex_index_t* first_vertex, int size) {
 		if (size < 2) return;
 
-		if (size - 2 >= datasets.size()) prepare(size);
+		if (size - 2 >= long(datasets.size())) prepare(size);
 
 		vertex_index_t* v = first_vertex;
 		for (int i = 0; i < size; ++i, ++v) buffer[size - 2].push_back(*v);
 
-		if (buffer[size - 2].size() == BUFFER_SIZE * size) flush(size);
+		if (buffer[size - 2].size() == size_t(BUFFER_SIZE * size)) flush(size);
 	}
 
 private:
@@ -65,7 +65,7 @@ private:
 	}
 
 	inline void prepare(int size) {
-		while (size - 2 >= datasets.size()) {
+		while (size - 2 >= long(datasets.size())) {
 			hsize_t dim = datasets.size() + 1;
 			// Create an unlimited dataspace
 			hsize_t dims[2]{0, 0};

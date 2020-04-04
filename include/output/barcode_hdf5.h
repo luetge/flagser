@@ -39,12 +39,12 @@ template <typename Complex> class barcode_hdf5_output_t : public output_t<Comple
 
 public:
 	barcode_hdf5_output_t(const named_arguments_t& named_arguments)
-	    : modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
-	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
+	    : min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
 	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
+        modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
 	      approximate_computation(argument_was_passed(named_arguments, "approximate")),
-	      output_bars(argument_was_passed(named_arguments, "filtration")),
-	      aggregate_results(argument_was_passed(named_arguments, "components")) {
+	      aggregate_results(argument_was_passed(named_arguments, "components")),
+	      output_bars(argument_was_passed(named_arguments, "filtration")) {
 		const auto ids =
 		    open_or_create_group(get_argument_or_fail(named_arguments, "out", "Please provide an output file."));
 		file_id = ids.first;
@@ -53,7 +53,7 @@ public:
 		skipped_buffer.reserve(BUFFER_SIZE + 50);
 	}
 	~barcode_hdf5_output_t() {
-		for (int i = 0; i < barcode_datasets.size(); i++) flush_if_necessary(true);
+		for (auto i = 0ul; i < barcode_datasets.size(); i++) flush_if_necessary(true);
 		for (auto id : barcode_datasets) H5Dclose(id);
 		for (auto id : skipped_datasets) H5Dclose(id);
 		if (group_id != file_id) H5Gclose(group_id);
@@ -68,12 +68,12 @@ public:
 
     if (with_cell_counts) {
         std::vector<size_t> number_of_cells;
-        for (int i = 0; i <= complex->top_dimension(); i++) number_of_cells.push_back(complex->number_of_cells(i));
+        for (auto i = 0ul; i <= complex->top_dimension(); i++) number_of_cells.push_back(complex->number_of_cells(i));
         // print_ordinary(file_output_t<Complex>::outstream, min_dimension, max_dimension, complex->top_dimension(),
         //  number_of_cells, betti, skipped, approximate_computation);
 
         total_cell_count.resize(complex->top_dimension() + 1, 0);
-        for (int i = 0; i <= complex->top_dimension(); i++) total_cell_count[i] += complex->number_of_cells(i);
+        for (auto i = 0ul; i <= complex->top_dimension(); i++) total_cell_count[i] += complex->number_of_cells(i);
     } else {
       total_cell_count.resize(0);
     }
@@ -128,7 +128,7 @@ public:
 			const auto dataset = H5Dcreate2(info_group_id, "betti_numbers", H5T_NATIVE_INT, dataspace, H5P_DEFAULT,
 			                                H5P_DEFAULT, H5P_DEFAULT);
             std::vector<int> data(last_dimension - first_dimension + 1);
-			for (int i = first_dimension; i < total_betti.size(); i++) data[i] = total_betti[i];
+			for (auto i = size_t(first_dimension); i < total_betti.size(); i++) data[i] = total_betti[i];
 			H5Dwrite(dataset, H5T_NATIVE_INT, dataspace, dataspace, H5P_DEFAULT, data.data());
 			H5Sclose(dataspace);
 			H5Dclose(dataset);
@@ -240,12 +240,7 @@ private:
 			size_t new_size = barcode_buffer.size() / 2;
 			const auto dataset = barcode_datasets[current_dataset_index()];
 			hsize_t dims[2];
-			{
-				hsize_t maxdim[2];
-				auto space = H5Dget_space(dataset);
-				const auto size = H5Sget_simple_extent_dims(space, dims, maxdim);
-				dims[0] += new_size;
-			}
+      dims[0] += new_size;
 
 			H5Dset_extent(dataset, dims);
 			auto filespace = H5Dget_space(dataset);

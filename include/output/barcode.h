@@ -19,9 +19,9 @@ template <typename Complex> class barcode_output_t : public file_output_t<Comple
 public:
 	barcode_output_t(const named_arguments_t& named_arguments)
 	    : file_output_t<Complex>(named_arguments),
-	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
 	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
-	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))) {}
+	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
+	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))) {}
 
 	void set_complex(Complex* _complex) { complex = _complex; }
 
@@ -30,7 +30,7 @@ public:
 		index_t cell_euler_characteristic = 0;
     if (with_cell_counts) {
         for (size_t i = 0; i <= complex->top_dimension(); i++)
-          cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * complex->number_of_cells(i);
+          cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex->number_of_cells(index_t(i)));
 
         bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
         if (computed_full_homology) {
@@ -51,8 +51,8 @@ public:
     if (with_cell_counts) {
         file_output_t<Complex>::outstream << std::endl;
         file_output_t<Complex>::outstream << "# Cell counts:" << std::endl;
-        for (size_t i = std::max(0, min_dimension - 1); i <= complex->top_dimension(); i++)
-          file_output_t<Complex>::outstream << "#\t\tdim C_" << i << " = " << complex->number_of_cells(i)
+        for (size_t i = size_t(std::max(0, min_dimension - 1)); i <= complex->top_dimension(); i++)
+          file_output_t<Complex>::outstream << "#\t\tdim C_" << i << " = " << complex->number_of_cells(index_t(i))
                                             << std::endl;
     }
 	}
@@ -76,7 +76,7 @@ public:
 		skipped.resize(shifted_dimension + 1, 0);
 		betti[shifted_dimension] = _betti;
 		skipped[shifted_dimension] = _skipped;
-		euler_characteristic += (shifted_dimension & 1 ? -1 : 1) * _betti;
+		euler_characteristic += (shifted_dimension & 1 ? -1 : 1) * index_t(_betti);
 	}
 	void remaining_homology_is_trivial() {
 		file_output_t<Complex>::outstream << std::endl << "The remaining homology groups are trivial." << std::endl;

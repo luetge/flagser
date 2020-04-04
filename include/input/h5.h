@@ -63,14 +63,13 @@ private:
 	std::vector<std::regex> regexes;
 };
 
-herr_t extract_groups(hid_t group_id, const char* name, const H5L_info_t* info, void* opdata) {
+herr_t extract_groups(hid_t, const char* name, const H5L_info_t*, void* opdata) {
 	group_extractor_t* extractor = (group_extractor_t*)opdata;
 	return (*extractor)(name);
 }
 
 const filtered_directed_graph_t read_graph_h5(const std::string filename, const named_arguments_t& named_arguments) {
 	filtered_directed_graph_t* graph;
-	int current_dimension = 0;
 	std::vector<value_t> vertex_filtration;
 	std::string type = get_argument_or_default(named_arguments, "h5-type", "matrix");
 	bool directed = std::string(get_argument_or_default(named_arguments, "undirected", "directed")) != "true";
@@ -108,7 +107,7 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 			auto space = H5Dget_space(dataset_id);
 			hsize_t dim[2];
 			hsize_t maxdim[2];
-			auto size = H5Sget_simple_extent_dims(space, dim, maxdim);
+			H5Sget_simple_extent_dims(space, dim, maxdim);
 			vertex_number = dim[0];
 			H5Sclose(space);
 		}
@@ -121,10 +120,10 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 			H5Dread(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, entries);
 
 			// Add the edges
-			for (int x = 0; x < vertex_number; x++) {
+			for (auto x = 0ul; x < vertex_number; x++) {
         graph->vertex_filtration[x] = entries[x * vertex_number + x];
 
-				for (int y = 0; y < vertex_number; y++) {
+				for (auto y = 0ul; y < vertex_number; y++) {
 					if (entries[x * vertex_number + y] != 0)
 						graph->add_filtered_edge(x, y, entries[x * vertex_number + y]);
 				}
@@ -143,8 +142,8 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 			H5Tclose(type);
 
 			// Add the edges
-			for (int x = 0; x < vertex_number; x++) {
-				for (int y = 0; y < vertex_number; y++) {
+			for (auto x = 0ul; x < vertex_number; x++) {
+				for (auto y = 0ul; y < vertex_number; y++) {
 					if (entries[x * vertex_number + y] != 0) graph->add_edge(x, y);
 				}
 			}
@@ -173,7 +172,7 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 		std::vector<unsigned int> group_sizes;
 		group_offsets.reserve(group_extractor.group_names.size());
 		unsigned int offset = 0;
-		for (int i = 0; i < group_extractor.group_names.size(); i++) {
+		for (auto i = 0ul; i < group_extractor.group_names.size(); i++) {
 			std::string name = group_extractor.group_names[i];
 			name += "/";
 			name += group_extractor.group_names[i];
@@ -189,7 +188,7 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 			auto space = H5Dget_space(dataset_id);
 			hsize_t dim[2];
 			hsize_t maxdim[2];
-			auto size = H5Sget_simple_extent_dims(space, dim, maxdim);
+			H5Sget_simple_extent_dims(space, dim, maxdim);
 			group_offsets.push_back(offset);
 			group_sizes.push_back(dim[0]);
 			offset += dim[0];
@@ -206,8 +205,8 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 		val = 1;
 		H5Tenum_insert(enumtype, "TRUE", &val);
 
-		for (int i = 0; i < group_extractor.group_names.size(); i++) {
-			for (int j = 0; j < group_extractor.group_names.size(); j++) {
+		for (auto i = 0ul; i < group_extractor.group_names.size(); i++) {
+			for (auto j = 0ul; j < group_extractor.group_names.size(); j++) {
 				std::string name = group_extractor.group_names[i];
 				name += "/";
 				name += group_extractor.group_names[j];
@@ -219,10 +218,10 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 					H5Dread(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, entries);
 
 					// Add the edges
-					for (int x = 0; x < group_sizes[i]; x++) {
+					for (auto x = 0ul; x < group_sizes[i]; x++) {
             graph->vertex_filtration[group_offsets[i] + x] = entries[x * group_sizes[j] + x];
 
-						for (int y = 0; y < group_sizes[j]; y++) {
+						for (auto y = 0ul; y < group_sizes[j]; y++) {
 							if (entries[x * group_sizes[j] + y] > 0) {
 								graph->add_filtered_edge(group_offsets[i] + x, group_offsets[j] + y,
 								                         entries[x * group_sizes[j] + y]);
@@ -237,8 +236,8 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 					        H5P_DEFAULT, entries);
 
 					// Add the edges
-					for (int x = 0; x < group_sizes[i]; x++) {
-						for (int y = 0; y < group_sizes[j]; y++) {
+					for (auto x = 0ul; x < group_sizes[i]; x++) {
+						for (auto y = 0ul; y < group_sizes[j]; y++) {
 							if (entries[x * group_sizes[j] + y] == 1) {
 								graph->add_edge(group_offsets[i] + x, group_offsets[j] + y);
 							}
