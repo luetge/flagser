@@ -84,11 +84,9 @@ struct compute_filtration_t {
 				auto bdry = cell.boundary(i);
 
 				if (!cell_hash.size()) {
-            std::cerr << (std::to_string(bdry.vertex(i)) + " vs " + std::to_string(current_filtration.size()) + "\n");
-          if (bdry.vertex(i) >= current_filtration.size()) {
-            std::cerr << bdry.vertex(i) << " vs " << current_filtration.size() << std::endl;
-          }
-					boundary_filtration[i] = current_filtration[bdry.vertex(i)];
+					// In the case where no cell hash is given, we are looking at edges
+					assert (size == 2);
+					boundary_filtration[i] = current_filtration[bdry.vertex(0)];
 				} else {
 					// The threads are split by the first vertex
 					short thread_index = bdry.vertex(0) % PARALLEL_THREADS;
