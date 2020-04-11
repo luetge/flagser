@@ -63,12 +63,12 @@ compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& name
 	for (auto subgraph : subgraphs) {
 		directed_flag_complex_compute_t complex(subgraph, named_arguments);
 
-		output.set_complex(&complex);
+		output->set_complex(&complex);
 		if (split_into_connected_components) {
-			if (component_number > 1) output.print("\n");
-			output.print("## Path component number ");
-			output.print(std::to_string(component_number));
-			output.print("\n");
+			if (component_number > 1) output->print("\n");
+			output->print("## Path component number ");
+			output->print(std::to_string(component_number));
+			output->print("\n");
 
 #ifdef INDICATE_PROGRESS
 			std::cout << "\033[K";
@@ -80,20 +80,17 @@ compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& name
 		}
 
 #ifdef RETRIEVE_PERSISTENCE
-		complex_subgraphs.push_back(persistence_computer_t<decltype(complex)>(complex, output, max_entries, modulus));
+		complex_subgraphs.push_back(persistence_computer_t<decltype(complex)>(complex, output.get(), max_entries, modulus));
 		complex_subgraphs.back().compute_persistence(min_dimension, max_dimension);
 #else
-		persistence_computer_t<decltype(complex)> persistence_computer(complex, output, max_entries, modulus);
+		persistence_computer_t<decltype(complex)> persistence_computer(complex, output.get(), max_entries, modulus);
 		persistence_computer.compute_persistence(min_dimension, max_dimension);
 #endif
 	}
 
-	if (split_into_connected_components) { output.print("\n## Total\n"); }
+	if (split_into_connected_components) { output->print("\n## Total\n"); }
 
-	output.print_aggregated_results();
-
-    // Closes output files, prevent memory leaks
-    // delete output;
+	output->print_aggregated_results();
 
 #ifdef RETRIEVE_PERSISTENCE
 	return complex_subgraphs;

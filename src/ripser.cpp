@@ -577,9 +577,9 @@ int main(int argc, char** argv) {
 
 	vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max, modulus);
 	auto output = get_output<decltype(vietoris_rips_complex)>(named_arguments);
-  output.set_complex(&vietoris_rips_complex);
+    output->set_complex(&vietoris_rips_complex);
 
-	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output, max_entries, modulus, threshold);
+	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output.get(), max_entries, modulus, threshold);
 	persistence_computer.compute_persistence(dim_min, dim_max, false);
-	output.print_aggregated_results();
+	output->print_aggregated_results();
 }
