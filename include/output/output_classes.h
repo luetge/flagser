@@ -21,7 +21,8 @@
  */
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
-#if (defined(__GNUC__) || defined(__GNUG__)) && GCC_VERSION < 40900
+// aparently clang defines also gnuc as macros, need to check first for clang
+#if !defined(__clang__) && (defined(__GNUC__) || defined(__GNUG__)) && GCC_VERSION < 40900
 template <typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... args) {
 	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
