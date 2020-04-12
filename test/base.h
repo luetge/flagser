@@ -19,9 +19,9 @@ void compute(std::string&& filename, std::vector<size_t> homology) {
 	auto output = get_output<directed_flag_complex_computer_t>(named_arguments);
   directed_flag_complex_computer_t complex(graph, named_arguments);
 
-  output.set_complex(&complex);
+  output->set_complex(&complex);
 
-  auto result = persistence_computer_t<decltype(complex)>(complex, output, max_entries, modulus);
+  auto result = persistence_computer_t<decltype(complex)>(complex, output.get(), max_entries, modulus);
   result.compute_persistence(min_dimension, max_dimension);
 
   bool correct = true;
