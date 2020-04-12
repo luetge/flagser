@@ -16,6 +16,20 @@
 #include "barcode_hdf5.h"
 #endif
 
+/* issues with compiler version and std::make_unique were discovered
+ * see: https://github.com/luetge/flagser/pull/20
+ */
+#define GCC_VERSION (__GNUC__ * 10000 \
+                     + __GNUC_MINOR__ * 100 \
+                     + __GNUC_PATCHLEVEL__)
+
+#if GCC_VERSION < 40900
+template<typename T, typename... Args>
+std::unique_ptr<T> make_unique(Args&&... args) {
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+#endif
+
 bool has_zero_filtration_and_no_explicit_output(const named_arguments_t& named_arguments) {
 	return strlen(get_argument_or_default(named_arguments, "out-format", "")) == 0 &&
 	       std::string(get_argument_or_default(named_arguments, "filtration", "zero")) == "zero";
