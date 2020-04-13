@@ -1,13 +1,17 @@
+#include <stdexcept>
 #include "../include/persistence.h"
 #include "../include/complex/directed_flag_complex_computer.h"
 #include "../include/input/input_classes.h"
 #include "../include/output/output_classes.h"
 
-void compute(std::string&& filename, std::vector<size_t> homology) {
+void compute(std::string&& filename, std::vector<size_t> homology, std::string out_filename = "") {
   std::cout << "Testing " << filename << "..." << std::endl;
   std::unordered_map<std::string, const char*> named_arguments;
-  const std::string out_format = "none";
+  const std::string out_format = out_filename.size() == 0 ? "none" : "barcode";
   named_arguments.insert(std::pair<std::string, const char*>("out-format", out_format.c_str()));
+  if (out_filename.size() > 0) {
+    named_arguments.insert(std::pair<std::string, const char*>("out", out_filename.c_str()));
+  }
 	filtered_directed_graph_t graph = read_filtered_directed_graph(filename.c_str(), named_arguments);
 
 	size_t max_entries = std::numeric_limits<size_t>::max();
@@ -68,6 +72,23 @@ void run_all(bool full=false) {
   compute("../../test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
 
   if (full) {
+    const auto file_path = "/tmp/flagser_tmp_test";
+    std::remove(file_path);
+    compute("../../test/a.flag", {{1ul, 2ul, 0ul}}, file_path);
+    // Check that the file has the right content
+    std::ifstream t(file_path);
+    std::string file_content((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+    std::remove(file_path);
+
+    std::string expected_file_content = "# persistence intervals in dimension 0\n [0, )\n# persistence intervals in dimension 1\n [0, )\n [0, )\n# persistence intervals in dimension 2\n\nThe remaining homology groups are trivial.\n\n# Euler characteristic: -1\n\n# Betti numbers:\n#\t\tdim H_0 = 1\n#\t\tdim H_1 = 2\n#\t\tdim H_2 = 0\n\n# Cell counts:\n#\t\tdim C_0 = 5\n#\t\tdim C_1 = 7\n#\t\tdim C_2 = 1\n#\t\tdim C_3 = 0\n";
+
+    if (file_content != expected_file_content) {
+      std::cerr << "The file content differed!" << std::endl;
+      std::cerr << std::endl << "*** EXPECTED ***" << std::endl << expected_file_content << std::endl;
+      std::cerr << std::endl << "*** GOT ***" << std::endl << file_content << std::endl;
+      throw std::logic_error("The file content differed.");
+    }
+
     compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
     compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
   }
