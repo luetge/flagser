@@ -524,7 +524,8 @@ public:
 		}
 
 #ifdef RETRIEVE_PERSISTENCE
-                for (size_t i = min_dimension; i <= max_dimension; i++) {
+                for (size_t i = min_dimension;
+                     i <= std::min(complex.top_dimension(), (size_t)max_dimension); i++) {
                         cell_count.push_back(index_t(complex.number_of_cells(index_t(i))));
                 }
 #endif
