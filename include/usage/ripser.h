@@ -10,15 +10,14 @@
 #include "output.h"
 
 void print_usage_and_exit(int exit_code) {
-	std::cerr << "Computes the persistent homology of the Vietoris-Rips complex of a point cloud."
-	          << std::endl
+	std::cerr << "Computes the persistent homology of the Vietoris-Rips complex of a point cloud." << std::endl
 	          << "Usage: ripser [options] filename" << std::endl
 	          << std::endl
 	          << "Options:" << std::endl
 	          << std::endl;
 
 	print_output_usage();
-  std::cerr << "  --format         use the specified file format for the input. "
+	std::cerr << "  --format         use the specified file format for the input. "
 	             "Available options are:"
 	          << std::endl
 	          << "                         lower-distance (lower triangular distance "

@@ -27,7 +27,7 @@ public:
 	trivial_output_t(const named_arguments_t& named_arguments)
 	    : min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
 	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
-        modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
+	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
 	      approximate_computation(argument_was_passed(named_arguments, "approximate")),
 	      aggregate_results(argument_was_passed(named_arguments, "components")) {}
 

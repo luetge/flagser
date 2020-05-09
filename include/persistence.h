@@ -148,10 +148,11 @@ public:
 	}
 };
 
-template <typename Heap> filtration_entry_t pop_pivot(
-    Heap& column
+template <typename Heap>
+filtration_entry_t pop_pivot(Heap& column
 #ifdef USE_COEFFICIENTS
-    , coefficient_t modulus
+                             ,
+                             coefficient_t modulus
 #endif
 ) {
 	if (column.empty())
@@ -189,17 +190,19 @@ template <typename Heap> filtration_entry_t pop_pivot(
 	}
 }
 
-template <typename Heap> filtration_entry_t get_pivot(
-    Heap& column
+template <typename Heap>
+filtration_entry_t get_pivot(Heap& column
 #ifdef USE_COEFFICIENTS
-    , coefficient_t modulus
+                             ,
+                             coefficient_t modulus
 #endif
-    ) {
+) {
 	filtration_entry_t result = pop_pivot(column
 #ifdef USE_COEFFICIENTS
-    , modulus
+	                                      ,
+	                                      modulus
 #endif
-  );
+	);
 	if (get_index(result) != -1) column.push(result);
 	return result;
 }
@@ -401,7 +404,8 @@ private:
 	}
 };
 template <class Container, class Comparator>
-const filtration_entry_t priority_queue_t<Container, Comparator>::dummy(filtration_entry_t(std::make_pair(value_t(0.0f), entry_t(-1))));
+const filtration_entry_t
+    priority_queue_t<Container, Comparator>::dummy(filtration_entry_t(std::make_pair(value_t(0.0f), entry_t(-1))));
 
 #ifdef SORT_COLUMNS_BY_PIVOT
 template <typename Entry, typename Complex> struct greater_filtration_or_better_pivot_or_smaller_index {
@@ -490,16 +494,17 @@ public:
 #endif
 	      multiplicative_inverse(multiplicative_inverse_vector(modulus)) {
 #ifndef USE_COEFFICIENTS
-          if (_modulus != 2) {
-            throw std::logic_error("If you want to use modulus != 2, please compile with coefficients.");
-          }
+		if (_modulus != 2) {
+			throw std::logic_error("If you want to use modulus != 2, please compile with coefficients.");
+		}
 #endif
 	}
 
 	void set_print_betti_numbers(bool print_betti_numbers) { print_betti_numbers_to_console = print_betti_numbers; }
 
 	void compute_persistence(unsigned short min_dimension = 0,
-	                         unsigned short max_dimension = std::numeric_limits<unsigned short>::max(), bool check_euler_characteristic = true) {
+	                         unsigned short max_dimension = std::numeric_limits<unsigned short>::max(),
+	                         bool check_euler_characteristic = true) {
 		compute_zeroth_persistence(min_dimension, max_dimension);
 		compute_higher_persistence(min_dimension, max_dimension);
 		complex.finished();
@@ -524,12 +529,10 @@ public:
 		}
 
 #ifdef RETRIEVE_PERSISTENCE
-                for (size_t i = min_dimension;
-                     i < std::min(complex.top_dimension(), (size_t)max_dimension+1); i++) {
-                        cell_count.push_back(index_t(complex.number_of_cells(index_t(i))));
-                }
+		for (size_t i = min_dimension; i < std::min(complex.top_dimension(), (size_t)max_dimension + 1); i++) {
+			cell_count.push_back(index_t(complex.number_of_cells(index_t(i))));
+		}
 #endif
-
 	}
 
 #ifdef RETRIEVE_PERSISTENCE
@@ -617,7 +620,7 @@ protected:
 		}
 
 #ifdef RETRIEVE_PERSISTENCE
-                betti_numbers.push_back(betti_number);
+		betti_numbers.push_back(betti_number);
 		birth_deaths_by_dim.push_back(birth_death);
 #endif
 		// Report the betti number back to the complex and the output
@@ -643,7 +646,7 @@ protected:
 				for (index_t index = 0; index < number_of_cells; index++) {
 					columns_to_reduce.push_back(std::make_pair(complex.filtration(dimension, index), index));
 				}
-      }
+			}
 
 			if (dimension + 1 < min_dimension) continue;
 
@@ -869,8 +872,7 @@ protected:
 					// Abort, this is too expensive
 					if (generate_output) output->skipped_column(filtration);
 #ifdef RETRIEVE_PERSISTENCE
-					birth_death.push_back(
-					    std::make_pair(filtration, std::numeric_limits<value_t>::signaling_NaN()));
+					birth_death.push_back(std::make_pair(filtration, std::numeric_limits<value_t>::signaling_NaN()));
 #endif
 					betti_error++;
 					break;

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cstring>
 #include <iostream>
 #include <string>
-#include <cstring>
 
 #include "../argparser.h"
 #include "../definitions.h"
@@ -23,8 +23,7 @@ filtered_directed_graph_t read_filtered_directed_graph(std::string input_filenam
 #endif
 
 	if (input_name == "h5" || strlen(get_argument_or_default(named_arguments, "h5-type", "")) > 0 ||
-	    (!argument_was_passed(named_arguments, "in-format") &&
-	     input_filename.rfind(".h5") != std::string::npos)) {
+	    (!argument_was_passed(named_arguments, "in-format") && input_filename.rfind(".h5") != std::string::npos)) {
 		return read_graph_h5(input_filename, named_arguments);
 	}
 	if (input_name == "flagser") return read_graph_flagser(input_filename, named_arguments);

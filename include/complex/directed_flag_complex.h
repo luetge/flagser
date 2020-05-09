@@ -43,7 +43,7 @@ public:
 #ifdef USE_CELLS_WITHOUT_DIMENSION
 	    unsigned short dim
 #endif
-	    ) const {
+	) const {
 		const directed_flag_complex_cell_t* t = this;
 #ifndef USE_CELLS_WITHOUT_DIMENSION
 		unsigned short dim = dimension();
@@ -69,7 +69,8 @@ public:
 #else
 	directed_flag_complex_coboundary_cell_t(unsigned short dimension, const vertex_index_t* vertices,
 	                                        vertex_index_t insert_vertex, unsigned short insert_position)
-	    : directed_flag_complex_cell_t(dimension, vertices), _insert_position(insert_position), _insert_vertex(insert_vertex) {}
+	    : directed_flag_complex_cell_t(dimension, vertices), _insert_position(insert_position),
+	      _insert_vertex(insert_vertex) {}
 #endif
 
 	virtual vertex_index_t vertex(size_t index) const override {
@@ -172,21 +173,19 @@ public:
 	directed_flag_complex_t(const filtered_directed_graph_t& _graph) : graph(_graph) {}
 
 public:
-	template <typename Func>
-    void for_each_cell(Func& f, int min_dimension, int max_dimension = -1) {
+	template <typename Func> void for_each_cell(Func& f, int min_dimension, int max_dimension = -1) {
 		std::vector<Func> fs{f};
 		for_each_cell(fs, min_dimension, max_dimension);
-        // Hack because I cannot wrap the reference in the vector, well technically I could use `std::reference_wrapper`
-        // But in this case it doesn't help
-        // What I do is storing the computed value again after computation
-        f = fs[0];
+		// Hack because I cannot wrap the reference in the vector, well technically I could use `std::reference_wrapper`
+		// But in this case it doesn't help
+		// What I do is storing the computed value again after computation
+		f = fs[0];
 	}
 
-	template <typename Func>
-	void for_each_cell(std::vector<Func>& fs, int min_dimension, int max_dimension = -1) {
+	template <typename Func> void for_each_cell(std::vector<Func>& fs, int min_dimension, int max_dimension = -1) {
 		if (max_dimension == -1) max_dimension = min_dimension;
-    auto number_of_threads = int(fs.size());
-    std::vector<std::thread> t(number_of_threads);
+		auto number_of_threads = int(fs.size());
+		std::vector<std::thread> t(number_of_threads);
 
 		for (int index = 0; index < number_of_threads - 1; ++index)
 			t[index] = std::thread(&directed_flag_complex_t::worker_thread<Func>, this, number_of_threads, index,
@@ -209,7 +208,7 @@ private:
 		for (size_t index = thread_id; index < number_of_vertices; index += number_of_threads)
 			first_position_vertices.push_back(vertex_index_t(index));
 
-    std::vector<vertex_index_t> prefix(max_dimension + 1);
+		std::vector<vertex_index_t> prefix(max_dimension + 1);
 
 		do_for_each_cell(f, min_dimension, max_dimension, first_position_vertices, prefix.data(), 0);
 

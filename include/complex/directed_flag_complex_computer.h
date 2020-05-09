@@ -85,7 +85,7 @@ struct compute_filtration_t {
 
 				if (!cell_hash.size()) {
 					// In the case where no cell hash is given, we are looking at edges
-					assert (size == 2);
+					assert(size == 2);
 					boundary_filtration[i] = current_filtration[bdry.vertex(0)];
 				} else {
 					// The threads are split by the first vertex
@@ -154,9 +154,9 @@ void prepare_graph_filtration(Complex& complex, filtered_directed_graph_t& graph
 		          << "computing the filtration of all edges" << std::flush << "\r";
 #endif
 
-        // Dummy parameter because we pass by reference the argument and
-        // It cannot take a default value
-        std::vector<cell_hash_map_t> tmp(0);
+		// Dummy parameter because we pass by reference the argument and
+		// It cannot take a default value
+		std::vector<cell_hash_map_t> tmp(0);
 		std::vector<compute_filtration_t> compute_filtration(
 		    PARALLEL_THREADS, compute_filtration_t(filtration_algorithm, graph, graph.vertex_filtration, tmp));
 		complex.for_each_cell(compute_filtration, 1);
@@ -230,8 +230,7 @@ public:
 	      filtration_algorithm(get_filtration_computer(get_argument_or_default(named_arguments, "filtration", "zero"))),
 	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
 	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
-	      cache(get_argument_or_default(named_arguments, "cache", "")),
-        flag_complex(graph),
+	      cache(get_argument_or_default(named_arguments, "cache", "")), flag_complex(graph),
 	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))) {
 		cell_count.push_back(_graph.vertex_number());
 		cell_count.push_back(_graph.edge_number());
@@ -276,9 +275,9 @@ public:
 
 		int i = 0;
 		while (i < PARALLEL_THREADS - 1 && index_t(coboundary_matrix_offsets[i + 1]) <= get_index(cell)) { i++; }
-		return coboundary_iterator_t<directed_flag_complex_computer_t>(this, current_dimension, coboundary_matrix[i],
-		                                                               get_index(cell) - index_t(coboundary_matrix_offsets[i]),
-		                                                               get_coefficient(cell), modulus);
+		return coboundary_iterator_t<directed_flag_complex_computer_t>(
+		    this, current_dimension, coboundary_matrix[i], get_index(cell) - index_t(coboundary_matrix_offsets[i]),
+		    get_coefficient(cell), modulus);
 	}
 
 	bool is_top_dimension() { return _is_top_dimension; }
@@ -499,10 +498,7 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 				std::vector<compute_filtration_t> compute_filtration;
 				for (int i = 0; i < PARALLEL_THREADS; i++) {
 					_cache_current_cells_offsets[i] = offset;
-					if (filtration_algorithm->needs_face_filtration())
-                    {
-                        offset += _cache_current_cells[i].size();
-                    }
+					if (filtration_algorithm->needs_face_filtration()) { offset += _cache_current_cells[i].size(); }
 					compute_filtration.push_back(compute_filtration_t(
 					    filtration_algorithm.get(), graph, dimension == 1 ? graph.edge_filtration : next_filtration,
 					    _cache_current_cells, _cache_current_cells_offsets));

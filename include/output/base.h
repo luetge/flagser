@@ -8,8 +8,8 @@
 
 template <typename Complex> class output_t {
 public:
-    // Due to polymorphism, it's necessary to implement virtual destructor
-    virtual ~output_t(){};
+	// Due to polymorphism, it's necessary to implement virtual destructor
+	virtual ~output_t(){};
 	virtual void set_complex(Complex*){};
 	virtual void print(std::string){};
 	virtual void finished(bool){};
@@ -44,10 +44,9 @@ public:
 		}
 	}
 
-    ~file_output_t(){
-        if(outstream.is_open())
-            outstream.close();
-    }
+	~file_output_t() {
+		if (outstream.is_open()) outstream.close();
+	}
 
 	virtual void print(std::string s) { outstream << s; }
 };

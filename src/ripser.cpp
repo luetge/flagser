@@ -26,9 +26,9 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //#define USE_GOOGLE_HASHMAP
 
+#include "../include/usage/ripser.h"
 #include "../include/argparser.h"
 #include "../include/output/output_classes.h"
-#include "../include/usage/ripser.h"
 #include "../include/persistence.h"
 
 #include <algorithm>
@@ -307,7 +307,7 @@ template <typename DistanceMatrix> class vietoris_rips_complex_t {
 	rips_filtration_comparator<DistanceMatrix>* next_comparator = nullptr;
 	binomial_coeff_table binomial_coeff;
 	mutable std::vector<index_t> _vertices_of_edge;
-  coefficient_t modulus;
+	coefficient_t modulus;
 
 public:
 	vietoris_rips_complex_t(DistanceMatrix& _distance_matrix, unsigned short _max_dimension, coefficient_t _modulus)
@@ -348,12 +348,13 @@ public:
 	}
 
 	inline simplex_coboundary_enumerator<DistanceMatrix> coboundary(filtration_entry_t cell) {
-		return simplex_coboundary_enumerator<DistanceMatrix>(cell, current_dimension, index_t(n), modulus, distance_matrix, binomial_coeff);
+		return simplex_coboundary_enumerator<DistanceMatrix>(cell, current_dimension, index_t(n), modulus,
+		                                                     distance_matrix, binomial_coeff);
 	}
 
 	bool is_top_dimension() { return current_dimension >= max_dimension; }
 
-  size_t top_dimension() { return current_dimension; }
+	size_t top_dimension() { return current_dimension; }
 
 	// Partial result output
 	void computation_result(int, long long, long long) {}
@@ -487,8 +488,8 @@ compressed_lower_distance_matrix read_file(std::istream& input_stream, file_form
 		return read_point_cloud(input_stream);
 	case DIPHA:
 		return read_dipha(input_stream);
-  default:
-    throw std::logic_error("Format not known.");
+	default:
+		throw std::logic_error("Format not known.");
 	}
 }
 
@@ -510,52 +511,51 @@ int main(int argc, char** argv) {
 	auto named_arguments = get_named_arguments(arguments);
 
 	if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
-  if (positional_arguments.size() == 0) print_usage_and_exit(-1);
+	if (positional_arguments.size() == 0) print_usage_and_exit(-1);
 
 	named_arguments_t::const_iterator it;
 	if ((it = named_arguments.find("format")) != named_arguments.end()) {
-			if (it->second == std::string("lower-distance"))
-				format = LOWER_DISTANCE_MATRIX;
-			else if (it->second == std::string("upper-distance"))
-				format = UPPER_DISTANCE_MATRIX;
-			else if (it->second == std::string("distance"))
-				format = DISTANCE_MATRIX;
-			else if (it->second == std::string("point-cloud"))
-				format = POINT_CLOUD;
-			else if (it->second == std::string("dipha"))
-				format = DIPHA;
-      else {
-        std::cerr << "The input format " << format << " is not supported." << std::endl;
-        print_usage_and_exit(-1);
-      }
-  }
+		if (it->second == std::string("lower-distance"))
+			format = LOWER_DISTANCE_MATRIX;
+		else if (it->second == std::string("upper-distance"))
+			format = UPPER_DISTANCE_MATRIX;
+		else if (it->second == std::string("distance"))
+			format = DISTANCE_MATRIX;
+		else if (it->second == std::string("point-cloud"))
+			format = POINT_CLOUD;
+		else if (it->second == std::string("dipha"))
+			format = DIPHA;
+		else {
+			std::cerr << "The input format " << format << " is not supported." << std::endl;
+			print_usage_and_exit(-1);
+		}
+	}
 
 	if ((it = named_arguments.find("max-dim")) != named_arguments.end()) {
-			std::string parameter = std::string(it->second);
-			size_t next_pos;
-			dim_max = std::stol(parameter, &next_pos);
-			if (next_pos != parameter.size()) print_usage_and_exit(-1);
-  }
+		std::string parameter = std::string(it->second);
+		size_t next_pos;
+		dim_max = std::stol(parameter, &next_pos);
+		if (next_pos != parameter.size()) print_usage_and_exit(-1);
+	}
 
 	if ((it = named_arguments.find("threshold")) != named_arguments.end()) {
-			std::string parameter = std::string(it->second);
-			size_t next_pos;
-			threshold = std::stof(parameter, &next_pos);
-			if (next_pos != parameter.size()) print_usage_and_exit(-1);
-  }
+		std::string parameter = std::string(it->second);
+		size_t next_pos;
+		threshold = std::stof(parameter, &next_pos);
+		if (next_pos != parameter.size()) print_usage_and_exit(-1);
+	}
 
 #ifdef USE_COEFFICIENTS
 	if ((it = named_arguments.find("modulus")) != named_arguments.end()) {
-			std::string parameter = std::string(it->second);
-      size_t next_pos;
-      modulus = std::stol(parameter, &next_pos);
-      if (next_pos != parameter.size() || !is_prime(modulus)) print_usage_and_exit(-1);
-  }
+		std::string parameter = std::string(it->second);
+		size_t next_pos;
+		modulus = std::stol(parameter, &next_pos);
+		if (next_pos != parameter.size() || !is_prime(modulus)) print_usage_and_exit(-1);
+	}
 #endif
 
 	size_t max_entries = std::numeric_limits<size_t>::max();
 	if ((it = named_arguments.find("approximate")) != named_arguments.end()) { max_entries = atoi(it->second); }
-
 
 	std::ifstream file_stream(positional_arguments[0]);
 	if (positional_arguments[0] && file_stream.fail()) {
@@ -574,12 +574,12 @@ int main(int argc, char** argv) {
 
 	dim_max = std::min(dim_max, n - 2);
 
-
 	vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max, modulus);
 	auto output = get_output<decltype(vietoris_rips_complex)>(named_arguments);
-    output->set_complex(&vietoris_rips_complex);
+	output->set_complex(&vietoris_rips_complex);
 
-	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output.get(), max_entries, modulus, threshold);
+	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output.get(),
+	                                                                             max_entries, modulus, threshold);
 	persistence_computer.compute_persistence(dim_min, dim_max, false);
 	output->print_aggregated_results();
 }

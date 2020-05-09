@@ -55,22 +55,23 @@ template <typename Complex> size_t betti_output_t<Complex>::total_top_dimension 
 void print_ordinary(std::ostream& outstream, int min_dimension, int max_dimension, int top_dimension,
                     std::vector<size_t> number_of_cells, std::vector<size_t> betti, std::vector<size_t> skipped,
                     bool approximate_computation, bool with_cell_counts) {
-  if (with_cell_counts) {
-      outstream << "# Cell counts (of dimensions between " << std::max(0, min_dimension - 1) << " and " << top_dimension
-                << "):" << std::endl;
-      for (int i = std::max(0, min_dimension - 1); i <= top_dimension; i++)
-        outstream << number_of_cells[i] << (i < top_dimension ? " " : "");
-      outstream << std::endl;
+	if (with_cell_counts) {
+		outstream << "# Cell counts (of dimensions between " << std::max(0, min_dimension - 1) << " and "
+		          << top_dimension << "):" << std::endl;
+		for (int i = std::max(0, min_dimension - 1); i <= top_dimension; i++)
+			outstream << number_of_cells[i] << (i < top_dimension ? " " : "");
+		outstream << std::endl;
 
-      index_t cell_euler_characteristic = 0;
-      for (int i = 0; i <= top_dimension; i++) cell_euler_characteristic += index_t((i % 2 == 1 ? -1 : 1) * number_of_cells[i]);
+		index_t cell_euler_characteristic = 0;
+		for (int i = 0; i <= top_dimension; i++)
+			cell_euler_characteristic += index_t((i % 2 == 1 ? -1 : 1) * number_of_cells[i]);
 
-      bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
-      if (computed_full_homology) {
-        outstream << "# Euler characteristic:" << std::endl;
-        outstream << cell_euler_characteristic << std::endl;
-      }
-  }
+		bool computed_full_homology = min_dimension == 0 && max_dimension == std::numeric_limits<unsigned short>::max();
+		if (computed_full_homology) {
+			outstream << "# Euler characteristic:" << std::endl;
+			outstream << cell_euler_characteristic << std::endl;
+		}
+	}
 
 	if (approximate_computation) {
 		outstream << "# Skipped columns of the coboundary matrix (in dimensions between "
@@ -90,26 +91,27 @@ void print_ordinary(std::ostream& outstream, int min_dimension, int max_dimensio
 }
 
 template <typename Complex> void betti_output_t<Complex>::finished(bool with_cell_counts) {
-  std::vector<size_t> number_of_cells;
-  total_top_dimension = std::max(total_top_dimension, complex->top_dimension());
+	std::vector<size_t> number_of_cells;
+	total_top_dimension = std::max(total_top_dimension, complex->top_dimension());
 
-  if (with_cell_counts) {
-      for (auto i = 0ul; i <= complex->top_dimension(); i++) number_of_cells.push_back(complex->number_of_cells(i));
+	if (with_cell_counts) {
+		for (auto i = 0ul; i <= complex->top_dimension(); i++) number_of_cells.push_back(complex->number_of_cells(i));
 
-      total_cell_count.resize(complex->top_dimension() + 1, 0);
-      for (auto i = 0ul; i <= complex->top_dimension(); i++) total_cell_count[i] += complex->number_of_cells(i);
-  } else {
-    total_cell_count.resize(0);
-  }
+		total_cell_count.resize(complex->top_dimension() + 1, 0);
+		for (auto i = 0ul; i <= complex->top_dimension(); i++) total_cell_count[i] += complex->number_of_cells(i);
+	} else {
+		total_cell_count.resize(0);
+	}
 
-  print_ordinary(file_output_t<Complex>::outstream, int(min_dimension), int(max_dimension), int(complex->top_dimension()),
-                 number_of_cells, betti, skipped, approximate_computation, with_cell_counts);
+	print_ordinary(file_output_t<Complex>::outstream, int(min_dimension), int(max_dimension),
+	               int(complex->top_dimension()), number_of_cells, betti, skipped, approximate_computation,
+	               with_cell_counts);
 
-  total_betti.resize(betti.size(), 0);
-  for (size_t idx = 0; idx < betti.size(); idx++) total_betti[idx] += betti[idx];
+	total_betti.resize(betti.size(), 0);
+	for (size_t idx = 0; idx < betti.size(); idx++) total_betti[idx] += betti[idx];
 
-  total_skipped.resize(skipped.size(), 0);
-  for (size_t idx = 0; idx < skipped.size(); idx++) total_skipped[idx] += skipped[idx];
+	total_skipped.resize(skipped.size(), 0);
+	for (size_t idx = 0; idx < skipped.size(); idx++) total_skipped[idx] += skipped[idx];
 }
 
 template <typename Complex> void betti_output_t<Complex>::print_aggregated_results() {

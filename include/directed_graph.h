@@ -8,7 +8,6 @@
 #include "definitions.h"
 #include "persistence.h"
 
-
 // Because windows compiler does not implement `ctzl`, a custom method with
 // similar performace is used. This method is inspired from:
 // https://stackoverflow.com/a/20468180
@@ -16,34 +15,26 @@
 #ifdef _MSC_VER
 #include <intrin.h>
 
-uint64_t __inline ctzl( uint64_t value )
-{
-    unsigned long trailing_zero = 0;
+uint64_t __inline ctzl(uint64_t value) {
+	unsigned long trailing_zero = 0;
 
-    if ( _BitScanForward64( &trailing_zero, value ) )
-    {
-        return trailing_zero;
-    }
-    else
-    {
-        // This is undefined, I better choose 64 than 0
-        return 64;
-    }
+	if (_BitScanForward64(&trailing_zero, value)) {
+		return trailing_zero;
+	} else {
+		// This is undefined, I better choose 64 than 0
+		return 64;
+	}
 }
 
-uint64_t __inline clzl( uint64_t value )
-{
-    unsigned long leading_zero = 0;
+uint64_t __inline clzl(uint64_t value) {
+	unsigned long leading_zero = 0;
 
-    if ( _BitScanReverse64( &leading_zero, value ) )
-    {
-       return 63 - leading_zero;
-    }
-    else
-    {
-         // Same remarks as above
-         return 64;
-    }
+	if (_BitScanReverse64(&leading_zero, value)) {
+		return 63 - leading_zero;
+	} else {
+		// Same remarks as above
+		return 64;
+	}
 }
 
 #define __builtin_clzl(x) clzl(x)
@@ -59,7 +50,7 @@ public:
 	mutable std::vector<value_t> edge_filtration;
 	std::vector<size_t> outdegrees;
 	std::vector<size_t> indegrees;
-  bool directed = true;
+	bool directed = true;
 
 	// These are the incidences as a matrix of 64-bit masks
 	std::vector<size_t> incidence_incoming;
@@ -67,9 +58,10 @@ public:
 	size_t incidence_row_length;
 
 	// Assume by default that the edge density will be roughly one percent
-    directed_graph_t(){}
+	directed_graph_t() {}
 	directed_graph_t(vertex_index_t _number_of_vertices, bool directed = true, float density_hint = 0.01)
-	    : number_of_vertices(_number_of_vertices), directed(directed), incidence_row_length((_number_of_vertices >> 6) + 1) {
+	    : number_of_vertices(_number_of_vertices), directed(directed),
+	      incidence_row_length((_number_of_vertices >> 6) + 1) {
 		outdegrees.resize(_number_of_vertices, 0);
 		indegrees.resize(_number_of_vertices, 0);
 		incidence_incoming.resize(incidence_row_length * _number_of_vertices, 0);
@@ -83,12 +75,17 @@ public:
 	size_t edge_number() const { return edges.size() / 2; }
 
 	bool add_edge(vertex_index_t v, vertex_index_t w) {
-    if (!directed && v > w) return add_edge(w, v);
+		if (!directed && v > w) return add_edge(w, v);
+
+		if (v >= number_of_vertices || w >= number_of_vertices)
+			throw std::logic_error("Out of bounds, tried to add an edge involving vertex " +
+			                       std::to_string(std::max(v, w)) + ", but there are only " +
+			                       std::to_string(number_of_vertices) + " vertices.");
 
 		const size_t vv = v >> 6;
 		const size_t ww = w >> 6;
 
-    // Prevent multiple insertions
+		// Prevent multiple insertions
 		if (incidence_outgoing[v * incidence_row_length + ww] & (ONE_ << ((w - (ww << 6))))) return false;
 
 		outdegrees[v]++;
@@ -99,7 +96,7 @@ public:
 		incidence_outgoing[v * incidence_row_length + ww] |= ONE_ << ((w - (ww << 6)));
 
 		incidence_incoming[w * incidence_row_length + vv] |= ONE_ << (v - (vv << 6));
-    return true;
+		return true;
 	}
 
 	bool is_connected_by_an_edge(vertex_index_t from, vertex_index_t to) const {
@@ -123,11 +120,12 @@ public:
 	std::vector<value_t> edge_filtration;
 
 	filtered_directed_graph_t(const std::vector<value_t> _vertex_filtration, bool directed)
-	    : directed_graph_t(vertex_index_t(_vertex_filtration.size()), directed), vertex_filtration(_vertex_filtration) {}
+	    : directed_graph_t(vertex_index_t(_vertex_filtration.size()), directed), vertex_filtration(_vertex_filtration) {
+	}
 
 	// WARNING: This does not take the filtration into account!
 	// TODO: Think about how to do this efficiently.
-	filtered_directed_graph_t(){}
+	filtered_directed_graph_t() {}
 	filtered_directed_graph_t(filtered_directed_graph_t* big_graph, std::unordered_set<vertex_index_t> subset)
 	    : filtered_directed_graph_t(std::vector<value_t>(subset.size(), 0), big_graph->directed) {
 		// Add the edges
@@ -157,7 +155,7 @@ public:
 
 	void add_filtered_edge(vertex_index_t v, vertex_index_t w, value_t filtration) {
 		if (directed_graph_t::add_edge(v, w) && filtration != std::numeric_limits<value_t>::lowest())
-      edge_filtration.push_back(filtration);
+			edge_filtration.push_back(filtration);
 	}
 
 	std::vector<filtered_directed_graph_t> get_connected_subgraphs(vertex_index_t minimal_number_of_vertices) {

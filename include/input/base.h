@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cctype>
 #include <fstream>
 #include <string>
-#include <cctype>
 
 #include "../argparser.h"
 #include "../definitions.h"
