@@ -89,7 +89,10 @@ void run_all(bool full=false) {
       throw std::logic_error("The file content differed.");
     }
 
+#ifdef NDEBUG
+    // The expensive stuff is only run in production settings
     compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
     compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+#endif
   }
 }
