@@ -35,34 +35,45 @@ add_custom_command(
 )
 add_custom_target(generate_custom_algorithms DEPENDS include/algorithms.h)
 
+
 add_executable(flagser src/flagser.cpp include/algorithms.h)
 add_dependencies(flagser generate_custom_algorithms)
+set_target_properties(flagser PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(flagser_retrieve_persistence src/flagser.cpp include/algorithms.h)
 add_dependencies(flagser_retrieve_persistence generate_custom_algorithms)
 target_compile_definitions(flagser_retrieve_persistence PRIVATE RETRIEVE_PERSISTENCE)
+set_target_properties(flagser_retrieve_persistence PROPERTIES LINKER_LANGUAGE CXX)
+
 
 add_executable(flagser-memory src/flagser.cpp include/algorithms.h)
 target_compile_definitions(flagser-memory PRIVATE KEEP_FLAG_COMPLEX_IN_MEMORY=1)
 add_dependencies(flagser-memory generate_custom_algorithms)
+set_target_properties(flagser-memory PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(ripser src/ripser.cpp)
+set_target_properties(ripser PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(flagser-count src/flagser-count.cpp)
+set_target_properties(flagser-count PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(er src/er.cpp)
+set_target_properties(er PROPERTIES LINKER_LANGUAGE CXX)
 
 IF(NOT MSVC)
 add_executable(flagser-coefficients src/flagser.cpp)
 add_dependencies(flagser-coefficients generate_custom_algorithms)
 target_compile_definitions(flagser-coefficients PRIVATE USE_COEFFICIENTS=1)
+set_target_properties(flagser-coefficients PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(flagser-coefficients-memory src/flagser.cpp include/algorithms.h)
 target_compile_definitions(flagser-coefficients-memory PRIVATE USE_COEFFICIENTS=1 KEEP_FLAG_COMPLEX_IN_MEMORY=1)
 add_dependencies(flagser-coefficients-memory generate_custom_algorithms)
+set_target_properties(flagser-coefficients-memory PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(ripser-coefficients src/ripser.cpp)
 target_compile_definitions(ripser-coefficients PRIVATE USE_COEFFICIENTS=1)
+set_target_properties(ripser-coefficients PROPERTIES LINKER_LANGUAGE CXX)
 ELSE()
   message("On Windows, compilation with coefficients is currently not supported.")
 ENDIF()
