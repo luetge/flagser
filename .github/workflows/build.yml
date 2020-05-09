@@ -44,5 +44,5 @@ jobs:
       run: |
         cmake -E remove_directory build-release
         cmake -B build-release -S .
-        cmake --build build-release --parallel
-        cd build-release && ctest -j
+        cmake --build build-release --parallel test_flagser
+        cd build-release && ctest -j test_flagser
