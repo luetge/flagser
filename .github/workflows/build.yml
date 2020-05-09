@@ -39,3 +39,10 @@ jobs:
       run: cmake --build build --parallel
     - name: test
       run: cd build && ctest -j
+    - name: release test
+      if: runner.os == 'macos-latest'
+      run: |
+        cmake -E remove_directory build-release
+        cmake -B build-release -S .
+        cmake --build build-release --parallel
+        cd build-release && ctest -j
