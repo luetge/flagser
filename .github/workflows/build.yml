@@ -40,7 +40,7 @@ jobs:
     - name: Test
       run: cd build && ctest -j
     - name: Release test (large graphs with optimized compilation)
-      if: runner.os == 'macos-latest'
+      if: runner.os == 'macos'
       run: |
         cmake -E remove_directory build-release
         cmake -B build-release -S .
