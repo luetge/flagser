@@ -194,7 +194,7 @@ public:
 	}
 
 	size_t number_of_cells(int dimension) const {
-		assert(dimension < cell_count.size());
+		assert(size_t(dimension) < cell_count.size());
 		return cell_count[dimension];
 	}
 	size_t top_dimension() const { return cell_count.size() - 1; }
