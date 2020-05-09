@@ -511,9 +511,6 @@ public:
 			index_t cell_euler_characteristic = 0;
 			for (size_t i = 0; i <= complex.top_dimension(); i++) {
 				cell_euler_characteristic += (i % 2 == 1 ? -1 : 1) * index_t(complex.number_of_cells(index_t(i)));
-#ifdef RETRIEVE_PERSISTENCE
-				cell_count.push_back(index_t(complex.number_of_cells(index_t(i))));
-#endif
 			}
 
 			if (print_betti_numbers_to_console)
@@ -525,6 +522,14 @@ public:
 				          << "), apparently there is an error in the program." << std::endl;
 			}
 		}
+
+#ifdef RETRIEVE_PERSISTENCE
+                for (size_t i = min_dimension;
+                     i < std::min(complex.top_dimension(), (size_t)max_dimension+1); i++) {
+                        cell_count.push_back(index_t(complex.number_of_cells(index_t(i))));
+                }
+#endif
+
 	}
 
 #ifdef RETRIEVE_PERSISTENCE
@@ -598,15 +603,7 @@ protected:
 		std::reverse(columns_to_reduce.begin(), columns_to_reduce.end());
 
 		// If we don't care about zeroth homology, then we can stop here
-#ifdef RETRIEVE_PERSISTENCE
-		// Store the first persistence diagram
-		if (min_dimension == 1) {
-			birth_deaths_by_dim.push_back(birth_death);
-			return;
-		}
-#else
 		if (min_dimension == 1) return;
-#endif
 
 		for (index_t index = 0; index < index_t(n); ++index) {
 			if (dset.find(index) == index) {
