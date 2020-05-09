@@ -7,16 +7,6 @@ enable_language(CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-IF(MSVC)
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Ox -D NDEBUG")
-ELSE()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread -pedantic-errors")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Ofast -D NDEBUG")
-ENDIF()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_POSITION_INDEPENDANT}")
-set(CMAKE_VS_PLATFORM_NAME "x64")
-set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE "x64")
-
 find_package(Threads REQUIRED)
 
 find_package(HDF5)
@@ -24,6 +14,16 @@ IF(HDF5_FOUND)
     include_directories(${HDF5_INCLUDE_DIR})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_HDF5")
 ENDIF()
+
+IF(MSVC)
+  set(CMAKE_CXX_RELEASE_FLAGS "${CMAKE_CXX_FLAGS} -Ox -D NDEBUG")
+ELSE()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread -pedantic-errors")
+  set(CMAKE_CXX_RELEASE_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -D NDEBUG")
+ENDIF()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_POSITION_INDEPENDANT}")
+set(CMAKE_VS_PLATFORM_NAME "x64")
+set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE "x64")
 
 # Also add the time of the file + output file into consideration
 # Add the include dir to the watch list
@@ -81,6 +81,7 @@ ENDIF()
 
 message("")
 message("** CMAKE_CXX_FLAGS: \t\t\t${CMAKE_CXX_FLAGS}")
+message("** CMAKE_CXX_RELEASE_FLAGS: \t\t\t${CMAKE_CXX_RELEASE_FLAGS}")
 message("** CMAKE_CXX_LINK_FLAGS: \t\t${CMAKE_CXX_LINK_FLAGS}")
 message("")
 

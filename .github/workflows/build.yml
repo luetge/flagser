@@ -31,15 +31,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: configure
+    - name: Configure CMake
       run: |
         cmake -E remove_directory build
         cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
-    - name: build
+    - name: Build Code
       run: cmake --build build --parallel
-    - name: test
+    - name: Test
       run: cd build && ctest -j
-    - name: release test
+    - name: Release test (large graphs with optimized compilation)
       if: runner.os == 'macos-latest'
       run: |
         cmake -E remove_directory build-release
