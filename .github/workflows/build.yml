@@ -31,9 +31,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: cmake
-      run: mkdir build && cd build && cmake ..
-    - name: make
-      run: cd build && make -j
-    - name: make test
-      run: cd build && make test
+    - name: configure
+      run: |
+        cmake -E remove_directory build
+        cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
+    - name: build
+      run: cmake --build --parallel build
+    - name: test
+      run: cd build && ctest -j --output-on-failure
