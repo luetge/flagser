@@ -141,12 +141,11 @@ public:
 		return euler_characteristic;
 	}
 
-	template <typename Func>
-	void for_each_cell(std::vector<Func>& fs, int min_dimension, int max_dimension = -1) {
+	template <typename Func> void for_each_cell(std::vector<Func>& fs, int min_dimension, int max_dimension = -1) {
 		if (max_dimension == -1) max_dimension = min_dimension;
 
-    auto number_of_threads = int(fs.size());
-    std::vector<std::thread> t(number_of_threads);
+		auto number_of_threads = int(fs.size());
+		std::vector<std::thread> t(number_of_threads);
 
 		for (auto index = 0; index < number_of_threads - 1; ++index)
 			t[index] = std::thread(&directed_flag_complex_in_memory_t<ExtraData>::worker_thread<Func>, this,
@@ -164,7 +163,7 @@ public:
 	void worker_thread(int number_of_threads, int thread_id, Func& f, int min_dimension, int max_dimension) {
 		const size_t number_of_vertices = vertex_cells.size();
 
-        std::vector<vertex_index_t> prefix(max_dimension + 1);
+		std::vector<vertex_index_t> prefix(max_dimension + 1);
 
 		for (vertex_index_t index = thread_id; index < number_of_vertices; index += number_of_threads) {
 			vertex_cells[index].for_each_cell(f, min_dimension, max_dimension, prefix.data());
@@ -234,7 +233,7 @@ directed_flag_complex_in_memory_t<ExtraData>::directed_flag_complex_in_memory_t(
 		vertex_cells.push_back(directed_flag_complex_cell_in_memory_t<ExtraData>(index));
 
 	// Now we start a few threads to construct the flag complex
-  std::vector<std::thread> t(PARALLEL_THREADS - 1);
+	std::vector<std::thread> t(PARALLEL_THREADS - 1);
 
 	for (auto index = 0ul; index < PARALLEL_THREADS - 1; ++index)
 		t[index] =

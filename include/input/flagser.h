@@ -9,7 +9,6 @@
 
 #endif
 
-
 #include "base.h"
 
 // String to number conversion
@@ -65,7 +64,8 @@ filtered_directed_graph_t read_graph_flagser(const std::string filename, const n
 				graph.add_edge(vertices[0], vertices[1]);
 			} else {
 				std::vector<value_t> vertices = split<value_t>(line, ' ', string_to_float);
-				if (value_t(vertices[2]) < std::max(vertex_filtration[size_t(vertices[0])], vertex_filtration[size_t(vertices[1])])) {
+				if (value_t(vertices[2]) <
+				    std::max(vertex_filtration[size_t(vertices[0])], vertex_filtration[size_t(vertices[1])])) {
 					std::cerr << "The flagser file contained an edge filtration that contradicts the vertex "
 					             "filtration, the edge ("
 					          << vertices[0] << ", " << vertices[1] << ") has filtration value " << vertices[2]

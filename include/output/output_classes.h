@@ -34,9 +34,9 @@ bool has_zero_filtration_and_no_explicit_output(const named_arguments_t& named_a
 }
 
 template <typename Complex> std::unique_ptr<output_t<Complex>> get_output(const named_arguments_t& named_arguments) {
-    // using std namespace because of std::make_unique workaround
-    // This restrict the scope to inside the function
-    using namespace std;
+	// using std namespace because of std::make_unique workaround
+	// This restrict the scope to inside the function
+	using namespace std;
 
 	std::string output_name = "barcode";
 	auto it = named_arguments.find("out-format");

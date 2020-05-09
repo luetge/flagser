@@ -6,15 +6,14 @@
 
 void print_homology_usage(bool no_filtration = false) {
 	std::cerr << "  --cache folder     cache the coboundary matrix in the given folder" << std::endl;
-  if (!no_filtration) {
-	          std::cerr << "  --filtration       use the specified algorithm to compute the filtration. Options are:"
-                << std::endl;
+	if (!no_filtration) {
+		std::cerr << "  --filtration       use the specified algorithm to compute the filtration. Options are:"
+		          << std::endl;
 
-            for (auto f : custom_filtration_computer) std::cerr << "                         " << f << std::endl;
-  }
+		for (auto f : custom_filtration_computer) std::cerr << "                         " << f << std::endl;
+	}
 
-  std::cerr
-	          << "  --max-dim          the maximal homology dimension to be computed" << std::endl
+	std::cerr << "  --max-dim          the maximal homology dimension to be computed" << std::endl
 	          << "  --min-dim          the minimal homology dimension to be computed" << std::endl
 #ifdef USE_COEFFICIENTS
 	          << "  --modulus          compute homology with coefficients in the prime field Z/<p>Z" << std::endl

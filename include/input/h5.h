@@ -121,7 +121,7 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 
 			// Add the edges
 			for (auto x = 0ul; x < vertex_number; x++) {
-        graph->vertex_filtration[x] = entries[x * vertex_number + x];
+				graph->vertex_filtration[x] = entries[x * vertex_number + x];
 
 				for (auto y = 0ul; y < vertex_number; y++) {
 					if (entries[x * vertex_number + y] != 0)
@@ -219,7 +219,7 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 
 					// Add the edges
 					for (auto x = 0ul; x < group_sizes[i]; x++) {
-            graph->vertex_filtration[group_offsets[i] + x] = entries[x * group_sizes[j] + x];
+						graph->vertex_filtration[group_offsets[i] + x] = entries[x * group_sizes[j] + x];
 
 						for (auto y = 0ul; y < group_sizes[j]; y++) {
 							if (entries[x * group_sizes[j] + y] > 0) {

@@ -28,11 +28,9 @@
 #include "../include/usage/flagser.h"
 
 #ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
-typedef directed_flag_complex_in_memory_computer_t
-    directed_flag_complex_compute_t;
+typedef directed_flag_complex_in_memory_computer_t directed_flag_complex_compute_t;
 #else
-typedef directed_flag_complex_computer_t 
-    directed_flag_complex_compute_t;
+typedef directed_flag_complex_computer_t directed_flag_complex_compute_t;
 #endif
 
 #ifdef RETRIEVE_PERSISTENCE
@@ -80,7 +78,8 @@ compute_homology(filtered_directed_graph_t& graph, const named_arguments_t& name
 		}
 
 #ifdef RETRIEVE_PERSISTENCE
-		complex_subgraphs.push_back(persistence_computer_t<decltype(complex)>(complex, output.get(), max_entries, modulus));
+		complex_subgraphs.push_back(
+		    persistence_computer_t<decltype(complex)>(complex, output.get(), max_entries, modulus));
 		complex_subgraphs.back().compute_persistence(min_dimension, max_dimension);
 #else
 		persistence_computer_t<decltype(complex)> persistence_computer(complex, output.get(), max_entries, modulus);

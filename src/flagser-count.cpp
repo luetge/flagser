@@ -67,9 +67,10 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 			void done() {}
 			void operator()(vertex_index_t*
 #ifdef WITH_HDF5
-          first_vertex
+			                    first_vertex
 #endif
-          , int size) {
+			                ,
+			                int size) {
 				// Add (-1)^size to the Euler characteristic
 				if (size & 1)
 					ec++;
@@ -98,7 +99,7 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 #ifdef WITH_HDF5
 			    output
 #endif
-			));
+			    ));
 
 #ifdef WITH_HDF5
 		if (output != nullptr)
