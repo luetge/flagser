@@ -90,9 +90,11 @@ void run_all(bool full=false) {
     }
 
 #ifdef NDEBUG
-    // The expensive stuff is only run in production settings
+    std::cout << "Running extensive tests, this might take a while." << std::endl;
     compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
     compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+#else
+    std::cout << "Skipping extensive tests." << std::endl;
 #endif
   }
 }
