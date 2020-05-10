@@ -45,4 +45,4 @@ jobs:
         cmake -E remove_directory build-release
         cmake -B build-release -S .
         cmake --build build-release --parallel --target test_flagser
-        cd build-release && ctest -j test_flagser
+        cd build-release && ctest -R ^test_flagser$ -j
