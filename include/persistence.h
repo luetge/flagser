@@ -389,6 +389,7 @@ private:
 
 	inline void remove_trivial_coefficient_entries() {
 		if (use_dense_version) {
+			if (std::priority_queue<filtration_entry_t, Container, Comparator>::size() == 0) return;
 			auto p =
 			    coefficients.find(get_index(std::priority_queue<filtration_entry_t, Container, Comparator>::top()));
 #ifdef USE_COEFFICIENTS
