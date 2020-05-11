@@ -14,10 +14,6 @@
 #include "./base.h"
 
 int main(int, char**) {
-#ifndef _MSC_VER
   run_all(true);
-#else
-  run_all(false);
-#endif
   return 0;
 }

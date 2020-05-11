@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cstdio>
 #include "../include/persistence.h"
 #include "../include/complex/directed_flag_complex_computer.h"
 #include "../include/input/input_classes.h"
@@ -72,7 +73,7 @@ void run_all(bool full=false) {
   compute("../../test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
 
   if (full) {
-    const auto file_path = "/tmp/flagser_tmp_test";
+    const auto file_path = "../flagser_tmp";
     std::remove(file_path);
     compute("../../test/a.flag", {{1ul, 2ul, 0ul}}, file_path);
     // Check that the file has the right content
@@ -89,7 +90,12 @@ void run_all(bool full=false) {
       throw std::logic_error("The file content differed.");
     }
 
+#ifdef NDEBUG
+    std::cout << "Running extensive tests, this might take a while." << std::endl;
     compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
     compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+#else
+    std::cout << "Skipping extensive tests." << std::endl;
+#endif
   }
 }

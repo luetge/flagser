@@ -7,14 +7,12 @@ enable_language(CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-IF(MSVC)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -D NDEBUG -pthread")
-ELSE()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -D NDEBUG -pthread -Wall -pedantic-errors")
-ENDIF()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_POSITION_INDEPENDANT}")
-set(CMAKE_VS_PLATFORM_NAME "x64")
-set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE "x64")
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release
+RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 find_package(Threads REQUIRED)
 
@@ -23,6 +21,17 @@ IF(HDF5_FOUND)
     include_directories(${HDF5_INCLUDE_DIR})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_HDF5")
 ENDIF()
+
+IF(MSVC)
+  set(CMAKE_CXX_RELEASE_FLAGS "${CMAKE_CXX_FLAGS} -Ox -D NDEBUG")
+ELSE()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -pedantic-errors")
+  set(CMAKE_CXX_DEBUG_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fno-omit-frame-pointer -fsanitize=memory")
+  set(CMAKE_CXX_RELEASE_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -D NDEBUG")
+ENDIF()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_POSITION_INDEPENDANT}")
+set(CMAKE_VS_PLATFORM_NAME "x64")
+set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE "x64")
 
 # Also add the time of the file + output file into consideration
 # Add the include dir to the watch list
@@ -35,40 +44,54 @@ add_custom_command(
 )
 add_custom_target(generate_custom_algorithms DEPENDS include/algorithms.h)
 
+
 add_executable(flagser src/flagser.cpp include/algorithms.h)
 add_dependencies(flagser generate_custom_algorithms)
+set_target_properties(flagser PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(flagser_retrieve_persistence src/flagser.cpp include/algorithms.h)
 add_dependencies(flagser_retrieve_persistence generate_custom_algorithms)
 target_compile_definitions(flagser_retrieve_persistence PRIVATE RETRIEVE_PERSISTENCE)
+set_target_properties(flagser_retrieve_persistence PROPERTIES LINKER_LANGUAGE CXX)
+
 
 add_executable(flagser-memory src/flagser.cpp include/algorithms.h)
 target_compile_definitions(flagser-memory PRIVATE KEEP_FLAG_COMPLEX_IN_MEMORY=1)
 add_dependencies(flagser-memory generate_custom_algorithms)
+set_target_properties(flagser-memory PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(ripser src/ripser.cpp)
+set_target_properties(ripser PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(flagser-count src/flagser-count.cpp)
+set_target_properties(flagser-count PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(er src/er.cpp)
+set_target_properties(er PROPERTIES LINKER_LANGUAGE CXX)
 
 IF(NOT MSVC)
 add_executable(flagser-coefficients src/flagser.cpp)
 add_dependencies(flagser-coefficients generate_custom_algorithms)
 target_compile_definitions(flagser-coefficients PRIVATE USE_COEFFICIENTS=1)
+set_target_properties(flagser-coefficients PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(flagser-coefficients-memory src/flagser.cpp include/algorithms.h)
 target_compile_definitions(flagser-coefficients-memory PRIVATE USE_COEFFICIENTS=1 KEEP_FLAG_COMPLEX_IN_MEMORY=1)
 add_dependencies(flagser-coefficients-memory generate_custom_algorithms)
+set_target_properties(flagser-coefficients-memory PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(ripser-coefficients src/ripser.cpp)
 target_compile_definitions(ripser-coefficients PRIVATE USE_COEFFICIENTS=1)
+set_target_properties(ripser-coefficients PROPERTIES LINKER_LANGUAGE CXX)
 ELSE()
   message("On Windows, compilation with coefficients is currently not supported.")
 ENDIF()
 
 message("")
+message("** CMAKE_BUILD_TYPE: \t\t\t${CMAKE_BUILD_TYPE}")
 message("** CMAKE_CXX_FLAGS: \t\t\t${CMAKE_CXX_FLAGS}")
+message("** CMAKE_CXX_DEBUG_FLAGS: \t\t\t${CMAKE_CXX_DEBUG_FLAGS}")
+message("** CMAKE_CXX_RELEASE_FLAGS: \t\t\t${CMAKE_CXX_RELEASE_FLAGS}")
 message("** CMAKE_CXX_LINK_FLAGS: \t\t${CMAKE_CXX_LINK_FLAGS}")
 message("")
 

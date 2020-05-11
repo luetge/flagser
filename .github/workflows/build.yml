@@ -1,0 +1,48 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, ubuntu-latest, windows-latest]
+        include:
+        - os: macos-latest
+          TARGET: x86_64-apple-darwin
+          COMPILER: clang
+          LINKER: clang
+
+        - os: ubuntu-latest
+          TARGET: armv7-unknown-linux-musleabihf
+          COMPILER: arm-linux-gnueabihf-gcc-5
+          LINKER: gcc-5-arm-linux-gnueabihf
+
+        - os: ubuntu-latest
+          TARGET: x86_64-unknown-linux-musl
+          COMPILER: gcc
+          LINKER: gcc
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configure CMake
+      run: |
+        cmake -E remove_directory build
+        cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
+    - name: Build Code
+      run: cmake --build build --parallel
+    - name: Test
+      run: cd build && ctest --output-on-failure --verbose
+    - name: Release test (large graphs with optimized compilation)
+      if: runner.os == 'macos'
+      run: |
+        cmake -E remove_directory build-release
+        cmake -B build-release -S .
+        cmake --build build-release --parallel --target test_flagser
+        cd build-release && ctest -R ^test_flagser$ --output-on-failure --verbose
