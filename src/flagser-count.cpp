@@ -32,7 +32,7 @@
 
 #include "../include/usage/flagser-count.h"
 
-void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& named_arguments) {
+std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const named_arguments_t& named_arguments) {
 	// Aggregated counts
 	std::vector<size_t> total_cell_count;
 
@@ -152,6 +152,8 @@ void count_cells(filtered_directed_graph_t& graph, const named_arguments_t& name
 		for (size_t dim = 0; dim < total_max_dim; dim++) std::cout << " " << total_cell_count[dim];
 		std::cout << std::endl;
 	}
+
+        return total_cell_count;
 }
 
 int main(int argc, char** argv) {
@@ -167,5 +169,5 @@ int main(int argc, char** argv) {
 
 	filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, named_arguments);
 
-	count_cells(graph, named_arguments);
+	auto cell_count = count_cells(graph, named_arguments);
 }
