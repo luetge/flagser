@@ -95,11 +95,11 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const named_ar
 
 		std::vector<cell_counter_t> cell_counter(PARALLEL_THREADS);
 		for (int i = 0; i < PARALLEL_THREADS; i++)
-			cell_counter.push_back(cell_counter_t(
+			cell_counter[i] = cell_counter_t(
 #ifdef WITH_HDF5
 			    output
 #endif
-			    ));
+			    );
 
 #ifdef WITH_HDF5
 		if (output != nullptr)
