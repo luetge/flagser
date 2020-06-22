@@ -41,6 +41,11 @@ public:
 		filtration_algorithm.reset(
 		    get_filtration_computer(get_argument_or_default(named_arguments, "filtration", "zero")));
 
+        if ((it = named_arguments.find("threshold")) != named_arguments.end()) {
+            std::string parameter = std::string(it->second);
+            threshold = std::stof(parameter, nullptr);
+        }
+
 #ifdef USE_COEFFICIENTS
 		if ((it = named_arguments.find("modulus")) != named_arguments.end()) { modulus = atoi(it->second); }
 #endif
@@ -49,6 +54,7 @@ public:
 	unsigned short max_dimension = std::numeric_limits<unsigned short>::max();
 	unsigned short min_dimension = 0;
 	coefficient_t modulus = 2;
+	value_t threshold = std::numeric_limits<value_t>::max();
 	bool split_into_connected_components = false;
 	bool directed = false;
 	bool approximate_computation = false;
