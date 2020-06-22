@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
 	if (positional_arguments.size() == 0) { print_usage_and_exit(-1); }
 	const char* input_filename = positional_arguments[0];
 
-	filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, named_arguments);
+	filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, params);
 
 	compute_homology(graph, params);
 }

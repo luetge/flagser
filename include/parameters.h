@@ -16,6 +16,8 @@ public:
 		output_name =
 		    get_argument_or_fail(named_arguments, "out", "Please provide an output filename via \"--out filename\" .");
 
+		if ((it = named_arguments.find("in-format")) != named_arguments.end()) { input_format = it->second; }
+
 		if ((it = named_arguments.find("out-format")) != named_arguments.end()) { output_format = it->second; }
 
 		if ((it = named_arguments.find("approximate")) != named_arguments.end()) {
@@ -48,9 +50,11 @@ public:
 	bool directed = false;
 	bool approximate_computation = false;
 	size_t max_entries = std::numeric_limits<size_t>::max();
+	std::string input_format = "flagser";
 	std::string output_name = "";
 	std::string output_format = "barcode";
 	std::string cache = "";
+	std::string hdf5_type = "";
 	std::unique_ptr<filtration_algorithm_t> filtration_algorithm;
 
 private:
