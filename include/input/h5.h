@@ -4,7 +4,7 @@
 
 #ifndef WITH_HDF5
 
-filtered_directed_graph_t read_graph_h5(const std::string, const named_arguments_t&) {
+filtered_directed_graph_t read_graph_h5(const std::string, const flagser_parameters&) {
 	std::cerr << "Error: flagser was compiled without support for .h5-files. Please install the HDF5-library "
 	             "(https://support.hdfgroup.org/HDF5/) and rebuild flagser by running \"make\" again."
 	          << std::endl;
