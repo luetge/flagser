@@ -509,6 +509,7 @@ int main(int argc, char** argv) {
 	auto arguments = parse_arguments(argc, argv);
 	auto positional_arguments = get_positional_arguments(arguments);
 	auto named_arguments = get_named_arguments(arguments);
+	auto params = flagser_parameters(named_arguments);
 
 	if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
 	if (positional_arguments.size() == 0) print_usage_and_exit(-1);
@@ -531,31 +532,15 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if ((it = named_arguments.find("max-dim")) != named_arguments.end()) {
-		std::string parameter = std::string(it->second);
-		size_t next_pos;
-		dim_max = std::stol(parameter, &next_pos);
-		if (next_pos != parameter.size()) print_usage_and_exit(-1);
-	}
-
-	if ((it = named_arguments.find("threshold")) != named_arguments.end()) {
-		std::string parameter = std::string(it->second);
-		size_t next_pos;
-		threshold = std::stof(parameter, &next_pos);
-		if (next_pos != parameter.size()) print_usage_and_exit(-1);
-	}
+	dim_max = params.max_dimension;
+	threshold = params.threshold;
 
 #ifdef USE_COEFFICIENTS
-	if ((it = named_arguments.find("modulus")) != named_arguments.end()) {
-		std::string parameter = std::string(it->second);
-		size_t next_pos;
-		modulus = std::stol(parameter, &next_pos);
-		if (next_pos != parameter.size() || !is_prime(modulus)) print_usage_and_exit(-1);
-	}
+	modulus = params.modulus;
 #endif
 
 	size_t max_entries = std::numeric_limits<size_t>::max();
-	if ((it = named_arguments.find("approximate")) != named_arguments.end()) { max_entries = atoi(it->second); }
+	max_entries = params.max_entries;
 
 	std::ifstream file_stream(positional_arguments[0]);
 	if (positional_arguments[0] && file_stream.fail()) {
@@ -575,7 +560,7 @@ int main(int argc, char** argv) {
 	dim_max = std::min(dim_max, n - 2);
 
 	vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max, modulus);
-	auto output = get_output<decltype(vietoris_rips_complex)>(named_arguments);
+	auto output = get_output<decltype(vietoris_rips_complex)>(params);
 	output->set_complex(&vietoris_rips_complex);
 
 	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output.get(),
