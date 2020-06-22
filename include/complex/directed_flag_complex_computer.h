@@ -9,6 +9,7 @@
 #include "../argparser.h"
 #include "../directed_graph.h"
 #include "../filtration_algorithms.h"
+#include "../parameters.h"
 #include "../persistence.h"
 #include "directed_flag_complex.h"
 
@@ -206,7 +207,7 @@ void prepare_graph_filtration(Complex& complex, filtered_directed_graph_t& graph
 
 class directed_flag_complex_computer_t {
 	filtered_directed_graph_t& graph;
-	std::unique_ptr<filtration_algorithm_t> filtration_algorithm;
+	filtration_algorithm_t* filtration_algorithm;
 	unsigned short max_dimension;
 	unsigned short min_dimension;
 	int current_dimension = 0;
@@ -225,19 +226,15 @@ class directed_flag_complex_computer_t {
 	coefficient_t modulus;
 
 public:
-	directed_flag_complex_computer_t(filtered_directed_graph_t& _graph, const named_arguments_t& named_arguments)
-	    : graph(_graph),
-	      filtration_algorithm(get_filtration_computer(get_argument_or_default(named_arguments, "filtration", "zero"))),
-	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
-	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
-	      cache(get_argument_or_default(named_arguments, "cache", "")), flag_complex(graph),
-	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))) {
+	directed_flag_complex_computer_t(filtered_directed_graph_t& _graph, const flagser_parameters& params)
+	    : graph(_graph), filtration_algorithm(params.filtration_algorithm.get()), max_dimension(params.max_dimension),
+	      min_dimension(params.min_dimension), cache(params.cache), flag_complex(graph), modulus(params.modulus) {
 		cell_count.push_back(_graph.vertex_number());
 		cell_count.push_back(_graph.edge_number());
 
 		// Order the edges and compute the correct filtration
 		if (min_dimension <= 1 || (filtration_algorithm != nullptr && filtration_algorithm->needs_face_filtration()))
-			prepare_graph_filtration(flag_complex, graph, filtration_algorithm.get());
+			prepare_graph_filtration(flag_complex, graph, filtration_algorithm);
 	}
 
 	size_t number_of_cells(int dimension) const {
@@ -500,7 +497,7 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 					_cache_current_cells_offsets[i] = offset;
 					if (filtration_algorithm->needs_face_filtration()) { offset += _cache_current_cells[i].size(); }
 					compute_filtration.push_back(compute_filtration_t(
-					    filtration_algorithm.get(), graph, dimension == 1 ? graph.edge_filtration : next_filtration,
+					    filtration_algorithm, graph, dimension == 1 ? graph.edge_filtration : next_filtration,
 					    _cache_current_cells, _cache_current_cells_offsets));
 				}
 				flag_complex.for_each_cell(compute_filtration, dimension + 1);

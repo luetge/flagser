@@ -6,6 +6,7 @@
 #include "../argparser.h"
 #include "../definitions.h"
 #include "../input/flagser.h"
+#include "../parameters.h"
 #include "./hdf5_helper.h"
 
 #include <hdf5.h>
@@ -20,9 +21,8 @@ class hdf5_output_t {
 	std::vector<std::vector<vertex_index_t>> buffer;
 
 public:
-	hdf5_output_t(const named_arguments_t& named_arguments) {
-		auto ids = open_or_create_group(
-		    get_argument_or_fail(named_arguments, "out", "Please provide an output file for the list of cells."));
+	hdf5_output_t(const flagser_parameters& params) {
+		auto ids = open_or_create_group(params.output_name);
 		file_id = ids.first;
 		group_id = ids.second;
 	}

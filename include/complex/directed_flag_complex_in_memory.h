@@ -9,6 +9,7 @@
 
 #include "../definitions.h"
 #include "../directed_graph.h"
+#include "../parameters.h"
 
 //
 // Loading the whole complex into memory, trading memory for computation speed

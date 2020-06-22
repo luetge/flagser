@@ -28,31 +28,21 @@ template <typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&...
 }
 #endif
 
-bool has_zero_filtration_and_no_explicit_output(const named_arguments_t& named_arguments) {
-	return strlen(get_argument_or_default(named_arguments, "out-format", "")) == 0 &&
-	       std::string(get_argument_or_default(named_arguments, "filtration", "zero")) == "zero";
-}
-
-template <typename Complex> std::unique_ptr<output_t<Complex>> get_output(const named_arguments_t& named_arguments) {
+template <typename Complex> std::unique_ptr<output_t<Complex>> get_output(const flagser_parameters& params) {
 	// using std namespace because of std::make_unique workaround
 	// This restrict the scope to inside the function
 	using namespace std;
 
-	std::string output_name = "barcode";
-	auto it = named_arguments.find("out-format");
-	if (it != named_arguments.end()) { output_name = it->second; }
+	if (params.output_format == "betti") return make_unique<betti_output_t<Complex>>(params);
+	if (params.output_format == "barcode") return make_unique<barcode_output_t<Complex>>(params);
 
-	if (output_name == "betti" || has_zero_filtration_and_no_explicit_output(named_arguments))
-		return make_unique<betti_output_t<Complex>>(named_arguments);
-	if (output_name == "barcode") return make_unique<barcode_output_t<Complex>>(named_arguments);
-
-	if (output_name == "none") return make_unique<trivial_output_t<Complex>>(named_arguments);
+	if (params.output_format == "none") return make_unique<trivial_output_t<Complex>>(params);
 
 #ifdef WITH_HDF5
-	if (output_name == "barcode:hdf5") return make_unique<barcode_hdf5_output_t<Complex>>(named_arguments);
+	if (params.output_format == "barcode:hdf5") return make_unique<barcode_hdf5_output_t<Complex>>(params);
 #endif
 
-	std::cerr << "The output format \"" << output_name << "\" could not be found." << std::endl;
+	std::cerr << "The output format \"" << params.output_format << "\" could not be found." << std::endl;
 	exit(1);
 }
 

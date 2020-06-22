@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../definitions.h"
+#include "../parameters.h"
 #include "base.h"
 
 template <typename Complex> class trivial_output_t : public output_t<Complex> {
@@ -24,12 +25,10 @@ template <typename Complex> class trivial_output_t : public output_t<Complex> {
 	static size_t total_top_dimension;
 
 public:
-	trivial_output_t(const named_arguments_t& named_arguments)
-	    : min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
-	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
-	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
-	      approximate_computation(argument_was_passed(named_arguments, "approximate")),
-	      aggregate_results(argument_was_passed(named_arguments, "components")) {}
+	trivial_output_t(const flagser_parameters& params)
+	    : min_dimension(params.min_dimension), max_dimension(params.max_dimension), modulus(params.modulus),
+	      approximate_computation(params.approximate_computation),
+	      aggregate_results(!params.split_into_connected_components) {}
 
 	virtual void finished(bool with_cell_counts = true) override;
 	virtual void set_complex(Complex* _complex) override { complex = _complex; }

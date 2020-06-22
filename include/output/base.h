@@ -3,7 +3,6 @@
 #include <fstream>
 #include <string>
 
-#include "../argparser.h"
 #include "../definitions.h"
 
 template <typename Complex> class output_t {
@@ -27,9 +26,7 @@ protected:
 	std::ofstream outstream;
 
 public:
-	file_output_t(const named_arguments_t& named_arguments) {
-		auto filename =
-		    get_argument_or_fail(named_arguments, "out", "Please provide an output filename via \"--out filename\" .");
+	file_output_t(const std::string filename) {
 
 		std::ifstream f(filename);
 		if (f.good()) {
