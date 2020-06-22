@@ -10,6 +10,9 @@
 /* Avoid name collision with generic name parameters*/
 class flagser_parameters {
 public:
+    flagser_parameters() {
+        filtration_algorithm.reset(get_filtration_computer("zero"));
+    }
 	flagser_parameters(const named_arguments_t& named_arguments) {
 		named_arguments_t::const_iterator it;
 
