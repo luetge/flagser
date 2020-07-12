@@ -43,8 +43,6 @@ public:
 	    : min_dimension(params.min_dimension), max_dimension(params.max_dimension), modulus(params.modulus),
 	      approximate_computation(params.approximate_computation),
 	      aggregate_results(!params.split_into_connected_components),
-	      /** FIXME: If we pass zero filtration, should output_bars be true ?
-	       */
 	      output_bars(params.filtration_algorithm.get() != nullptr) {
 		const auto ids = open_or_create_group(params.output_name);
 		file_id = ids.first;
