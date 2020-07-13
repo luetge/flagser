@@ -177,14 +177,10 @@ class directed_flag_complex_in_memory_computer_t {
 	coefficient_t modulus;
 
 public:
-	directed_flag_complex_in_memory_computer_t(filtered_directed_graph_t& _graph,
-	                                           const named_arguments_t& named_arguments)
-	    : graph(_graph), flag_complex(graph),
-	      filtration_algorithm(get_filtration_computer(get_argument_or_default(named_arguments, "filtration", "zero"))),
-	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
-	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
-	      cache(get_argument_or_default(named_arguments, "cache", "")),
-	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))) {
+	directed_flag_complex_in_memory_computer_t(filtered_directed_graph_t& _graph, const flagser_parameters& params)
+	    : graph(_graph), flag_complex(graph), filtration_algorithm(params.filtration_algorithm.get()),
+	      min_dimension(params.min_dimension), max_dimension(params.max_dimension), cache(params.cache.c_str()),
+	      modulus(params.modulus) {
 		cell_count.push_back(_graph.vertex_number());
 		cell_count.push_back(_graph.edge_number());
 

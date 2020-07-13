@@ -4,6 +4,7 @@
 
 #include "../argparser.h"
 #include "../definitions.h"
+#include "../parameters.h"
 #include "base.h"
 
 template <typename Complex> class barcode_output_t : public file_output_t<Complex> {
@@ -17,11 +18,9 @@ template <typename Complex> class barcode_output_t : public file_output_t<Comple
 	index_t euler_characteristic = 0;
 
 public:
-	barcode_output_t(const named_arguments_t& named_arguments)
-	    : file_output_t<Complex>(named_arguments),
-	      min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
-	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
-	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))) {}
+	barcode_output_t(const flagser_parameters& params)
+	    : file_output_t<Complex>(params.output_name), min_dimension(params.min_dimension),
+	      max_dimension(params.max_dimension), modulus(params.modulus) {}
 
 	void set_complex(Complex* _complex) { complex = _complex; }
 

@@ -14,6 +14,7 @@
 // #define MANY_VERTICES
 
 #include "../include/argparser.h"
+#include "../include/parameters.h"
 #include "../include/persistence.h"
 
 #ifdef WITH_HDF5
@@ -32,7 +33,7 @@
 
 #include "../include/usage/flagser-count.h"
 
-std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const named_arguments_t& named_arguments) {
+std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_parameters& params) {
 	// Aggregated counts
 	std::vector<size_t> total_cell_count;
 
@@ -41,12 +42,11 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const named_ar
 
 #ifdef WITH_HDF5
 	hdf5_output_t* output = nullptr;
-	if (argument_was_passed(named_arguments, "out")) { output = new hdf5_output_t(named_arguments); }
+	output = new hdf5_output_t(params);
 #endif
 
-	bool split_into_connected_components = named_arguments.find("components") != named_arguments.end();
 	std::vector<filtered_directed_graph_t> subgraphs{graph};
-	if (split_into_connected_components) { subgraphs = graph.get_connected_subgraphs(2); }
+	if (params.split_into_connected_components) { subgraphs = graph.get_connected_subgraphs(2); }
 
 	bool is_first_line = true;
 	for (auto subgraph : subgraphs) {
@@ -99,7 +99,7 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const named_ar
 #ifdef WITH_HDF5
 			    output
 #endif
-			    );
+			);
 
 #ifdef WITH_HDF5
 		if (output != nullptr)
@@ -146,14 +146,14 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const named_ar
 	if (output != nullptr) delete output;
 #endif
 
-	if (split_into_connected_components) {
+	if (params.split_into_connected_components) {
 		std::cout << std::endl << "# Total" << std::endl;
 		std::cout << total_euler_characteristic;
 		for (size_t dim = 0; dim < total_max_dim; dim++) std::cout << " " << total_cell_count[dim];
 		std::cout << std::endl;
 	}
 
-        return total_cell_count;
+	return total_cell_count;
 }
 
 int main(int argc, char** argv) {
@@ -161,13 +161,14 @@ int main(int argc, char** argv) {
 
 	auto positional_arguments = get_positional_arguments(arguments);
 	auto named_arguments = get_named_arguments(arguments);
+	auto params = flagser_parameters(named_arguments);
 	named_arguments_t::const_iterator it;
 	if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
 
 	if (positional_arguments.size() == 0) { print_usage_and_exit(-1); }
 	const char* input_filename = positional_arguments[0];
 
-	filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, named_arguments);
+	filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, params);
 
-	auto cell_count = count_cells(graph, named_arguments);
+	auto cell_count = count_cells(graph, params);
 }

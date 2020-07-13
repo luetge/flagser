@@ -6,6 +6,7 @@
 #include "../argparser.h"
 #include "../definitions.h"
 #include "../input/flagser.h"
+#include "../parameters.h"
 #include "hdf5_helper.h"
 
 #include <hdf5.h>
@@ -38,15 +39,12 @@ template <typename Complex> class barcode_hdf5_output_t : public output_t<Comple
 	static size_t total_top_dimension;
 
 public:
-	barcode_hdf5_output_t(const named_arguments_t& named_arguments)
-	    : min_dimension(atoi(get_argument_or_default(named_arguments, "min-dim", "0"))),
-	      max_dimension(atoi(get_argument_or_default(named_arguments, "max-dim", "65535"))),
-	      modulus(atoi(get_argument_or_default(named_arguments, "modulus", "2"))),
-	      approximate_computation(argument_was_passed(named_arguments, "approximate")),
-	      aggregate_results(argument_was_passed(named_arguments, "components")),
-	      output_bars(argument_was_passed(named_arguments, "filtration")) {
-		const auto ids =
-		    open_or_create_group(get_argument_or_fail(named_arguments, "out", "Please provide an output file."));
+	barcode_hdf5_output_t(const flagser_parameters& params)
+	    : min_dimension(params.min_dimension), max_dimension(params.max_dimension), modulus(params.modulus),
+	      approximate_computation(params.approximate_computation),
+	      aggregate_results(!params.split_into_connected_components),
+	      output_bars(params.filtration_algorithm.get() != nullptr) {
+		const auto ids = open_or_create_group(params.output_name);
 		file_id = ids.first;
 		group_id = ids.second;
 		barcode_buffer.reserve(BUFFER_SIZE + 50);

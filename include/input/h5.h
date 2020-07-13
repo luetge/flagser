@@ -4,7 +4,7 @@
 
 #ifndef WITH_HDF5
 
-filtered_directed_graph_t read_graph_h5(const std::string, const named_arguments_t&) {
+filtered_directed_graph_t read_graph_h5(const std::string, const flagser_parameters&) {
 	std::cerr << "Error: flagser was compiled without support for .h5-files. Please install the HDF5-library "
 	             "(https://support.hdfgroup.org/HDF5/) and rebuild flagser by running \"make\" again."
 	          << std::endl;
@@ -16,6 +16,8 @@ filtered_directed_graph_t read_graph_h5(const std::string, const named_arguments
 #include <hdf5.h>
 #include <regex>
 #include <string>
+
+#include "../parameters.h"
 
 std::string replace_string(std::string subject, const std::string& search, const std::string& replace) {
 	size_t pos = 0;
@@ -68,13 +70,12 @@ herr_t extract_groups(hid_t, const char* name, const H5L_info_t*, void* opdata) 
 	return (*extractor)(name);
 }
 
-const filtered_directed_graph_t read_graph_h5(const std::string filename, const named_arguments_t& named_arguments) {
+const filtered_directed_graph_t read_graph_h5(const std::string filename, const flagser_parameters& params) {
 	filtered_directed_graph_t* graph;
 	std::vector<value_t> vertex_filtration;
-	std::string type = get_argument_or_default(named_arguments, "h5-type", "matrix");
-	bool directed = std::string(get_argument_or_default(named_arguments, "undirected", "directed")) != "true";
-	bool with_filtration = std::string(get_argument_or_default(named_arguments, "filtration",
-	                                                           "no-filtration-specified")) != "no-filtration-specified";
+	std::string type = params.hdf5_type;
+	bool directed = params.directed;
+	bool with_filtration = params.filtration_algorithm.get() != nullptr;
 
 	size_t h5_pos = filename.rfind(".h5");
 	std::string fname = filename;
