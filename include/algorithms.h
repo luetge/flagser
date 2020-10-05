@@ -111,11 +111,7 @@ struct remove_edges_filtration : public filtration_algorithm_t {
 
 		if (dimension == 0) { return (0.0f); }
 
-		if (dimension == 1) {
-
-			std::cerr << "Please provide a graph with random weights on the edges." << std::endl;
-			exit(-1);
-		}
+		if (dimension == 1) { throw std::runtime_error("Please provide a graph with random weights on the edges."); }
 		return (max(boundary_filtration, 0, dimension));
 	}
 };

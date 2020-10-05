@@ -11,8 +11,8 @@
 void open_file(const std::string filename, std::ifstream& file_stream) {
 	file_stream.open(filename);
 	if (file_stream.fail()) {
-		std::cerr << "couldn't open file " << filename << std::endl;
-		exit(-1);
+		std::string err_msg = "couldn't open file " + filename;
+		throw std::runtime_error(err_msg);
 	}
 }
 

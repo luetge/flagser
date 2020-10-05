@@ -99,8 +99,7 @@ struct compute_filtration_t {
 						err += " of ";
 						err += cell.to_string(size - 1);
 						err += ".\n";
-						std::cerr << err;
-						exit(-1);
+						throw std::runtime_error(err);
 					}
 					boundary_filtration[i] = current_filtration[pair->second + cell_hash_offsets[thread_index]];
 				}
@@ -375,8 +374,7 @@ struct store_coboundaries_in_cache_t {
 						std::string err = "Could not find coboundary ";
 						err += cb.to_string(current_dimension + 1);
 						err += ".\n";
-						std::cerr << err;
-						exit(-1);
+						throw std::runtime_error(err);
 					}
 					coboundary_matrix.push_back(
 					    make_entry(index_t(pair->second + cell_hash_offsets[thread_index]), i & 1 ? -1 + modulus : 1));
@@ -422,8 +420,8 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 	if (cache != "") {
 #ifdef USE_COEFFICIENTS
 		// TODO: Make this work
-		std::cerr << "Sorry, caching does not work with coefficients yet." << std::endl;
-		exit(1);
+		std::string err_msg = "Sorry, caching does not work with coefficients yet.";
+		throw std::logic_error(err_msg);
 #endif
 		bool loaded_from_file = false;
 		for (size_t i = 0; i < nb_threads; i++) {

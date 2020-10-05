@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -22,8 +23,7 @@ const char* get_argument_or_fail(const named_arguments_t& args, const std::strin
 	auto it = args.find(name);
 	if (it != args.end()) return it->second;
 
-	std::cerr << msg << std::endl;
-	exit(-1);
+	throw std::invalid_argument(msg.c_str());
 }
 
 bool argument_was_passed(const named_arguments_t& args, const std::string name) {

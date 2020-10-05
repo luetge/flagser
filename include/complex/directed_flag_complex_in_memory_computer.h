@@ -179,10 +179,10 @@ class directed_flag_complex_in_memory_computer_t {
 
 public:
 	directed_flag_complex_in_memory_computer_t(filtered_directed_graph_t& _graph, const flagser_parameters& params)
-	    : graph(_graph), flag_complex(graph, params.nb_threads), filtration_algorithm(params.filtration_algorithm.get()),
-	      min_dimension(params.min_dimension), max_dimension(params.max_dimension), cache(params.cache.c_str()),
-	      nb_threads(params.nb_threads), coboundary_matrix(nb_threads), coboundary_matrix_offsets(nb_threads, 0),
-	      modulus(params.modulus) {
+	    : graph(_graph), flag_complex(graph, params.nb_threads),
+	      filtration_algorithm(params.filtration_algorithm.get()), min_dimension(params.min_dimension),
+	      max_dimension(params.max_dimension), cache(params.cache.c_str()), nb_threads(params.nb_threads),
+	      coboundary_matrix(nb_threads), coboundary_matrix_offsets(nb_threads, 0), modulus(params.modulus) {
 		cell_count.push_back(_graph.vertex_number());
 		cell_count.push_back(_graph.edge_number());
 

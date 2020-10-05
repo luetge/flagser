@@ -49,15 +49,13 @@ public:
 		}
 
 		if (children == nullptr) {
-			std::cerr << "A cell could not be found in the directed flag complex." << std::endl;
-			exit(-1);
+			throw std::runtime_error("A cell could not be found in the directed flag complex.");
 		}
 
 		offset++;
 		auto pair = children->find(vertices[offset]);
 		if (pair == children->end()) {
-			std::cerr << "A cell could not be found in the directed flag complex." << std::endl;
-			exit(-1);
+			throw std::runtime_error("A cell could not be found in the directed flag complex.");
 		}
 
 		pair->second.set_data(dimension - 1, vertices, _data, offset);
@@ -67,15 +65,13 @@ public:
 		if (dimension == 0) return data;
 
 		if (children == nullptr) {
-			std::cerr << "A cell could not be found in the directed flag complex." << std::endl;
-			exit(-1);
+			throw std::runtime_error("A cell could not be found in the directed flag complex.");
 		}
 
 		offset++;
 		auto pair = children->find(vertices[offset]);
 		if (pair == children->end()) {
-			std::cerr << "A cell could not be found in the directed flag complex." << std::endl;
-			exit(-1);
+			throw std::runtime_error("A cell could not be found in the directed flag complex.");
 		}
 
 		return pair->second.get_data(dimension - 1, vertices, offset);
