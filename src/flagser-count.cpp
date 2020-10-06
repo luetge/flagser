@@ -131,7 +131,8 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_
 		total_cell_count.resize(max_dim, 0);
 		for (size_t dim = 0; dim < max_dim; dim++) {
 			size_t size = 0;
-			for (size_t i = 0; i < params.nb_threads; i++) size += cell_counts[i].size() > dim ? cell_counts[i][dim] : 0;
+			for (size_t i = 0; i < params.nb_threads; i++)
+				size += cell_counts[i].size() > dim ? cell_counts[i][dim] : 0;
 			std::cout << " " << size;
 			total_cell_count[dim] += size;
 		}
@@ -157,18 +158,20 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_
 }
 
 int main(int argc, char** argv) {
-	auto arguments = parse_arguments(argc, argv);
+	try {
+		auto arguments = parse_arguments(argc, argv);
 
-	auto positional_arguments = get_positional_arguments(arguments);
-	auto named_arguments = get_named_arguments(arguments);
-	auto params = flagser_parameters(named_arguments);
-	named_arguments_t::const_iterator it;
-	if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
+		auto positional_arguments = get_positional_arguments(arguments);
+		auto named_arguments = get_named_arguments(arguments);
+		auto params = flagser_parameters(named_arguments);
+		named_arguments_t::const_iterator it;
+		if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
 
-	if (positional_arguments.size() == 0) { print_usage_and_exit(-1); }
-	const char* input_filename = positional_arguments[0];
+		if (positional_arguments.size() == 0) { print_usage_and_exit(-1); }
+		const char* input_filename = positional_arguments[0];
 
-	filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, params);
+		filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, params);
 
-	auto cell_count = count_cells(graph, params);
+		auto cell_count = count_cells(graph, params);
+	} catch (const std::exception& e) { std::cout << e.what() << std::endl; }
 }
