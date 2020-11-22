@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <exception>
 #include <math.h>
 
 #include "complex/directed_flag_complex.h"
@@ -66,6 +67,6 @@ filtration_algorithm_t* get_filtration_computer(std::string algorithm) {
 
 	if (custom != nullptr) return custom;
 
-	std::cerr << "The filtration algorithm \"" << algorithm << "\" could not be found." << std::endl;
-	exit(-1);
+	std::string err_msg = "The filtration algorithm \"" + algorithm + "\" could not be found.";
+	throw std::invalid_argument(err_msg);
 }

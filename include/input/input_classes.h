@@ -28,8 +28,8 @@ filtered_directed_graph_t read_filtered_directed_graph(std::string input_filenam
 	std::cout << "\033[K";
 #endif
 
-	std::cerr << "The input format \"" << params.input_format << "\" could not be found." << std::endl;
-	exit(1);
+	std::string err_msg = "The input format \"" + params.input_format + "\" could not be found.";
+	throw std::invalid_argument(err_msg);
 }
 
 std::vector<std::string> available_input_formats = {"flagser", "h5"};

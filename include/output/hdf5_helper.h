@@ -32,8 +32,8 @@ std::pair<hid_t, hid_t> open_or_create_group(const std::string& filename) {
 	}
 
 	if (file_id == -1) {
-		std::cerr << "The output file " << fname << " could not be opened." << std::endl;
-		exit(-1);
+		std::string err_msg = "The output file " + fname + " could not be opened.";
+		throw std::invalid_argument(err_msg);
 	}
 
 	// Suppress errors
@@ -49,8 +49,8 @@ std::pair<hid_t, hid_t> open_or_create_group(const std::string& filename) {
 		hid_t new_group_id = H5Gopen2(group_id, group.c_str(), H5P_DEFAULT);
 		if (new_group_id < 0) new_group_id = H5Gcreate2(group_id, group.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 		if (new_group_id < 0) {
-			std::cerr << "Could not create group " << group << "." << std::endl;
-			exit(-1);
+			std::string err_msg = "Could not create group " + group + ".";
+			throw std::invalid_argument(err_msg);
 		}
 		group_id = new_group_id;
 	}
@@ -62,8 +62,8 @@ std::pair<hid_t, hid_t> open_or_create_group(const std::string& filename) {
 	H5Eset_auto2(H5P_DEFAULT, old_func, old_client_data);
 
 	if (group_id < 0) {
-		std::cerr << "The data could not be written to " << h5_path << "." << std::endl;
-		exit(-1);
+		std::string err_msg = "The data could not be written to " + h5_path + ".";
+		throw std::invalid_argument(err_msg);
 	}
 
 	return std::make_pair(file_id, group_id);

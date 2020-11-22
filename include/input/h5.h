@@ -5,10 +5,9 @@
 #ifndef WITH_HDF5
 
 filtered_directed_graph_t read_graph_h5(const std::string, const flagser_parameters&) {
-	std::cerr << "Error: flagser was compiled without support for .h5-files. Please install the HDF5-library "
-	             "(https://support.hdfgroup.org/HDF5/) and rebuild flagser by running \"make\" again."
-	          << std::endl;
-	exit(-1);
+	std::string err_msg = "Error: flagser was compiled without support for .h5-files. Please install the HDF5-library "
+	                      "(https://support.hdfgroup.org/HDF5/) and rebuild flagser by running \"make\" again.";
+	throw std::runtime_error(err_msg);
 }
 
 #else
@@ -86,9 +85,8 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 	}
 
 	if (!H5Fis_hdf5(fname.c_str())) {
-		std::cerr << "The file \"" << fname << "\" is not an HDF5-file. Please choose another input format."
-		          << std::endl;
-		exit(-1);
+		std::string err_msg = "The file \"" + fname + "\" is not an HDF5-file. Please choose another input format.";
+		throw std::invalid_argument(err_msg);
 	}
 
 	auto file_id = H5Fopen(fname.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
@@ -97,9 +95,9 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 		auto dataset_id = H5Dopen(file_id, h5_path.c_str(), H5P_DEFAULT);
 
 		if (dataset_id == -1) {
-			std::cerr << "\n\nThe connectivity data could not be found at \"" << h5_path
-			          << "\", please check the path again." << std::endl;
-			exit(1);
+			std::string err_msg =
+			    "\n\nThe connectivity data could not be found at \"" + h5_path + "\", please check the path again.";
+			throw std::runtime_error(err_msg);
 		}
 
 		// Read the number of vertices
@@ -161,9 +159,9 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 
 		auto connectivity_id = H5Gopen(file_id, h5_path.c_str(), H5P_DEFAULT);
 		if (connectivity_id == -1) {
-			std::cerr << "\n\nThe connectivity data could not be found at \"" << h5_path
-			          << "\", please check the path again." << std::endl;
-			exit(1);
+			std::string err_msg =
+			    "\n\nThe connectivity data could not be found at \"" + h5_path + "\", please check the path again.";
+			throw std::runtime_error(err_msg);
 		}
 
 		group_extractor_t group_extractor(groups);
@@ -181,9 +179,9 @@ const filtered_directed_graph_t read_graph_h5(const std::string filename, const 
 			auto dataset_id = H5Dopen(connectivity_id, name.c_str(), H5P_DEFAULT);
 
 			if (dataset_id == -1) {
-				std::cerr << "\n\nThe connectivity data could not be found at \"" << h5_path
-				          << "\", please check the path again." << std::endl;
-				exit(1);
+				std::string err_msg =
+				    "\n\nThe connectivity data could not be found at \"" + h5_path + "\", please check the path again.";
+				throw std::runtime_error(err_msg);
 			}
 
 			auto space = H5Dget_space(dataset_id);

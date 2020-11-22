@@ -42,8 +42,8 @@ template <typename Complex> std::unique_ptr<output_t<Complex>> get_output(const 
 	if (params.output_format == "barcode:hdf5") return make_unique<barcode_hdf5_output_t<Complex>>(params);
 #endif
 
-	std::cerr << "The output format \"" << params.output_format << "\" could not be found." << std::endl;
-	exit(1);
+	std::string err_msg = "The output format \"" + params.output_format + "\" could not be found.";
+	throw std::invalid_argument(err_msg);
 }
 
 std::vector<std::string> available_output_formats = {"barcode", "betti"

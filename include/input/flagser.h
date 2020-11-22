@@ -66,12 +66,14 @@ filtered_directed_graph_t read_graph_flagser(const std::string filename, const f
 				std::vector<value_t> vertices = split<value_t>(line, ' ', string_to_float);
 				if (value_t(vertices[2]) <
 				    std::max(vertex_filtration[size_t(vertices[0])], vertex_filtration[size_t(vertices[1])])) {
-					std::cerr << "The flagser file contained an edge filtration that contradicts the vertex "
-					             "filtration, the edge ("
-					          << vertices[0] << ", " << vertices[1] << ") has filtration value " << vertices[2]
-					          << ", which is lower than min(" << vertex_filtration[size_t(vertices[0])] << ", "
-					          << vertex_filtration[size_t(vertices[1])] << "), the filtrations of its vertices.";
-					exit(-1);
+					std::string err_msg =
+					    "The flagser file contained an edge filtration that contradicts the vertex "
+					    "filtration, the edge (" +
+					    std::to_string(vertices[0]) + ", " + std::to_string(vertices[1]) + ") has filtration value " +
+					    std::to_string(vertices[2]) + ", which is lower than min(" +
+					    std::to_string(vertex_filtration[size_t(vertices[0])]) + ", " +
+					    std::to_string(vertex_filtration[size_t(vertices[1])]) + "), the filtrations of its vertices.";
+					throw std::runtime_error(err_msg);
 				}
 				graph.add_filtered_edge((vertex_index_t)vertices[0], (vertex_index_t)vertices[1], vertices[2]);
 			}

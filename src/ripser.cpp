@@ -506,65 +506,67 @@ int main(int argc, char** argv) {
 	const coefficient_t modulus = 2;
 #endif
 
-	auto arguments = parse_arguments(argc, argv);
-	auto positional_arguments = get_positional_arguments(arguments);
-	auto named_arguments = get_named_arguments(arguments);
-	auto params = flagser_parameters(named_arguments);
+	try {
+		auto arguments = parse_arguments(argc, argv);
+		auto positional_arguments = get_positional_arguments(arguments);
+		auto named_arguments = get_named_arguments(arguments);
+		auto params = flagser_parameters(named_arguments);
 
-	if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
-	if (positional_arguments.size() == 0) print_usage_and_exit(-1);
+		if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
+		if (positional_arguments.size() == 0) print_usage_and_exit(-1);
 
-	named_arguments_t::const_iterator it;
-	if ((it = named_arguments.find("format")) != named_arguments.end()) {
-		if (it->second == std::string("lower-distance"))
-			format = LOWER_DISTANCE_MATRIX;
-		else if (it->second == std::string("upper-distance"))
-			format = UPPER_DISTANCE_MATRIX;
-		else if (it->second == std::string("distance"))
-			format = DISTANCE_MATRIX;
-		else if (it->second == std::string("point-cloud"))
-			format = POINT_CLOUD;
-		else if (it->second == std::string("dipha"))
-			format = DIPHA;
-		else {
-			std::cerr << "The input format " << format << " is not supported." << std::endl;
-			print_usage_and_exit(-1);
+		named_arguments_t::const_iterator it;
+		if ((it = named_arguments.find("format")) != named_arguments.end()) {
+			if (it->second == std::string("lower-distance"))
+				format = LOWER_DISTANCE_MATRIX;
+			else if (it->second == std::string("upper-distance"))
+				format = UPPER_DISTANCE_MATRIX;
+			else if (it->second == std::string("distance"))
+				format = DISTANCE_MATRIX;
+			else if (it->second == std::string("point-cloud"))
+				format = POINT_CLOUD;
+			else if (it->second == std::string("dipha"))
+				format = DIPHA;
+			else {
+				std::cerr << "The input format " << format << " is not supported." << std::endl;
+				print_usage_and_exit(-1);
+			}
 		}
-	}
 
-	dim_max = params.max_dimension;
-	threshold = params.threshold;
+		dim_max = params.max_dimension;
+		threshold = params.threshold;
 
 #ifdef USE_COEFFICIENTS
-	modulus = params.modulus;
+		modulus = params.modulus;
 #endif
 
-	size_t max_entries = std::numeric_limits<size_t>::max();
-	max_entries = params.max_entries;
+		size_t max_entries = std::numeric_limits<size_t>::max();
+		max_entries = params.max_entries;
 
-	std::ifstream file_stream(positional_arguments[0]);
-	if (positional_arguments[0] && file_stream.fail()) {
-		std::cerr << "couldn't open file " << positional_arguments[0] << std::endl;
-		exit(-1);
-	}
+		std::ifstream file_stream(positional_arguments[0]);
+		if (positional_arguments[0] && file_stream.fail()) {
+			std::cerr << "couldn't open file " << positional_arguments[0] << std::endl;
+			exit(-1);
+		}
 
-	compressed_lower_distance_matrix dist = read_file(positional_arguments[0] ? file_stream : std::cin, format);
+		compressed_lower_distance_matrix dist = read_file(positional_arguments[0] ? file_stream : std::cin, format);
 
-	index_t n = index_t(dist.size());
+		index_t n = index_t(dist.size());
 
-	std::cout << "distance matrix with " << n << " points" << std::endl;
+		std::cout << "distance matrix with " << n << " points" << std::endl;
 
-	auto value_range = std::minmax_element(dist.distances.begin(), dist.distances.end());
-	std::cout << "value range: [" << *value_range.first << "," << *value_range.second << "]" << std::endl;
+		auto value_range = std::minmax_element(dist.distances.begin(), dist.distances.end());
+		std::cout << "value range: [" << *value_range.first << "," << *value_range.second << "]" << std::endl;
 
-	dim_max = std::min(dim_max, n - 2);
+		dim_max = std::min(dim_max, n - 2);
 
-	vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max, modulus);
-	auto output = get_output<decltype(vietoris_rips_complex)>(params);
-	output->set_complex(&vietoris_rips_complex);
+		vietoris_rips_complex_t<decltype(dist)> vietoris_rips_complex(dist, dim_max, modulus);
+		auto output = get_output<decltype(vietoris_rips_complex)>(params);
+		output->set_complex(&vietoris_rips_complex);
 
-	persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(vietoris_rips_complex, output.get(),
-	                                                                             max_entries, modulus, threshold);
-	persistence_computer.compute_persistence(dim_min, dim_max, false);
-	output->print_aggregated_results();
+		persistence_computer_t<decltype(vietoris_rips_complex)> persistence_computer(
+		    vietoris_rips_complex, output.get(), max_entries, modulus, threshold);
+		persistence_computer.compute_persistence(dim_min, dim_max, false);
+		output->print_aggregated_results();
+	} catch (const std::exception& e) { std::cout << e.what() << std::endl; }
 }

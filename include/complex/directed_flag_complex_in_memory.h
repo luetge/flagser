@@ -23,8 +23,9 @@ public:
 	directed_flag_complex_cell_in_memory_t(vertex_index_t _vertex) : vertex(_vertex) {}
 
 	// TODO: Figure out how to do this in the destructor.
-	//       The problem was that the classes are copied around, so the destructor was called before
-	//       the actual destruction of the complex took place.
+	//       The problem was that the classes are copied around, so the
+	//       destructor was called before the actual destruction of the complex
+	//       took place.
 	void free_memory() {
 		if (children != nullptr) {
 			for (auto c : *children) c.second.free_memory();
@@ -48,15 +49,13 @@ public:
 		}
 
 		if (children == nullptr) {
-			std::cerr << "A cell could not be found in the directed flag complex." << std::endl;
-			exit(-1);
+			throw std::runtime_error("A cell could not be found in the directed flag complex.");
 		}
 
 		offset++;
 		auto pair = children->find(vertices[offset]);
 		if (pair == children->end()) {
-			std::cerr << "A cell could not be found in the directed flag complex." << std::endl;
-			exit(-1);
+			throw std::runtime_error("A cell could not be found in the directed flag complex.");
 		}
 
 		pair->second.set_data(dimension - 1, vertices, _data, offset);
@@ -66,15 +65,13 @@ public:
 		if (dimension == 0) return data;
 
 		if (children == nullptr) {
-			std::cerr << "A cell could not be found in the directed flag complex." << std::endl;
-			exit(-1);
+			throw std::runtime_error("A cell could not be found in the directed flag complex.");
 		}
 
 		offset++;
 		auto pair = children->find(vertices[offset]);
 		if (pair == children->end()) {
-			std::cerr << "A cell could not be found in the directed flag complex." << std::endl;
-			exit(-1);
+			throw std::runtime_error("A cell could not be found in the directed flag complex.");
 		}
 
 		return pair->second.get_data(dimension - 1, vertices, offset);
@@ -109,8 +106,9 @@ private:
 template <typename ExtraData> class directed_flag_complex_in_memory_t {
 public:
 	std::vector<directed_flag_complex_cell_in_memory_t<ExtraData>> vertex_cells;
+	const size_t nb_threads;
 
-	directed_flag_complex_in_memory_t(const directed_graph_t& graph, int max_dimension = -1);
+	directed_flag_complex_in_memory_t(const directed_graph_t& graph, const size_t nb_threads, int max_dimension = -1);
 	~directed_flag_complex_in_memory_t() {
 		for (auto p : vertex_cells) p.free_memory();
 	}
@@ -130,13 +128,13 @@ public:
 
 	index_t euler_characteristic() {
 		std::vector<euler_characteristic_computer_t<ExtraData>> compute_euler_characteristic;
-		for (auto i = 0ul; i < PARALLEL_THREADS; i++)
+		for (auto i = 0ul; i < nb_threads; i++)
 			compute_euler_characteristic.push_back(euler_characteristic_computer_t<ExtraData>());
 
 		// TODO: Remove the 10000-hack
 		for_each_cell(compute_euler_characteristic, 0, 10000);
 		index_t euler_characteristic = 0;
-		for (auto i = 0ul; i < PARALLEL_THREADS; i++)
+		for (auto i = 0ul; i < nb_threads; i++)
 			euler_characteristic += compute_euler_characteristic[i]->euler_characteristic();
 
 		return euler_characteristic;
@@ -222,7 +220,9 @@ void construction_worker_thread(int number_of_threads, int thread_id,
 
 template <typename ExtraData>
 directed_flag_complex_in_memory_t<ExtraData>::directed_flag_complex_in_memory_t(const directed_graph_t& graph,
-                                                                                int max_dimension) {
+                                                                                const size_t nb_threads,
+                                                                                int max_dimension)
+    : nb_threads(nb_threads) {
 #ifdef INDICATE_PROGRESS
 	std::cout << "\033[K"
 	          << "constructing the directed flag complex" << std::flush << "\r";
@@ -234,16 +234,15 @@ directed_flag_complex_in_memory_t<ExtraData>::directed_flag_complex_in_memory_t(
 		vertex_cells.push_back(directed_flag_complex_cell_in_memory_t<ExtraData>(index));
 
 	// Now we start a few threads to construct the flag complex
-	std::vector<std::thread> t(PARALLEL_THREADS - 1);
+	std::vector<std::thread> t(nb_threads - 1);
 
-	for (auto index = 0ul; index < PARALLEL_THREADS - 1; ++index)
-		t[index] =
-		    std::thread(&construction_worker_thread<ExtraData>, PARALLEL_THREADS, index, this, &graph, max_dimension);
+	for (auto index = 0ul; index < nb_threads - 1; ++index)
+		t[index] = std::thread(&construction_worker_thread<ExtraData>, nb_threads, index, this, &graph, max_dimension);
 
 	// Also do work in this thread, namely the last bit
 	// For this last thread, take all the remaining vertices
-	construction_worker_thread(PARALLEL_THREADS, PARALLEL_THREADS - 1, this, &graph, max_dimension);
+	construction_worker_thread(nb_threads, nb_threads - 1, this, &graph, max_dimension);
 
 	// Wait until all threads stopped
-	for (auto i = 0ul; i < PARALLEL_THREADS - 1; ++i) t[i].join();
+	for (auto i = 0ul; i < nb_threads - 1; ++i) t[i].join();
 }

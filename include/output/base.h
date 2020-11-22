@@ -30,14 +30,14 @@ public:
 
 		std::ifstream f(filename);
 		if (f.good()) {
-			std::cerr << "The output file already exists, aborting." << std::endl;
-			exit(-1);
+			std::string err_msg = "The output file already exists, aborting.";
+			throw std::invalid_argument(err_msg);
 		}
 
 		outstream.open(filename);
 		if (outstream.fail()) {
-			std::cerr << "couldn't open file " << filename << std::endl;
-			exit(-1);
+			std::string err_msg = "couldn't open file " + filename;
+			throw std::runtime_error(err_msg);
 		}
 	}
 

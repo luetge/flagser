@@ -20,6 +20,7 @@ void print_homology_usage(bool no_filtration = false) {
 #endif
 	          << "  --approximate n    skip all columns creating columns in the reduction matrix with" << std::endl
 	          << "                     n non-trivial entries. Use this for hard problems, a good value" << std::endl
-	          << "                     is often 100000. Increase for higher precision, decrease for faster computation."
+	          << "                     is often 100000. Increase for higher precision, decrease for faster computation." << std::endl
+	          << "  --threads          number of threads to use for the computation (default: number of threads that your machine can execute simultaneously)" << std::endl
 	          << std::endl;
 }

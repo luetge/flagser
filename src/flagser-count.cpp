@@ -93,8 +93,8 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_
 			std::vector<size_t> cell_counts;
 		};
 
-		std::vector<cell_counter_t> cell_counter(PARALLEL_THREADS);
-		for (int i = 0; i < PARALLEL_THREADS; i++)
+		std::vector<cell_counter_t> cell_counter(params.nb_threads);
+		for (size_t i = 0; i < params.nb_threads; i++)
 			cell_counter[i] = cell_counter_t(
 #ifdef WITH_HDF5
 			    output
@@ -111,7 +111,7 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_
 		}
 #endif
 		int64_t euler_characteristic = 0;
-		for (int i = 0; i < PARALLEL_THREADS; i++) euler_characteristic += cell_counter[i].euler_characteristic();
+		for (size_t i = 0; i < params.nb_threads; i++) euler_characteristic += cell_counter[i].euler_characteristic();
 
 #ifdef INDICATE_PROGRESS
 		std::cout << "\033[K";
@@ -120,9 +120,9 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_
 		if (is_first_line) std::cout << "# [euler_characteristic cell_count_dim_0 cell_count_dim_1 ...]" << std::endl;
 		std::cout << euler_characteristic;
 
-		std::array<std::vector<size_t>, PARALLEL_THREADS> cell_counts;
+		std::vector<std::vector<size_t>> cell_counts(params.nb_threads);
 		size_t max_dim = 0;
-		for (int i = 0; i < PARALLEL_THREADS; i++) {
+		for (size_t i = 0; i < params.nb_threads; i++) {
 			cell_counts[i] = cell_counter[i].cell_count();
 			size_t dim = cell_counts[i].size();
 			max_dim = max_dim < dim ? dim : max_dim;
@@ -131,7 +131,8 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_
 		total_cell_count.resize(max_dim, 0);
 		for (size_t dim = 0; dim < max_dim; dim++) {
 			size_t size = 0;
-			for (int i = 0; i < PARALLEL_THREADS; i++) size += cell_counts[i].size() > dim ? cell_counts[i][dim] : 0;
+			for (size_t i = 0; i < params.nb_threads; i++)
+				size += cell_counts[i].size() > dim ? cell_counts[i][dim] : 0;
 			std::cout << " " << size;
 			total_cell_count[dim] += size;
 		}
@@ -157,18 +158,20 @@ std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_
 }
 
 int main(int argc, char** argv) {
-	auto arguments = parse_arguments(argc, argv);
+	try {
+		auto arguments = parse_arguments(argc, argv);
 
-	auto positional_arguments = get_positional_arguments(arguments);
-	auto named_arguments = get_named_arguments(arguments);
-	auto params = flagser_parameters(named_arguments);
-	named_arguments_t::const_iterator it;
-	if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
+		auto positional_arguments = get_positional_arguments(arguments);
+		auto named_arguments = get_named_arguments(arguments);
+		auto params = flagser_parameters(named_arguments);
+		named_arguments_t::const_iterator it;
+		if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
 
-	if (positional_arguments.size() == 0) { print_usage_and_exit(-1); }
-	const char* input_filename = positional_arguments[0];
+		if (positional_arguments.size() == 0) { print_usage_and_exit(-1); }
+		const char* input_filename = positional_arguments[0];
 
-	filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, params);
+		filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, params);
 
-	auto cell_count = count_cells(graph, params);
+		auto cell_count = count_cells(graph, params);
+	} catch (const std::exception& e) { std::cout << e.what() << std::endl; }
 }

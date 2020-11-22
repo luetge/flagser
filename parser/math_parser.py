@@ -83,8 +83,7 @@ math_parser = Lark(r"""
 
 def print_error_message(expression):
     return """
-            std::cerr << {error_msg} << std::endl;
-            exit(-1);
+            throw std::runtime_error({error_msg});
     """.format(error_msg=expression.children[0])
 
 

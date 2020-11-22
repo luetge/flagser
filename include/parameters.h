@@ -6,13 +6,12 @@
 #include "filtration_algorithms.h"
 
 #include <cstring>
+#include <thread>
 
 /* Avoid name collision with generic name parameters*/
 class flagser_parameters {
 public:
-    flagser_parameters() {
-        filtration_algorithm.reset(get_filtration_computer("zero"));
-    }
+	flagser_parameters() { filtration_algorithm.reset(get_filtration_computer("zero")); }
 	flagser_parameters(const named_arguments_t& named_arguments) {
 		named_arguments_t::const_iterator it;
 
@@ -41,10 +40,12 @@ public:
 		filtration_algorithm.reset(
 		    get_filtration_computer(get_argument_or_default(named_arguments, "filtration", "zero")));
 
-        if ((it = named_arguments.find("threshold")) != named_arguments.end()) {
-            std::string parameter = std::string(it->second);
-            threshold = std::stof(parameter, nullptr);
-        }
+		if ((it = named_arguments.find("threshold")) != named_arguments.end()) {
+			std::string parameter = std::string(it->second);
+			threshold = std::stof(parameter, nullptr);
+		}
+
+		if ((it = named_arguments.find("threads")) != named_arguments.end()) { nb_threads = atoi(it->second); }
 
 #ifdef USE_COEFFICIENTS
 		if ((it = named_arguments.find("modulus")) != named_arguments.end()) { modulus = atoi(it->second); }
@@ -59,6 +60,7 @@ public:
 	bool directed = false;
 	bool approximate_computation = false;
 	size_t max_entries = std::numeric_limits<size_t>::max();
+	size_t nb_threads = std::thread::hardware_concurrency();
 	std::string input_format = "flagser";
 	std::string output_name = "";
 	std::string output_format = "barcode";
