@@ -9,7 +9,6 @@
 #define SORT_COLUMNS_BY_PIVOT
 #define COUNT_ONLY
 // #define WITH_HDF5
-// #define KEEP_FLAG_COMPLEX_IN_MEMORY
 // #define USE_COEFFICIENTS
 // #define MANY_VERTICES
 
@@ -25,11 +24,7 @@
 // Compute directed flag complex homology
 //
 
-#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
-#include "../include/complex/directed_flag_complex_in_memory_computer.h"
-#else
 #include "../include/complex/directed_flag_complex_computer.h"
-#endif
 
 #include "../include/usage/flagser-count.h"
 
