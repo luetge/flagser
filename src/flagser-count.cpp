@@ -24,8 +24,6 @@
 // Compute directed flag complex homology
 //
 
-#include "../include/complex/directed_flag_complex_computer.h"
-
 #include "../include/usage/flagser-count.h"
 
 std::vector<size_t> count_cells(filtered_directed_graph_t& graph, const flagser_parameters& params) {
