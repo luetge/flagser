@@ -1,6 +1,6 @@
 # flagser
 
-Copyright © 2017–2018 Daniel Lütgehetmann.
+Copyright © 2017–2021 Daniel Lütgehetmann.
 
 ### Description
 
