@@ -1,4 +1,5 @@
 #include "../include/complex/directed_flag_complex_computer.h"
+#include "../include/complex/directed_flag_complex_in_memory_computer.h"
 #include "../include/input/input_classes.h"
 #include "../include/output/output_classes.h"
 #include "../include/parameters.h"
@@ -6,12 +7,12 @@
 #include <cstdio>
 #include <stdexcept>
 
-void compute(std::string&& filename, std::vector<size_t> homology, std::string out_filename = "") {
+template <class T> void compute(std::string&& filename, std::vector<size_t> homology, std::string out_filename = "") {
 	std::cout << "Testing " << filename << "..." << std::endl;
 	flagser_parameters params;
 	params.output_format = out_filename.size() == 0 ? "none" : "barcode";
 	if (out_filename.size() > 0) { params.output_name = out_filename; }
-    params.directed = true;
+	params.directed = true;
 	filtered_directed_graph_t graph = read_filtered_directed_graph(filename.c_str(), params);
 
 	size_t max_entries = std::numeric_limits<size_t>::max();
@@ -20,8 +21,8 @@ void compute(std::string&& filename, std::vector<size_t> homology, std::string o
 	unsigned short max_dimension = std::numeric_limits<unsigned short>::max();
 	unsigned short min_dimension = 0;
 
-	auto output = get_output<directed_flag_complex_computer_t>(params);
-	directed_flag_complex_computer_t complex(graph, params);
+	auto output = get_output<T>(params);
+	T complex(graph, params);
 
 	output->set_complex(&complex);
 
@@ -54,27 +55,52 @@ void compute(std::string&& filename, std::vector<size_t> homology, std::string o
 	std::cout << "All good." << std::endl;
 }
 
-void run_all(bool full = false) {
-	compute("../../test/d2.flag", {{1ul, 1ul}});
-	compute("../../test/a.flag", {{1ul, 2ul, 0ul}});
-	compute("../../test/b.flag", {{1ul, 0ul, 0ul}});
-	compute("../../test/c.flag", {{1ul, 5ul}});
-	compute("../../test/d.flag", {{1ul, 0ul, 1ul}});
-	compute("../../test/e.flag", {{1ul, 0ul, 0ul, 0ul}});
-	compute("../../test/f.flag", {{1ul, 0ul, 0ul}});
-	compute("../../test/d3.flag", {{1ul, 0ul, 2ul}});
-	compute("../../test/d3-allzero.flag", {{1ul, 0ul, 2ul}});
-	compute("../../test/double-d3.flag", {{1, 0, 5}});
-	compute("../../test/double-d3-allzero.flag", {{1, 0, 5}});
-	compute("../../test/d4.flag", {{1, 0, 0, 9}});
-	compute("../../test/d4-allzero.flag", {{1, 0, 0, 9}});
-	compute("../../test/d5.flag", {{1, 0, 0, 0, 44}});
-	compute("../../test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
+void run_all(bool full = false, bool in_memory = false) {
+	using dfc_in_memory = directed_flag_complex_in_memory_computer::directed_flag_complex_in_memory_computer_t;
+	using dfc = directed_flag_complex_computer::directed_flag_complex_computer_t;
+	// FIXME: DRY !!! Look for a cleaner solution
+	if (in_memory) {
+		compute<dfc_in_memory>("../../test/d2.flag", {{1ul, 1ul}});
+		compute<dfc_in_memory>("../../test/a.flag", {{1ul, 2ul, 0ul}});
+		compute<dfc_in_memory>("../../test/b.flag", {{1ul, 0ul, 0ul}});
+		compute<dfc_in_memory>("../../test/c.flag", {{1ul, 5ul}});
+		compute<dfc_in_memory>("../../test/d.flag", {{1ul, 0ul, 1ul}});
+		compute<dfc_in_memory>("../../test/e.flag", {{1ul, 0ul, 0ul, 0ul}});
+		compute<dfc_in_memory>("../../test/f.flag", {{1ul, 0ul, 0ul}});
+		compute<dfc_in_memory>("../../test/d3.flag", {{1ul, 0ul, 2ul}});
+		compute<dfc_in_memory>("../../test/d3-allzero.flag", {{1ul, 0ul, 2ul}});
+		compute<dfc_in_memory>("../../test/double-d3.flag", {{1, 0, 5}});
+		compute<dfc_in_memory>("../../test/double-d3-allzero.flag", {{1, 0, 5}});
+		compute<dfc_in_memory>("../../test/d4.flag", {{1, 0, 0, 9}});
+		compute<dfc_in_memory>("../../test/d4-allzero.flag", {{1, 0, 0, 9}});
+		compute<dfc_in_memory>("../../test/d5.flag", {{1, 0, 0, 0, 44}});
+		compute<dfc_in_memory>("../../test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
+	} else {
+		compute<dfc>("../../test/d2.flag", {{1ul, 1ul}});
+		compute<dfc>("../../test/a.flag", {{1ul, 2ul, 0ul}});
+		compute<dfc>("../../test/b.flag", {{1ul, 0ul, 0ul}});
+		compute<dfc>("../../test/c.flag", {{1ul, 5ul}});
+		compute<dfc>("../../test/d.flag", {{1ul, 0ul, 1ul}});
+		compute<dfc>("../../test/e.flag", {{1ul, 0ul, 0ul, 0ul}});
+		compute<dfc>("../../test/f.flag", {{1ul, 0ul, 0ul}});
+		compute<dfc>("../../test/d3.flag", {{1ul, 0ul, 2ul}});
+		compute<dfc>("../../test/d3-allzero.flag", {{1ul, 0ul, 2ul}});
+		compute<dfc>("../../test/double-d3.flag", {{1, 0, 5}});
+		compute<dfc>("../../test/double-d3-allzero.flag", {{1, 0, 5}});
+		compute<dfc>("../../test/d4.flag", {{1, 0, 0, 9}});
+		compute<dfc>("../../test/d4-allzero.flag", {{1, 0, 0, 9}});
+		compute<dfc>("../../test/d5.flag", {{1, 0, 0, 0, 44}});
+		compute<dfc>("../../test/d7.flag", {{1, 0, 0, 0, 0, 0, 1854}});
+	}
 
 	if (full) {
 		const auto file_path = "../flagser_tmp";
 		std::remove(file_path);
-		compute("../../test/a.flag", {{1ul, 2ul, 0ul}}, file_path);
+		if (in_memory) {
+			compute<dfc_in_memory>("../../test/a.flag", {{1ul, 2ul, 0ul}}, file_path);
+		} else {
+			compute<dfc>("../../test/a.flag", {{1ul, 2ul, 0ul}}, file_path);
+		}
 		// Check that the file has the right content
 		std::ifstream t(file_path);
 		std::string file_content((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -95,8 +121,13 @@ void run_all(bool full = false) {
 
 #ifdef NDEBUG
 		std::cout << "Running extensive tests, this might take a while." << std::endl;
-		compute("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
-		compute("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+		if (in_memory) {
+			compute<dfc_in_memory>("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
+			compute<dfc_in_memory>("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+		} else {
+			compute<dfc>("../../test/medium-test-data.flag", {{14237, 39477, 378, 0}});
+			compute<dfc>("../../test/d10.flag", {{1, 0, 0, 0, 0, 0, 0, 0, 0, 1334961}});
+		}
 #else
 		std::cout << "Skipping extensive tests." << std::endl;
 #endif

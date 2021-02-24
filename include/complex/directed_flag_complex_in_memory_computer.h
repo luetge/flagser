@@ -12,6 +12,8 @@
 
 #include "directed_flag_complex_in_memory.h"
 
+namespace directed_flag_complex_in_memory_computer {
+
 template <typename Complex> class coboundary_iterator_t {
 	const Complex* complex;
 	short dimension;
@@ -279,7 +281,8 @@ struct store_coboundaries_in_cache_t {
 					// Remove the vertices already making up the cellk
 					if (vertex_offsets[j] == offset) bits &= ~(ONE_ << (first_vertex[j] - (vertex_offsets[j] << 6)));
 
-					// Intersect with the outgoing/incoming edges of the current vertex
+					// Intersect with the outgoing/incoming edges of the current
+					// vertex
 					bits &= j < i ? graph.get_outgoing_chunk(first_vertex[j], offset)
 					              : graph.get_incoming_chunk(first_vertex[j], offset);
 				}
@@ -332,8 +335,8 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 	{
 		std::vector<size_t> _next_cells_offsets(nb_threads, 0);
 		{
-			// If we will actually compute coboundaries, then compute the filtration.
-			// Also if we need the face filtrations.
+			// If we will actually compute coboundaries, then compute the
+			// filtration. Also if we need the face filtrations.
 			if (dimension + 1 >= min_dimension ||
 			    (filtration_algorithm != nullptr && filtration_algorithm->needs_face_filtration())) {
 #ifdef INDICATE_PROGRESS
@@ -396,3 +399,5 @@ void directed_flag_complex_in_memory_computer_t::prepare_next_dimension(int dime
 		}
 	}
 }
+} // namespace directed_flag_complex_in_memory_computer
+
