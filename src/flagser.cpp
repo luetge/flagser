@@ -85,11 +85,10 @@ int main(int argc, char** argv) {
 
 		auto positional_arguments = get_positional_arguments(arguments);
 		auto named_arguments = get_named_arguments(arguments);
-		auto params = flagser_parameters(named_arguments);
-
-		std::cout << params.nb_threads << std::endl;
 
 		if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
+
+		auto params = flagser_parameters(named_arguments);
 
 		if (positional_arguments.size() == 0) { print_usage_and_exit(-1); }
 		const char* input_filename = positional_arguments[0];

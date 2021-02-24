@@ -13,6 +13,6 @@
 #include "./base.h"
 
 int main(int, char**) {
-  run_all(true, true);
+  run_all(false, true);
   return 0;
 }

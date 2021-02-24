@@ -3,12 +3,8 @@
 #define USE_CELLS_WITHOUT_DIMENSION
 
 #include <algorithm>
-#include <array>
-#include <memory>
 
-#include "../argparser.h"
 #include "../directed_graph.h"
-#include "../filtration_algorithms.h"
 #include "../parameters.h"
 #include "../persistence.h"
 #include "directed_flag_complex.h"
