@@ -22,6 +22,8 @@ void print_usage_and_exit(int exit_code) {
 	print_homology_usage();
 	print_help_usage();
 
+	std::cerr << "  --in-memory          Run computation in memory" << std::endl;
+
 	std::cerr << std::endl
 	          << std::endl
 	          << "If you updated the filtration algorithms in the file \"algorithms.math\" and they do not" << std::endl
