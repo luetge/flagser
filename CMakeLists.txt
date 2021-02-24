@@ -55,11 +55,6 @@ target_compile_definitions(flagser_retrieve_persistence PRIVATE RETRIEVE_PERSIST
 set_target_properties(flagser_retrieve_persistence PROPERTIES LINKER_LANGUAGE CXX)
 
 
-add_executable(flagser-memory src/flagser.cpp include/algorithms.h)
-target_compile_definitions(flagser-memory PRIVATE KEEP_FLAG_COMPLEX_IN_MEMORY=1)
-add_dependencies(flagser-memory generate_custom_algorithms)
-set_target_properties(flagser-memory PROPERTIES LINKER_LANGUAGE CXX)
-
 add_executable(ripser src/ripser.cpp)
 set_target_properties(ripser PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -74,11 +69,6 @@ add_executable(flagser-coefficients src/flagser.cpp)
 add_dependencies(flagser-coefficients generate_custom_algorithms)
 target_compile_definitions(flagser-coefficients PRIVATE USE_COEFFICIENTS=1)
 set_target_properties(flagser-coefficients PROPERTIES LINKER_LANGUAGE CXX)
-
-add_executable(flagser-coefficients-memory src/flagser.cpp include/algorithms.h)
-target_compile_definitions(flagser-coefficients-memory PRIVATE USE_COEFFICIENTS=1 KEEP_FLAG_COMPLEX_IN_MEMORY=1)
-add_dependencies(flagser-coefficients-memory generate_custom_algorithms)
-set_target_properties(flagser-coefficients-memory PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(ripser-coefficients src/ripser.cpp)
 target_compile_definitions(ripser-coefficients PRIVATE USE_COEFFICIENTS=1)
@@ -98,21 +88,19 @@ message("")
 IF(HDF5_FOUND)
 TARGET_LINK_LIBRARIES(flagser ${HDF5_LIBRARIES} pthread)
 TARGET_LINK_LIBRARIES(flagser_retrieve_persistence ${HDF5_LIBRARIES} pthread)
-TARGET_LINK_LIBRARIES(flagser-memory ${HDF5_LIBRARIES} pthread)
 TARGET_LINK_LIBRARIES(flagser-count ${HDF5_LIBRARIES} pthread)
 TARGET_LINK_LIBRARIES(er ${HDF5_LIBRARIES} pthread)
 TARGET_LINK_LIBRARIES(ripser ${HDF5_LIBRARIES} pthread)
 IF(NOT MSVC)
 TARGET_LINK_LIBRARIES(ripser-coefficients ${HDF5_LIBRARIES} pthread)
 TARGET_LINK_LIBRARIES(flagser-coefficients ${HDF5_LIBRARIES} pthread)
-TARGET_LINK_LIBRARIES(flagser-coefficients-memory ${HDF5_LIBRARIES} pthread)
 ENDIF()
 ENDIF()
 
 IF(NOT MSVC)
-install(TARGETS flagser flagser-coefficients flagser-memory flagser-coefficients-memory flagser-count RUNTIME DESTINATION bin)
+install(TARGETS flagser flagser-coefficients flagser-count RUNTIME DESTINATION bin)
 ELSE()
-install(TARGETS flagser flagser-memory flagser-count RUNTIME DESTINATION bin)
+install(TARGETS flagser flagser-count RUNTIME DESTINATION bin)
 ENDIF()
 
 add_custom_command(
@@ -121,9 +109,6 @@ add_custom_command(
 add_custom_command(
     TARGET flagser_retrieve_persistence POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser_retrieve_persistence> ${CMAKE_SOURCE_DIR})
-add_custom_command(
-    TARGET flagser-memory POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser-memory> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET flagser-count POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser-count> ${CMAKE_SOURCE_DIR})
@@ -137,9 +122,6 @@ IF(NOT MSVC)
 add_custom_command(
     TARGET flagser-coefficients POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser-coefficients> ${CMAKE_SOURCE_DIR})
-add_custom_command(
-    TARGET flagser-coefficients-memory POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:flagser-coefficients-memory> ${CMAKE_SOURCE_DIR})
 add_custom_command(
     TARGET ripser-coefficients POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:ripser-coefficients> ${CMAKE_SOURCE_DIR})
