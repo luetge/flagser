@@ -81,7 +81,7 @@ You can increase the speed of computation by using more memory:
 
 \vspace{1em}
 
-\begin{verbatim}./flagser-memory [options] filename\end{verbatim}
+\begin{verbatim}./flagser [options] --in-memory filename\end{verbatim}
 
 \vspace{1em}
 
@@ -128,6 +128,7 @@ The following \texttt{[options]} exist:
     component of the input graph. \emph{Warning: this currently only works for the trivial
     filtration. Additionally, this ignores all isolated vertices.}
   \item [-{}-undirected] computes the \emph{undirected} flag complex instead
+  \item [-{}-in-memory] increase the speed of computation by using more memory
   \item [-{}-help] print a help screen
 \end{description}
 The available filtration algorithms are printed when executing \texttt{./flagser --help}.
