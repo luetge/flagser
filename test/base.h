@@ -55,17 +55,6 @@ template <class T> void compute(std::string&& filename, std::vector<size_t> homo
 	std::cout << "All good." << std::endl;
 }
 
-void run_all(bool full = false, bool in_memory = false) {
-	using dfc_in_memory = directed_flag_complex_in_memory_computer::directed_flag_complex_in_memory_computer_t;
-	using dfc = directed_flag_complex_computer::directed_flag_complex_computer_t;
-
-	if (in_memory) {
-                _run_all<dfc_in_memory>(full);
-        } else {
-                _run_all<dfc>(full);
-        }
-}
-
 template <class dfc> void _run_all(bool full = false, bool in_memory = false) {
 	compute<dfc>("../../test/d2.flag", {{1ul, 1ul}});
 	compute<dfc>("../../test/a.flag", {{1ul, 2ul, 0ul}});
@@ -116,4 +105,15 @@ template <class dfc> void _run_all(bool full = false, bool in_memory = false) {
 		std::cout << "Skipping extensive tests." << std::endl;
 #endif
 	}
+}
+
+void run_all(bool full = false, bool in_memory = false) {
+	using dfc_in_memory = directed_flag_complex_in_memory_computer::directed_flag_complex_in_memory_computer_t;
+	using dfc = directed_flag_complex_computer::directed_flag_complex_computer_t;
+
+	if (in_memory) {
+                _run_all<dfc_in_memory>(full);
+        } else {
+                _run_all<dfc>(full);
+        }
 }
