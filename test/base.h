@@ -55,7 +55,7 @@ template <class T> void compute(std::string&& filename, std::vector<size_t> homo
 	std::cout << "All good." << std::endl;
 }
 
-template <class T> void _run_all(bool full = false, bool in_memory = false) {
+void run_all(bool full = false, bool in_memory = false) {
 	using dfc_in_memory = directed_flag_complex_in_memory_computer::directed_flag_complex_in_memory_computer_t;
 	using dfc = directed_flag_complex_computer::directed_flag_complex_computer_t;
 
