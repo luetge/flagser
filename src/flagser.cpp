@@ -8,7 +8,6 @@
 #define USE_CELLS_WITHOUT_DIMENSION
 #define SORT_COLUMNS_BY_PIVOT
 // #define WITH_HDF5
-// #define KEEP_FLAG_COMPLEX_IN_MEMORY
 // #define USE_COEFFICIENTS
 // #define MANY_VERTICES
 
@@ -19,22 +18,14 @@
 // Compute directed flag complex homology
 //
 
-#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
-#include "../include/complex/directed_flag_complex_in_memory_computer.h"
-#else
 #include "../include/complex/directed_flag_complex_computer.h"
-#endif
+#include "../include/complex/directed_flag_complex_in_memory_computer.h"
 
 #include "../include/usage/flagser.h"
 
-#ifdef KEEP_FLAG_COMPLEX_IN_MEMORY
-typedef directed_flag_complex_in_memory_computer_t directed_flag_complex_compute_t;
-#else
-typedef directed_flag_complex_computer_t directed_flag_complex_compute_t;
-#endif
-
+template <class T>
 #ifdef RETRIEVE_PERSISTENCE
-std::vector<persistence_computer_t<directed_flag_complex_compute_t>>
+std::vector<persistence_computer_t<T>>
 #else
 void
 #endif
@@ -44,13 +35,13 @@ compute_homology(filtered_directed_graph_t& graph, const flagser_parameters& par
 	if (params.split_into_connected_components) { subgraphs = graph.get_connected_subgraphs(2); }
 
 #ifdef RETRIEVE_PERSISTENCE
-	std::vector<persistence_computer_t<directed_flag_complex_compute_t>> complex_subgraphs;
+	std::vector<persistence_computer_t<T>> complex_subgraphs;
 #endif
 
-	auto output = get_output<directed_flag_complex_compute_t>(params);
+	auto output = get_output<T>(params);
 	size_t component_number = 1;
 	for (auto subgraph : subgraphs) {
-		directed_flag_complex_compute_t complex(subgraph, params);
+		T complex(subgraph, params);
 
 		output->set_complex(&complex);
 		if (params.split_into_connected_components) {
@@ -94,17 +85,19 @@ int main(int argc, char** argv) {
 
 		auto positional_arguments = get_positional_arguments(arguments);
 		auto named_arguments = get_named_arguments(arguments);
-		auto params = flagser_parameters(named_arguments);
-
-		std::cout << params.nb_threads << std::endl;
 
 		if (named_arguments.find("help") != named_arguments.end()) { print_usage_and_exit(-1); }
+
+		auto params = flagser_parameters(named_arguments);
 
 		if (positional_arguments.size() == 0) { print_usage_and_exit(-1); }
 		const char* input_filename = positional_arguments[0];
 
 		filtered_directed_graph_t graph = read_filtered_directed_graph(input_filename, params);
 
-		compute_homology(graph, params);
+		if (params.in_memory)
+			compute_homology<directed_flag_complex_in_memory_computer::directed_flag_complex_in_memory_computer_t>(graph, params);
+		else
+			compute_homology<directed_flag_complex_computer::directed_flag_complex_computer_t>(graph, params);
 	} catch (const std::exception& e) { std::cout << e.what() << std::endl; }
 }

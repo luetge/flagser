@@ -3,15 +3,13 @@
 #define USE_CELLS_WITHOUT_DIMENSION
 
 #include <algorithm>
-#include <array>
-#include <memory>
 
-#include "../argparser.h"
 #include "../directed_graph.h"
-#include "../filtration_algorithms.h"
 #include "../parameters.h"
 #include "../persistence.h"
 #include "directed_flag_complex.h"
+
+namespace directed_flag_complex_computer {
 
 typedef hash_map<directed_flag_complex_cell_t, size_t, cell_hasher_t, cell_comparer_t> cell_hash_map_t;
 
@@ -85,7 +83,8 @@ struct compute_filtration_t {
 				auto bdry = cell.boundary(i);
 
 				if (!cell_hash.size()) {
-					// In the case where no cell hash is given, we are looking at edges
+					// In the case where no cell hash is given, we are looking
+					// at edges
 					assert(size == 2);
 					boundary_filtration[i] = current_filtration[bdry.vertex(0)];
 				} else {
@@ -131,7 +130,6 @@ private:
 template <typename Complex>
 void prepare_graph_filtration(Complex& complex, filtered_directed_graph_t& graph,
                               filtration_algorithm_t* filtration_algorithm, const size_t nb_threads) {
-
 	if (filtration_algorithm == nullptr) {
 		// All vertices get the trivial filtration value
 		graph.vertex_filtration = std::vector<value_t>(graph.vertex_filtration.size(), 0);
@@ -353,7 +351,8 @@ struct store_coboundaries_in_cache_t {
 					// Remove the vertices already making up the cellk
 					if (vertex_offsets[j] == offset) bits &= ~(ONE_ << (first_vertex[j] - (vertex_offsets[j] << 6)));
 
-					// Intersect with the outgoing/incoming edges of the current vertex
+					// Intersect with the outgoing/incoming edges of the current
+					// vertex
 					bits &= j < i ? graph.get_outgoing_chunk(first_vertex[j], offset)
 					              : graph.get_incoming_chunk(first_vertex[j], offset);
 				}
@@ -479,13 +478,13 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 
 			cell_hasher_t::set_current_cell_dimension(dimension);
 
-			// Add the current cells into the cache if the filtration algorithm needs
-			// them
+			// Add the current cells into the cache if the filtration algorithm
+			// needs them
 			if (filtration_algorithm->needs_face_filtration())
 				flag_complex.for_each_cell(init_current_cell_cache, dimension);
 
-			// If we will actually compute coboundaries, then compute the filtration.
-			// Also if we need the face filtrations.
+			// If we will actually compute coboundaries, then compute the
+			// filtration. Also if we need the face filtrations.
 			if (dimension + 1 >= min_dimension || filtration_algorithm->needs_face_filtration()) {
 #ifdef INDICATE_PROGRESS
 				std::cout << "\033[K"
@@ -602,3 +601,4 @@ void directed_flag_complex_computer_t::prepare_next_dimension(int dimension) {
 		o.close();
 	}
 }
+} // namespace directed_flag_complex_computer

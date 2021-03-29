@@ -27,10 +27,11 @@ To call flagser you run
 ./flagser --out example.homology test/medium-test-data.flag
 ```
 
-For more detailed instructions, see `docs/documentation_flagser.pdf`. The
-program `flagser-memory` is a variant of flagser storing the full directed flag
-complex in memory, speeding up parts of the computation but requiring more
-memory.
+For more detailed instructions, see `docs/documentation_flagser.pdf`. 
+
+You can run `flagser` with the argument `--in-memory` which changes `flagser` 
+internals storing the full directed flag complex in memory, speeding up parts 
+of the computation but requiring more memory.
 
 Included in this package is also the original program `ripser`, modified only
 in that the features of `flagser` are supported.

@@ -6,7 +6,6 @@
 #define SORT_COLUMNS_BY_PIVOT
 #define RETRIEVE_PERSISTENCE
 // #define WITH_HDF5
-#define KEEP_FLAG_COMPLEX_IN_MEMORY
 #define USE_COEFFICIENTS
 // #define MANY_VERTICES
 
@@ -14,6 +13,6 @@
 #include "./base.h"
 
 int main(int, char**) {
-  run_all(false);
+  run_all(false, true);
   return 0;
 }

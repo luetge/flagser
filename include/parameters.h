@@ -47,6 +47,8 @@ public:
 
 		if ((it = named_arguments.find("threads")) != named_arguments.end()) { nb_threads = atoi(it->second); }
 
+		if ((it = named_arguments.find("in-memory")) != named_arguments.end()) { in_memory = true; }
+
 #ifdef USE_COEFFICIENTS
 		if ((it = named_arguments.find("modulus")) != named_arguments.end()) { modulus = atoi(it->second); }
 #endif
@@ -59,6 +61,7 @@ public:
 	bool split_into_connected_components = false;
 	bool directed = false;
 	bool approximate_computation = false;
+	bool in_memory = false;
 	size_t max_entries = std::numeric_limits<size_t>::max();
 	size_t nb_threads = std::thread::hardware_concurrency();
 	std::string input_format = "flagser";
