@@ -160,7 +160,7 @@ public:
 
 	template <typename Func>
 	void worker_thread(int number_of_threads, int thread_id, Func& f, int min_dimension, int max_dimension) {
-		const size_t number_of_vertices = vertex_cells.size();
+		const vertex_index_t number_of_vertices = vertex_index_t(vertex_cells.size());
 
 		std::vector<vertex_index_t> prefix(max_dimension + 1);
 
