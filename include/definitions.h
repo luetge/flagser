@@ -12,7 +12,7 @@
 typedef unsigned short vertex_index_t;
 typedef int32_t index_t;
 #else
-// Assume that we have at most 65k vertices, and that there are at most ~2 billion cells
+// Assume that we have more than 65k vertices and thus potentially more than ~2 billion cells.
 typedef uint32_t vertex_index_t;
 typedef int64_t index_t;
 #endif
