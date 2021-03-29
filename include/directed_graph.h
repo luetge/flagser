@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <sstream>
 #include <string>
 #include <unordered_set>
@@ -121,6 +122,8 @@ public:
 
 	filtered_directed_graph_t(const std::vector<value_t> _vertex_filtration, bool directed)
 	    : directed_graph_t(vertex_index_t(_vertex_filtration.size()), directed), vertex_filtration(_vertex_filtration) {
+		if (_vertex_filtration.size() > size_t(std::numeric_limits<vertex_index_t>::max()))
+			throw std::length_error("Too many vertices. Consider compiling flagser with MANY_VERTICES enabled.");
 	}
 
 	// WARNING: This does not take the filtration into account!
